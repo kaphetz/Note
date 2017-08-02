@@ -15,22 +15,27 @@
         android:layout_marginTop="20dp"
         android:text="@string/ex_time" />
 
-    <EditText
+    <com.example.kienpt.note.Bean.LinedEditText
         android:id="@+id/et_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/tv_dateTime"
         android:hint="@string/title"
+        android:ems="10"
+        android:inputType="textMultiLine|textNoSuggestions"
+        android:imeOptions="actionNone"
         android:paddingLeft="20dp"
         android:textSize="@dimen/title_size"
         android:textStyle="bold" />
 
-    <EditText
+    <com.example.kienpt.note.Bean.LinedEditText
         android:id="@+id/et_content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/et_title"
         android:hint="@string/note"
+        android:inputType="textMultiLine|textNoSuggestions"
+        android:imeOptions="actionNone"
         android:paddingLeft="20dp"
         android:textSize="@dimen/note_size" />
 
