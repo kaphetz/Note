@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">Note</string>
+    <string name="plus">Plus</string>
+    <string name="ex_time">02/08/2017 10:43</string>
+    <string name="note">Note</string>
+    <string name="title">Title</string>
+    <string name="alarm">Alarm</string>
 </resources>

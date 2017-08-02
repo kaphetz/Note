@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="alarm_size">15sp</dimen>
+    <dimen name="note_size">25sp</dimen>
+    <dimen name="title_size">30sp</dimen>
+</resources>
