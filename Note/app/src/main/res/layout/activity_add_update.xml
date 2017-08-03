@@ -15,27 +15,28 @@
         android:layout_marginTop="20dp"
         android:text="@string/ex_time" />
 
-    <com.example.kienpt.note.Bean.LinedEditText
+    <EditText
         android:id="@+id/et_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/tv_dateTime"
+        android:gravity="top"
         android:hint="@string/title"
-        android:ems="10"
-        android:inputType="textMultiLine|textNoSuggestions"
-        android:imeOptions="actionNone"
+        android:inputType="textMultiLine"
         android:paddingLeft="20dp"
         android:textSize="@dimen/title_size"
         android:textStyle="bold" />
 
-    <com.example.kienpt.note.Bean.LinedEditText
+    <EditText
         android:id="@+id/et_content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/et_title"
+        android:background="@android:color/transparent"
+        android:fadingEdge="vertical"
+        android:gravity="top"
         android:hint="@string/note"
-        android:inputType="textMultiLine|textNoSuggestions"
-        android:imeOptions="actionNone"
+        android:inputType="textMultiLine"
         android:paddingLeft="20dp"
         android:textSize="@dimen/note_size" />
 
@@ -66,8 +67,8 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/et_content"
         android:layout_marginTop="15dp"
-        android:visibility="gone"
-        android:layout_toRightOf="@id/img_alarm">
+        android:layout_toRightOf="@id/img_alarm"
+        android:visibility="gone">
 
         <Spinner
             android:id="@+id/spn_date"
@@ -87,9 +88,9 @@
             android:theme="@android:style/Theme.Holo.Light.DarkActionBar" />
 
         <ImageButton
-            android:layout_marginTop="10dp"
             android:layout_width="30dp"
             android:layout_height="30dp"
+            android:layout_marginTop="10dp"
             android:background="@null"
             android:onClick="hideDateTimePicker"
             android:src="@drawable/ic_x_mark" />

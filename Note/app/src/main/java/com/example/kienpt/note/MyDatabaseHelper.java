@@ -5,7 +5,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
 
 import com.example.kienpt.note.Bean.Note;
 
@@ -14,8 +13,6 @@ import java.util.List;
 
 
 public class MyDatabaseHelper extends SQLiteOpenHelper {
-    private static final String TAG = "SQLite";
-
     //Version
     private static final int DATABASE_VERSION = 1;
 
@@ -30,108 +27,82 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
     private static final String COLUMN_NOTE_TITLE = "Title";
     private static final String COLUMN_NOTE_CONTENT = "Content";
     private static final String COLUMN_NOTE_TIME = "Time";
-    private static final String COLUMN_NOTE_CREATE_TIME = "CreateTime";
+    private static final String COLUMN_NOTE_CREATED_TIME = "CreatedTime";
 
-    public MyDatabaseHelper(Context context){
+    private Context mContext;
+
+    public MyDatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        this.mContext = context;
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        Log.i(TAG, "MyDatabaseHelper.onCreate ... ");
         // Script create table
-        String script = "CREATE TABLE " + TABLE_NOTE + "("
-                + COLUMN_NOTE_ID + " INTEGER PRIMARY KEY,"
-                + COLUMN_NOTE_TITLE + " TEXT,"
-                + COLUMN_NOTE_CONTENT + " TEXT,"
-                + COLUMN_NOTE_TIME + " TEXT,"
-                + COLUMN_NOTE_CREATE_TIME + " TEXT"
-                + ")";
+        String script = String.format("CREATE TABLE %s(%s INTEGER PRIMARY KEY, %s TEXT, "
+                        + "%s TEXT, %s TEXT, %s TEXT)",
+                TABLE_NOTE, COLUMN_NOTE_ID, COLUMN_NOTE_TITLE, COLUMN_NOTE_CONTENT,
+                COLUMN_NOTE_TIME, COLUMN_NOTE_CREATED_TIME);
         // Create table
         db.execSQL(script);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        Log.i(TAG, "MyDatabaseHelper.onUpgrade ... ");
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_NOTE);
+        db.execSQL(String.format("DROP TABLE IF EXISTS %s", TABLE_NOTE));
         onCreate(db);
-    }
-
-    //create default notes
-    public void createDefaultNotesIfNeed()  {
-        int count = this.getNotesCount();
-        if(count ==0 ) {
-            Note note1 = new Note("Firstly see Android ListView",
-                    "See Android ListView Example in o7planning.org");
-            Note note2 = new Note("Learning Android SQLite",
-                    "See Android SQLite Example in o7planning.org");
-            this.addNote(note1);
-            this.addNote(note2);
-        }
     }
 
     // add new note
     public void addNote(Note note) {
-        Log.i(TAG, "MyDatabaseHelper.addNote ... " + note.getNoteTitle());
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(COLUMN_NOTE_TITLE, note.getNoteTitle());
         values.put(COLUMN_NOTE_CONTENT, note.getNoteContent());
+        values.put(COLUMN_NOTE_TIME, note.getNoteTime());
+        values.put(COLUMN_NOTE_CREATED_TIME, note.getCreatedTime());
         db.insert(TABLE_NOTE, null, values);
         db.close();
     }
 
-
     // get one note
     public Note getNote(int id) {
-        Log.i(TAG, "MyDatabaseHelper.getNote ... " + id);
-
         SQLiteDatabase db = this.getReadableDatabase();
 
-        Cursor cursor = db.query(TABLE_NOTE, new String[] { COLUMN_NOTE_ID,
+        Cursor cursor = db.query(TABLE_NOTE, new String[]{COLUMN_NOTE_ID,
                         COLUMN_NOTE_TITLE, COLUMN_NOTE_CONTENT, COLUMN_NOTE_TIME,
-                        COLUMN_NOTE_CREATE_TIME }, COLUMN_NOTE_ID + "=?",
-                new String[] { String.valueOf(id) }, null, null, null, null);
+                        COLUMN_NOTE_CREATED_TIME}, COLUMN_NOTE_ID + "=?",
+                new String[]{String.valueOf(id)}, null, null, null, null);
         if (cursor != null)
             cursor.moveToFirst();
-
-        assert cursor != null;
-        // return note
-        return new Note(Integer.parseInt(cursor.getString(0)),
-                cursor.getString(1), cursor.getString(2));
+        Note note =  new Note(Integer.parseInt(cursor.getString(0)),
+                cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4));
+        cursor.close();
+        db.close();
+        return note;
     }
 
     public List<Note> getAllNotes() {
-        Log.i(TAG, "MyDatabaseHelper.getAllNotes ... " );
-
-        List<Note> noteList = new ArrayList<Note>();
+        List<Note> noteList = new ArrayList<>();
         // Select All Query
         String selectQuery = String.format("SELECT * FROM %s", TABLE_NOTE);
 
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);
 
-        // Duyệt trên con trỏ, và thêm vào danh sách.
         if (cursor.moveToFirst()) {
             do {
-                Note note = new Note();
-                note.setNoteID(Integer.parseInt(cursor.getString(0)));
-                note.setNoteTitle(cursor.getString(1));
-                note.setNoteContent(cursor.getString(2));
-
-                // Thêm vào danh sách.
+                Note note = new Note(cursor.getInt(0), cursor.getString(1),
+                        cursor.getString(2), cursor.getString(3), cursor.getString(4));
                 noteList.add(note);
             } while (cursor.moveToNext());
         }
-
-        // return note list
+        cursor.close();
+        db.close();
         return noteList;
     }
 
     public int getNotesCount() {
-        Log.i(TAG, "MyDatabaseHelper.getNotesCount ... " );
-
         String countQuery = String.format("SELECT  * FROM %s", TABLE_NOTE);
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(countQuery, null);
@@ -141,26 +112,30 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
         return count;
     }
 
-    public int updateNote(Note note) {
-        Log.i(TAG, "MyDatabaseHelper.updateNote ... "  + note.getNoteTitle());
-
+    public void updateNote(Note note) {
         SQLiteDatabase db = this.getWritableDatabase();
-
         ContentValues values = new ContentValues();
         values.put(COLUMN_NOTE_TITLE, note.getNoteTitle());
         values.put(COLUMN_NOTE_CONTENT, note.getNoteContent());
+        values.put(COLUMN_NOTE_TIME, note.getNoteTime());
+        values.put(COLUMN_NOTE_CREATED_TIME, note.getCreatedTime());
 
         // updating row
-        return db.update(TABLE_NOTE, values, COLUMN_NOTE_ID + " = ?",
+        db.update(TABLE_NOTE, values, COLUMN_NOTE_ID + " = ?",
                 new String[]{String.valueOf(note.getNoteID())});
+        db.close();
     }
 
     public void deleteNote(Note note) {
-        Log.i(TAG, "MyDatabaseHelper.updateNote ... " + note.getNoteTitle() );
-
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_NOTE, COLUMN_NOTE_ID + " = ?",
-                new String[] { String.valueOf(note.getNoteID()) });
+                new String[]{String.valueOf(note.getNoteID())});
+        db.close();
+    }
+
+    public void deleteAllNotes() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(TABLE_NOTE, null, null);
         db.close();
     }
 }

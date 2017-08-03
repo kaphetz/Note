@@ -1,42 +1,34 @@
 package com.example.kienpt.note.Bean;
 
-
 import java.io.Serializable;
-import java.sql.Time;
 
 public class Note implements Serializable {
     private int mNoteID;
-    private String mCreateTime;
-    private String mNoteContent;
     private String mNoteTitle;
+    private String mNoteContent;
     private String mNoteTime;
+    private String mCreatedTime;
 
     public Note() {
     }
 
-    public Note(int mNoteID, String mCreateTime, String mNoteContent) {
-        this.mNoteID = mNoteID;
-        this.mCreateTime = mCreateTime;
-        this.mNoteContent = mNoteContent;
-    }
-
-    public Note(String noteTitle, String noteContent) {
-        mNoteTitle = noteTitle;
-        mNoteContent = noteContent;
-    }
-
-    public Note(String noteTitle, String noteContent, String createTime) {
-        mNoteTitle = noteTitle;
-        mNoteContent = noteContent;
-        mCreateTime = createTime;
-    }
-
-    public Note(String noteTitle, String noteContent, String noteTime,
-                String createTime) {
+    public Note(int noteID,
+                String noteTitle,
+                String noteContent,
+                String noteTime,
+                String createdTime) {
+        mNoteID = noteID;
         mNoteTitle = noteTitle;
         mNoteContent = noteContent;
         mNoteTime = noteTime;
-        mCreateTime = createTime;
+        mCreatedTime = createdTime;
+    }
+
+    public Note(String noteTitle, String noteContent, String noteTime, String createdTime) {
+        mNoteTitle = noteTitle;
+        mNoteContent = noteContent;
+        mNoteTime = noteTime;
+        mCreatedTime = createdTime;
     }
 
     public int getNoteID() {
@@ -47,12 +39,12 @@ public class Note implements Serializable {
         mNoteID = noteID;
     }
 
-    public String getCreatedTime() {
-        return mCreateTime;
+    public String getNoteTitle() {
+        return mNoteTitle;
     }
 
-    public void setCreatedTime(String createTime) {
-        mCreateTime = createTime;
+    public void setNoteTitle(String noteTitle) {
+        mNoteTitle = noteTitle;
     }
 
     public String getNoteContent() {
@@ -63,14 +55,6 @@ public class Note implements Serializable {
         mNoteContent = noteContent;
     }
 
-    public String getNoteTitle() {
-        return mNoteTitle;
-    }
-
-    public void setNoteTitle(String noteTitle) {
-        mNoteTitle = noteTitle;
-    }
-
     public String getNoteTime() {
         return mNoteTime;
     }
@@ -78,4 +62,23 @@ public class Note implements Serializable {
     public void setNoteTime(String noteTime) {
         mNoteTime = noteTime;
     }
+
+    public String getCreatedTime() {
+        return mCreatedTime;
+    }
+
+    public void setCreatedTime(String createdTime) {
+        mCreatedTime = createdTime;
+    }
+
+    @Override
+    public String toString() {
+        return "Note{" +
+                "mNoteTitle='" + mNoteTitle + '\'' +
+                ", mNoteContent='" + mNoteContent + '\'' +
+                ", mNoteTime='" + mNoteTime + '\'' +
+                ", mCreatedTime='" + mCreatedTime + '\'' +
+                '}';
+    }
+
 }

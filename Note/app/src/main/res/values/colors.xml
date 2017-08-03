@@ -3,6 +3,7 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
-    <color name="colorSky">#d6a2cedc</color>
+    <color name="colorSky">#7eafc12b</color>
     <color name="colorWhite">#FFFF</color>
+    <color name="colorForLine">#7b6f6f</color>
 </resources>

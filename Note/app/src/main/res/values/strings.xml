@@ -5,4 +5,8 @@
     <string name="note">Note</string>
     <string name="title">Title</string>
     <string name="alarm">Alarm</string>
+    <string name="title_demo">Title</string>
+    <string name="photo">Photo</string>
+    <string name="background">Background</string>
+    <string name="save">Save</string>
 </resources>

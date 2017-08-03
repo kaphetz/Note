@@ -3,16 +3,16 @@
     <item
         android:id="@+id/mnCamera"
         android:icon="@drawable/ic_cam"
-        android:title="@string/plus"
+        android:title="@string/photo"
         android:showAsAction="always" />
     <item
         android:id="@+id/mnChangeColor"
         android:icon="@drawable/ic_change_color"
-        android:title="@string/plus"
+        android:title="@string/background"
         android:showAsAction="always" />
     <item
         android:id="@+id/mnSave"
         android:icon="@drawable/ic_save"
-        android:title="@string/plus"
+        android:title="@string/save"
         android:showAsAction="always" />
 </menu>
