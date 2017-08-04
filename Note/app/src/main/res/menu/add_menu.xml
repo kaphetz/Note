@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:yourapp="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/mnCamera"
         android:icon="@drawable/ic_cam"
@@ -9,7 +10,8 @@
         android:id="@+id/mnChangeColor"
         android:icon="@drawable/ic_change_color"
         android:title="@string/background"
-        android:showAsAction="always" />
+        android:showAsAction="always"
+        />
     <item
         android:id="@+id/mnSave"
         android:icon="@drawable/ic_save"

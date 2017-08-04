@@ -8,6 +8,8 @@ import android.icu.text.SimpleDateFormat;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.view.MenuItemCompat;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -15,6 +17,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -31,10 +34,12 @@ public class AddUpdateActivity extends Activity {
     private TextView mTvDateTime;
     private EditText mEtTitle;
     private EditText mEtContent;
+    private RelativeLayout mRlNote;
     private Calendar mCalendar = Calendar.getInstance();
 
     private String mSpinnerDate = "";
     private String mSpinnerTime = "";
+    private String mColor = "";
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
@@ -44,7 +49,7 @@ public class AddUpdateActivity extends Activity {
         getActionBar().setHomeAsUpIndicator(R.drawable.ic_previous);
         getActionBar().setDisplayHomeAsUpEnabled(true);
         getActionBar().setDisplayShowHomeEnabled(true);
-        getActionBar().setIcon(R.drawable.ic_note);
+        getActionBar().setIcon(R.mipmap.ic_launcher);
         getActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#7eafc12b")));
         getActionBar().setTitle("Note");
 
@@ -55,6 +60,7 @@ public class AddUpdateActivity extends Activity {
         mTvDateTime = (TextView) findViewById(R.id.tv_dateTime);
         mEtTitle = (EditText) findViewById(R.id.et_title);
         mEtContent = (EditText) findViewById(R.id.et_content);
+        mRlNote = (RelativeLayout) findViewById(R.id.rl_note);
         //Thu Aug 03 16:29:14 GMT+07:00 2017
         String[] parts = mCalendar.getTime().toString().split(" ");
         String[] listDate = {"Today", "Tomorrow", dayOfNextWeek(parts[0]), "Other"};
@@ -72,6 +78,31 @@ public class AddUpdateActivity extends Activity {
         mSpnTime.setOnItemSelectedListener(new TimeSpinnerInfo());
         Calendar now = Calendar.getInstance();
         mTvDateTime.setText(convert(now, "dd/MM/YYYY hh:mm"));
+
+        Intent intent = getIntent();
+        Bundle info = intent.getExtras();
+        if (info != null) {
+            mColor = info.getString("backgroundColor");
+            switch (mColor) {
+                case "White":
+                    mRlNote.setBackgroundColor(
+                            ContextCompat.getColor(getApplicationContext(), R.color.colorWhite));
+                    break;
+                case "Yellow":
+                    mRlNote.setBackgroundColor(
+                            ContextCompat.getColor(getApplicationContext(), R.color.colorYellow));
+                    break;
+                case "Green":
+                    mRlNote.setBackgroundColor(
+                            ContextCompat.getColor(getApplicationContext(), R.color.colorGreen));
+                    break;
+                case "Blue":
+                    mRlNote.setBackgroundColor(
+                            ContextCompat.getColor(getApplicationContext(), R.color.colorBlue));
+                    break;
+
+            }
+        }
     }
 
     @Override
@@ -87,6 +118,10 @@ public class AddUpdateActivity extends Activity {
         switch (item.getItemId()) {
             case R.id.mnSave:
                 AddNewNote();
+                return true;
+            case R.id.mnChangeColor:
+                Intent demo = new Intent(this, Popup.class);
+                startActivity(demo);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -174,7 +209,7 @@ public class AddUpdateActivity extends Activity {
         //get create datetime
         mCalendar = Calendar.getInstance();
         note.setCreatedTime(String.format("%s", convert(mCalendar, "dd/MM HH:mm")));
-
+        note.setBackgroundColor(mColor);
         // add new note into db
         MyDatabaseHelper db = new MyDatabaseHelper(this);
         db.addNote(note);

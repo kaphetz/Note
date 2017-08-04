@@ -7,9 +7,11 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.GridView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.example.kienpt.note.Bean.Note;
 
@@ -22,14 +24,20 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getActionBar().setDisplayShowHomeEnabled(true);
-        getActionBar().setIcon(R.drawable.ic_note);
+        getActionBar().setIcon(R.mipmap.ic_launcher);
         getActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#7eafc12b")));
         setContentView(R.layout.activity_main);
         MyDatabaseHelper db = new MyDatabaseHelper(this);
         GridView gvListNote = (GridView) findViewById(R.id.gv_listNote);
+        TextView tvNoNotes = (TextView) findViewById(R.id.tv_noNotes);
         List<Note> details = db.getAllNotes();
         if (details.size() > 0) {
+            gvListNote.setVisibility(View.VISIBLE);
+            tvNoNotes.setVisibility(View.GONE);
             gvListNote.setAdapter(new CustomGridViewAdapter(MainActivity.this, details));
+        }else{
+            gvListNote.setVisibility(View.GONE);
+            tvNoNotes.setVisibility(View.VISIBLE);
         }
     }
 

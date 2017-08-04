@@ -3,6 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:id="@+id/ll_detailNote"
     android:padding="5dp">
 
     <LinearLayout
@@ -21,7 +22,7 @@
                 android:id="@+id/tv_noteTitle"
                 android:layout_width="80dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="5dp"
                 android:maxLines="1"
                 android:text="@string/title_demo"
                 android:textSize="20sp" />
@@ -31,8 +32,10 @@
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:layout_alignParentRight="true"
-                android:paddingEnd="5dp"
+                android:layout_marginRight="5dp"
+                android:layout_marginTop="5dp"
                 android:src="@drawable/ic_alarm" />
+
         </RelativeLayout>
 
         <TextView
@@ -58,7 +61,10 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
                 android:layout_below="@+id/tv_noteContent"
+
                 android:text="27/07 08:15" />
         </RelativeLayout>
+
     </LinearLayout>
+
 </LinearLayout>

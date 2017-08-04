@@ -8,6 +8,8 @@ public class Note implements Serializable {
     private String mNoteContent;
     private String mNoteTime;
     private String mCreatedTime;
+    private String mBackgroundColor;
+
 
     public Note() {
     }
@@ -16,19 +18,26 @@ public class Note implements Serializable {
                 String noteTitle,
                 String noteContent,
                 String noteTime,
-                String createdTime) {
+                String createdTime,
+                String mBackgroundColor) {
         mNoteID = noteID;
         mNoteTitle = noteTitle;
         mNoteContent = noteContent;
         mNoteTime = noteTime;
         mCreatedTime = createdTime;
+        mBackgroundColor = mBackgroundColor;
     }
 
-    public Note(String noteTitle, String noteContent, String noteTime, String createdTime) {
+    public Note(String noteTitle,
+                String noteContent,
+                String noteTime,
+                String createdTime,
+                String backgroundColor) {
         mNoteTitle = noteTitle;
         mNoteContent = noteContent;
         mNoteTime = noteTime;
         mCreatedTime = createdTime;
+        mBackgroundColor = backgroundColor;
     }
 
     public int getNoteID() {
@@ -71,14 +80,23 @@ public class Note implements Serializable {
         mCreatedTime = createdTime;
     }
 
+    public String getBackgroundColor() {
+        return mBackgroundColor;
+    }
+
+    public void setBackgroundColor(String backgroundColor) {
+        mBackgroundColor = backgroundColor;
+    }
+
     @Override
     public String toString() {
         return "Note{" +
-                "mNoteTitle='" + mNoteTitle + '\'' +
+                "mNoteID=" + mNoteID +
+                ", mNoteTitle='" + mNoteTitle + '\'' +
                 ", mNoteContent='" + mNoteContent + '\'' +
                 ", mNoteTime='" + mNoteTime + '\'' +
                 ", mCreatedTime='" + mCreatedTime + '\'' +
+                ", mBackgroundColor='" + mBackgroundColor + '\'' +
                 '}';
     }
-
 }

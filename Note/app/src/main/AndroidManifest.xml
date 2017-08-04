@@ -19,8 +19,12 @@
         </activity>
         <activity
             android:name=".AddUpdateActivity"
-            android:parentActivityName="com.example.kienpt.note.MainActivity"
-            tools:targetApi="jelly_bean">
+            android:parentActivityName=".MainActivity"
+            tools:targetApi="jelly_bean" />
+        <activity
+            android:name=".Popup"
+            android:label="Choose Color"
+            android:theme="@style/AppTheme.CustomTheme">
         </activity>
     </application>
 

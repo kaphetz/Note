@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:id="@+id/rl_note"
     tools:context="com.example.kienpt.note.AddUpdateActivity">
 
     <TextView
@@ -88,10 +89,10 @@
             android:theme="@android:style/Theme.Holo.Light.DarkActionBar" />
 
         <ImageButton
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_marginTop="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:background="@null"
+            android:layout_marginBottom="10dp"
             android:onClick="hideDateTimePicker"
             android:src="@drawable/ic_x_mark" />
 

@@ -1,11 +1,13 @@
 package com.example.kienpt.note;
 
 import android.content.Context;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.kienpt.note.Bean.Note;
@@ -49,6 +51,8 @@ public class CustomGridViewAdapter extends BaseAdapter {
             holder.contentView = (TextView) convertView.findViewById(R.id.tv_noteContent);
             holder.createdTimeView = (TextView) convertView.findViewById(R.id.tv_noteCreatedTime);
             holder.alarmView = (ImageView) convertView.findViewById(R.id.img_noteAlarm);
+            holder.alarmView = (ImageView) convertView.findViewById(R.id.img_noteAlarm);
+            holder.detailNoteView = (LinearLayout) convertView.findViewById(R.id.ll_detailNote);
             convertView.setTag(holder);
         } else {
             holder = (ViewHolder) convertView.getTag();
@@ -59,8 +63,26 @@ public class CustomGridViewAdapter extends BaseAdapter {
         holder.createdTimeView.setText(note.getCreatedTime());
         if (!Objects.equals(note.getNoteTime(), "")) {
             holder.alarmView.setVisibility(View.VISIBLE);
-        }else{
+        } else {
             holder.alarmView.setVisibility(View.GONE);
+        }
+        switch (note.getBackgroundColor()) {
+            case "White":
+                holder.detailNoteView.setBackgroundColor(
+                        ContextCompat.getColor(mContext, R.color.colorWhite));
+                break;
+            case "Yellow":
+                holder.detailNoteView.setBackgroundColor(
+                        ContextCompat.getColor(mContext, R.color.colorYellow));
+                break;
+            case "Green":
+                holder.detailNoteView.setBackgroundColor(
+                        ContextCompat.getColor(mContext, R.color.colorGreen));
+                break;
+            case "Blue":
+                holder.detailNoteView.setBackgroundColor(
+                        ContextCompat.getColor(mContext, R.color.colorBlue));
+                break;
         }
         return convertView;
     }
@@ -70,5 +92,6 @@ public class CustomGridViewAdapter extends BaseAdapter {
         TextView contentView;
         ImageView alarmView;
         TextView createdTimeView;
+        LinearLayout detailNoteView;
     }
 }

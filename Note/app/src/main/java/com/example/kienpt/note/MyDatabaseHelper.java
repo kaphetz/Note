@@ -28,6 +28,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
     private static final String COLUMN_NOTE_CONTENT = "Content";
     private static final String COLUMN_NOTE_TIME = "Time";
     private static final String COLUMN_NOTE_CREATED_TIME = "CreatedTime";
+    private static final String COLUMN_NOTE_BACKGROUND_COLOR = "BackgroundColor";
 
     private Context mContext;
 
@@ -61,6 +62,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
         values.put(COLUMN_NOTE_CONTENT, note.getNoteContent());
         values.put(COLUMN_NOTE_TIME, note.getNoteTime());
         values.put(COLUMN_NOTE_CREATED_TIME, note.getCreatedTime());
+        values.put(COLUMN_NOTE_BACKGROUND_COLOR, note.getBackgroundColor());
         db.insert(TABLE_NOTE, null, values);
         db.close();
     }
@@ -71,12 +73,13 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
 
         Cursor cursor = db.query(TABLE_NOTE, new String[]{COLUMN_NOTE_ID,
                         COLUMN_NOTE_TITLE, COLUMN_NOTE_CONTENT, COLUMN_NOTE_TIME,
-                        COLUMN_NOTE_CREATED_TIME}, COLUMN_NOTE_ID + "=?",
+                        COLUMN_NOTE_CREATED_TIME, COLUMN_NOTE_BACKGROUND_COLOR},
+                COLUMN_NOTE_ID + "=?",
                 new String[]{String.valueOf(id)}, null, null, null, null);
         if (cursor != null)
             cursor.moveToFirst();
-        Note note =  new Note(Integer.parseInt(cursor.getString(0)),
-                cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4));
+        Note note = new Note(Integer.parseInt(cursor.getString(0)), cursor.getString(1),
+                cursor.getString(2), cursor.getString(3), cursor.getString(4), cursor.getString(5));
         cursor.close();
         db.close();
         return note;
@@ -92,8 +95,8 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
 
         if (cursor.moveToFirst()) {
             do {
-                Note note = new Note(cursor.getInt(0), cursor.getString(1),
-                        cursor.getString(2), cursor.getString(3), cursor.getString(4));
+                Note note = new Note(cursor.getInt(0), cursor.getString(1), cursor.getString(2),
+                        cursor.getString(3), cursor.getString(4), cursor.getString(5));
                 noteList.add(note);
             } while (cursor.moveToNext());
         }
@@ -119,6 +122,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
         values.put(COLUMN_NOTE_CONTENT, note.getNoteContent());
         values.put(COLUMN_NOTE_TIME, note.getNoteTime());
         values.put(COLUMN_NOTE_CREATED_TIME, note.getCreatedTime());
+        values.put(COLUMN_NOTE_BACKGROUND_COLOR, note.getBackgroundColor());
 
         // updating row
         db.update(TABLE_NOTE, values, COLUMN_NOTE_ID + " = ?",

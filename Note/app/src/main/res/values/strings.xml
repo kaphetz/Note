@@ -9,4 +9,5 @@
     <string name="photo">Photo</string>
     <string name="background">Background</string>
     <string name="save">Save</string>
+    <string name="no_notes">No Notes</string>
 </resources>
