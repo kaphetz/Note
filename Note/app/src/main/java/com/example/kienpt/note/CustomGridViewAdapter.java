@@ -83,6 +83,11 @@ public class CustomGridViewAdapter extends BaseAdapter {
                 holder.detailNoteView.setBackgroundColor(
                         ContextCompat.getColor(mContext, R.color.colorBlue));
                 break;
+            default:
+                holder.detailNoteView.setBackgroundColor(
+                        ContextCompat.getColor(mContext, R.color.colorWhite));
+
+                break;
         }
         return convertView;
     }

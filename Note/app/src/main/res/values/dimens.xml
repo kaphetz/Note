@@ -3,4 +3,7 @@
     <dimen name="alarm_size">15sp</dimen>
     <dimen name="note_size">25sp</dimen>
     <dimen name="title_size">30sp</dimen>
+
+    <dimen name="width_popup">500dp</dimen>
+    <dimen name="height_popup">300dp</dimen>
 </resources>

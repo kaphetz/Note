@@ -19,13 +19,13 @@ public class Note implements Serializable {
                 String noteContent,
                 String noteTime,
                 String createdTime,
-                String mBackgroundColor) {
+                String backgroundColor) {
         mNoteID = noteID;
         mNoteTitle = noteTitle;
         mNoteContent = noteContent;
         mNoteTime = noteTime;
         mCreatedTime = createdTime;
-        mBackgroundColor = mBackgroundColor;
+        mBackgroundColor = backgroundColor;
     }
 
     public Note(String noteTitle,

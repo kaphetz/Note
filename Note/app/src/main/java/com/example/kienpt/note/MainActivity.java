@@ -8,14 +8,11 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.GridView;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import com.example.kienpt.note.Bean.Note;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends Activity {
@@ -25,7 +22,7 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         getActionBar().setDisplayShowHomeEnabled(true);
         getActionBar().setIcon(R.mipmap.ic_launcher);
-        getActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#7eafc12b")));
+        getActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#7e1b7eff")));
         setContentView(R.layout.activity_main);
         MyDatabaseHelper db = new MyDatabaseHelper(this);
         GridView gvListNote = (GridView) findViewById(R.id.gv_listNote);

@@ -14,7 +14,7 @@ import java.util.List;
 
 public class MyDatabaseHelper extends SQLiteOpenHelper {
     //Version
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
 
     //DB name
     private static final String DATABASE_NAME = "Note_Manager";
@@ -41,9 +41,9 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         // Script create table
         String script = String.format("CREATE TABLE %s(%s INTEGER PRIMARY KEY, %s TEXT, "
-                        + "%s TEXT, %s TEXT, %s TEXT)",
+                        + "%s TEXT, %s TEXT, %s TEXT, %s TEXT)",
                 TABLE_NOTE, COLUMN_NOTE_ID, COLUMN_NOTE_TITLE, COLUMN_NOTE_CONTENT,
-                COLUMN_NOTE_TIME, COLUMN_NOTE_CREATED_TIME);
+                COLUMN_NOTE_TIME, COLUMN_NOTE_CREATED_TIME, COLUMN_NOTE_BACKGROUND_COLOR);
         // Create table
         db.execSQL(script);
     }

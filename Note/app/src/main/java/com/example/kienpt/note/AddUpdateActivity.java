@@ -1,6 +1,8 @@
 package com.example.kienpt.note;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -9,17 +11,19 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.view.MenuItemCompat;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.TimePicker;
+import android.widget.Toast;
 
 import com.example.kienpt.note.Bean.Note;
 
@@ -40,6 +44,7 @@ public class AddUpdateActivity extends Activity {
     private String mSpinnerDate = "";
     private String mSpinnerTime = "";
     private String mColor = "";
+    private AlertDialog dialog;
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
@@ -50,7 +55,7 @@ public class AddUpdateActivity extends Activity {
         getActionBar().setDisplayHomeAsUpEnabled(true);
         getActionBar().setDisplayShowHomeEnabled(true);
         getActionBar().setIcon(R.mipmap.ic_launcher);
-        getActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#7eafc12b")));
+        getActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#7e1b7eff")));
         getActionBar().setTitle("Note");
 
         mSpnDate = (Spinner) findViewById(R.id.spn_date);
@@ -63,14 +68,14 @@ public class AddUpdateActivity extends Activity {
         mRlNote = (RelativeLayout) findViewById(R.id.rl_note);
         //Thu Aug 03 16:29:14 GMT+07:00 2017
         String[] parts = mCalendar.getTime().toString().split(" ");
-        String[] listDate = {"Today", "Tomorrow", dayOfNextWeek(parts[0]), "Other"};
+        String[] listDate = {"Today", "Tomorrow", dayOfNextWeek(parts[0]), "Other..."};
         ArrayAdapter<String> spinnerToAdapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_item, listDate);
         spinnerToAdapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
         mSpnDate.setAdapter(spinnerToAdapter);
         mSpnDate.setOnItemSelectedListener(new DateSpinnerInfo());
 
-        String[] listTime = {"09:00", "13:00", "17:00", "20:00", "Other"};
+        String[] listTime = {"09:00", "13:00", "17:00", "20:00", "Other..."};
         ArrayAdapter<String> spinner2Adapter =
                 new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, listTime);
         spinner2Adapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
@@ -78,31 +83,6 @@ public class AddUpdateActivity extends Activity {
         mSpnTime.setOnItemSelectedListener(new TimeSpinnerInfo());
         Calendar now = Calendar.getInstance();
         mTvDateTime.setText(convert(now, "dd/MM/YYYY hh:mm"));
-
-        Intent intent = getIntent();
-        Bundle info = intent.getExtras();
-        if (info != null) {
-            mColor = info.getString("backgroundColor");
-            switch (mColor) {
-                case "White":
-                    mRlNote.setBackgroundColor(
-                            ContextCompat.getColor(getApplicationContext(), R.color.colorWhite));
-                    break;
-                case "Yellow":
-                    mRlNote.setBackgroundColor(
-                            ContextCompat.getColor(getApplicationContext(), R.color.colorYellow));
-                    break;
-                case "Green":
-                    mRlNote.setBackgroundColor(
-                            ContextCompat.getColor(getApplicationContext(), R.color.colorGreen));
-                    break;
-                case "Blue":
-                    mRlNote.setBackgroundColor(
-                            ContextCompat.getColor(getApplicationContext(), R.color.colorBlue));
-                    break;
-
-            }
-        }
     }
 
     @Override
@@ -117,11 +97,10 @@ public class AddUpdateActivity extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.mnSave:
-                AddNewNote();
+                addNewNote();
                 return true;
             case R.id.mnChangeColor:
-                Intent demo = new Intent(this, Popup.class);
-                startActivity(demo);
+                changeBackgroundColor();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -142,7 +121,7 @@ public class AddUpdateActivity extends Activity {
                 case "Tomorrow":
                     mSpinnerDate = getTomorrow();
                     break;
-                case "Other":
+                case "Other...":
                     break;
                 default:
                     mSpinnerDate = getDayOfNextWeek();
@@ -175,6 +154,46 @@ public class AddUpdateActivity extends Activity {
                 case "20:00":
                     mSpinnerTime = "20:00";
                     break;
+                case "Other...":
+                    AlertDialog.Builder mBuilder = new AlertDialog.Builder(AddUpdateActivity.this);
+                    View mView = getLayoutInflater().inflate(R.layout.clock_xml, null);
+                    mBuilder.setView(mView).setTitle("Choose Time");
+                    mBuilder.setPositiveButton("OK",
+                            new DialogInterface.OnClickListener() {
+
+                                TimePicker timePicker =
+                                        (TimePicker) findViewById(R.id.tp_clock);
+                                @Override
+                                public void onClick(DialogInterface dialog,
+                                                    int which) {
+                                    int hour = 0;
+                                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                                        hour = timePicker.getHour();
+                                    }else{
+                                        hour = timePicker.getCurrentHour();
+                                    }
+                                    int minute = 0;
+                                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                                        minute = timePicker.getMinute();
+                                    }else{
+                                        minute = timePicker.getCurrentMinute();
+                                    }
+                                    dialog.dismiss();
+                                    Toast.makeText(AddUpdateActivity.this, String.format("%s", hour), Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                    );
+                    mBuilder.setNegativeButton("Cancel",
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog,
+                                                    int which) {
+                                    dialog.dismiss();
+                                }
+                            });
+                    dialog = mBuilder.create();
+                    dialog.show();
+                    break;
                 default:
                     break;
             }
@@ -197,7 +216,7 @@ public class AddUpdateActivity extends Activity {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
-    public void AddNewNote() {
+    public void addNewNote() {
         Note note = new Note();
         note.setNoteTitle(mEtTitle.getText().toString());
         note.setNoteContent(mEtContent.getText().toString());
@@ -215,6 +234,56 @@ public class AddUpdateActivity extends Activity {
         db.addNote(note);
         Intent mainIntent = new Intent(this, MainActivity.class);
         startActivity(mainIntent);
+    }
+
+    public void changeBackgroundColor() {
+        AlertDialog.Builder mBuilder = new AlertDialog.Builder(this);
+        View mView = getLayoutInflater().inflate(R.layout.alert_window, null);
+        mBuilder.setView(mView).setTitle("Choose Color").setIcon(R.drawable.ic_change_color);
+        Button btnWhite = (Button) mView.findViewById(R.id.btn_white);
+        Button btnYellow = (Button) mView.findViewById(R.id.btn_yellow);
+        Button btnGreen = (Button) mView.findViewById(R.id.btn_green);
+        Button btnBlue = (Button) mView.findViewById(R.id.btn_blue);
+        btnWhite.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mRlNote.setBackgroundColor(
+                        ContextCompat.getColor(getApplicationContext(), R.color.colorWhite));
+                mColor = "White";
+                dialog.dismiss();
+            }
+        });
+        btnYellow.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mRlNote.setBackgroundColor(
+                        ContextCompat.getColor(getApplicationContext(), R.color.colorYellow));
+                mColor = "Yellow";
+                dialog.dismiss();
+            }
+        });
+        btnGreen.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mRlNote.setBackgroundColor(
+                        ContextCompat.getColor(getApplicationContext(), R.color.colorGreen));
+                mColor = "Green";
+                dialog.dismiss();
+            }
+        });
+        btnBlue.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mRlNote.setBackgroundColor(
+                        ContextCompat.getColor(getApplicationContext(), R.color.colorBlue));
+                mColor = "Blue";
+                dialog.dismiss();
+            }
+        });
+
+        dialog = mBuilder.create();
+        dialog.show();
+
     }
 
     public String dayOfNextWeek(String dayOfWeek) {
@@ -260,4 +329,5 @@ public class AddUpdateActivity extends Activity {
         SimpleDateFormat df = new SimpleDateFormat(format);
         return df.format(calendar.getTime());
     }
+
 }

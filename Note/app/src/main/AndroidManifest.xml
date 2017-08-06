@@ -21,11 +21,6 @@
             android:name=".AddUpdateActivity"
             android:parentActivityName=".MainActivity"
             tools:targetApi="jelly_bean" />
-        <activity
-            android:name=".Popup"
-            android:label="Choose Color"
-            android:theme="@style/AppTheme.CustomTheme">
-        </activity>
     </application>
 
 </manifest>
