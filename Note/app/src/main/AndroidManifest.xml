@@ -3,6 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.kienpt.note">
 
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -18,9 +20,12 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".AddUpdateActivity"
+            android:name=".AddActivity"
             android:parentActivityName=".MainActivity"
             tools:targetApi="jelly_bean" />
+        <activity
+            android:name=".EditActivity"
+            android:parentActivityName=".MainActivity" />
     </application>
 
 </manifest>

@@ -6,7 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import com.example.kienpt.note.Bean.Note;
+import com.example.kienpt.note.bean.Note;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -70,16 +70,20 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
     // get one note
     public Note getNote(int id) {
         SQLiteDatabase db = this.getReadableDatabase();
-
+        Note note = null;
         Cursor cursor = db.query(TABLE_NOTE, new String[]{COLUMN_NOTE_ID,
                         COLUMN_NOTE_TITLE, COLUMN_NOTE_CONTENT, COLUMN_NOTE_TIME,
                         COLUMN_NOTE_CREATED_TIME, COLUMN_NOTE_BACKGROUND_COLOR},
-                COLUMN_NOTE_ID + "=?",
-                new String[]{String.valueOf(id)}, null, null, null, null);
-        if (cursor != null)
+                COLUMN_NOTE_ID + "=?", new String[]{String.valueOf(id)}, null, null, null, null);
+        if (cursor != null) {
             cursor.moveToFirst();
-        Note note = new Note(Integer.parseInt(cursor.getString(0)), cursor.getString(1),
-                cursor.getString(2), cursor.getString(3), cursor.getString(4), cursor.getString(5));
+            note = new Note(cursor.getInt(cursor.getColumnIndex(COLUMN_NOTE_ID)),
+                    cursor.getString(cursor.getColumnIndex(COLUMN_NOTE_TITLE)),
+                    cursor.getString(cursor.getColumnIndex(COLUMN_NOTE_CONTENT)),
+                    cursor.getString(cursor.getColumnIndex(COLUMN_NOTE_TIME)),
+                    cursor.getString(cursor.getColumnIndex(COLUMN_NOTE_CREATED_TIME)),
+                    cursor.getString(cursor.getColumnIndex(COLUMN_NOTE_BACKGROUND_COLOR)));
+        }
         cursor.close();
         db.close();
         return note;
@@ -95,8 +99,12 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
 
         if (cursor.moveToFirst()) {
             do {
-                Note note = new Note(cursor.getInt(0), cursor.getString(1), cursor.getString(2),
-                        cursor.getString(3), cursor.getString(4), cursor.getString(5));
+                Note note = new Note(cursor.getInt(cursor.getColumnIndex(COLUMN_NOTE_ID)),
+                        cursor.getString(cursor.getColumnIndex(COLUMN_NOTE_TITLE)),
+                        cursor.getString(cursor.getColumnIndex(COLUMN_NOTE_CONTENT)),
+                        cursor.getString(cursor.getColumnIndex(COLUMN_NOTE_TIME)),
+                        cursor.getString(cursor.getColumnIndex(COLUMN_NOTE_CREATED_TIME)),
+                        cursor.getString(cursor.getColumnIndex(COLUMN_NOTE_BACKGROUND_COLOR)));
                 noteList.add(note);
             } while (cursor.moveToNext());
         }

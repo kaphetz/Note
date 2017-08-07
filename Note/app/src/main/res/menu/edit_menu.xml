@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:yourapp="http://schemas.android.com/apk/res-auto">
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/mn_camera"
         android:icon="@drawable/ic_cam"
@@ -17,4 +16,9 @@
         android:icon="@drawable/ic_save"
         android:title="@string/save"
         android:showAsAction="always" />
+
+    <item
+        android:id="@+id/mn_new_note"
+        android:title="@string/new_note"
+        android:showAsAction="collapseActionView" />
 </menu>

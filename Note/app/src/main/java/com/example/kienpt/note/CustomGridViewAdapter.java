@@ -10,7 +10,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.example.kienpt.note.Bean.Note;
+import com.example.kienpt.note.bean.Note;
 
 import java.util.List;
 import java.util.Objects;

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/mnPlus"
+        android:id="@+id/mn_plus"
         android:icon="@drawable/ic_plus"
         android:title="@string/plus"
         android:showAsAction="always" />

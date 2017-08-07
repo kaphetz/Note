@@ -1,4 +1,4 @@
-package com.example.kienpt.note.Bean;
+package com.example.kienpt.note.bean;
 
 import java.io.Serializable;
 
