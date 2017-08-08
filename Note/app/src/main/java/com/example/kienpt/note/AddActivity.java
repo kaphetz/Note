@@ -4,7 +4,6 @@ import android.Manifest;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -28,13 +27,11 @@ import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.Spinner;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.example.kienpt.note.bean.Note;
 
-import java.sql.Time;
 import java.util.Calendar;
 
 @RequiresApi(api = Build.VERSION_CODES.N)
@@ -277,8 +274,8 @@ public class AddActivity extends ActivityParent {
         note.setCreatedTime(String.format("%s", convert(mCalendar, "dd/MM HH:mm")));
         note.setBackgroundColor(mColor);
         // add new note into db
-        MyDatabaseHelper db = new MyDatabaseHelper(this);
-        db.addNote(note);
+        NoteRepo dbNote = new NoteRepo();
+        dbNote.addNote(note);
         Intent mainIntent = new Intent(this, MainActivity.class);
         startActivity(mainIntent);
     }

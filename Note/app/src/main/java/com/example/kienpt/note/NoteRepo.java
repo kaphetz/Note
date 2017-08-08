@@ -1,16 +1,20 @@
 package com.example.kienpt.note;
 
-import android.content.Context;
+import android.content.ContentValues;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 
+import com.example.kienpt.note.bean.Note;
 
-public class MyDatabaseHelper extends SQLiteOpenHelper {
-    //Version
-    private static final int DATABASE_VERSION = 4;
+import java.util.ArrayList;
+import java.util.List;
 
-    //DB name
-    private static final String DATABASE_NAME = "Note_Manager";
+public class NoteRepo {
+    private Note mNote;
+
+    public NoteRepo() {
+        mNote = new Note();
+    }
 
     //Table name: note
     private static final String TABLE_NOTE = "Note";
@@ -23,44 +27,9 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
     private static final String COLUMN_NOTE_CREATED_TIME = "CreatedTime";
     private static final String COLUMN_NOTE_BACKGROUND_COLOR = "BackgroundColor";
 
-    private static final String TABLE_NOTE_IMAGE = "NoteImage";
-
-    private static final String COLUMN_NOTE_IMAGE_ID = "NoteId";
-    private static final String COLUMN_IMAGE = "Image";
-    private Context mContext;
-
-    public MyDatabaseHelper(Context context) {
-        super(context, DATABASE_NAME, null, DATABASE_VERSION);
-        this.mContext = context;
-    }
-
-    @Override
-    public void onCreate(SQLiteDatabase db) {
-        // Script create table
-        String script = String.format("CREATE TABLE %s(%s INTEGER PRIMARY KEY, %s TEXT, "
-                        + "%s TEXT, %s TEXT, %s TEXT, %s TEXT)",
-                TABLE_NOTE, COLUMN_NOTE_ID, COLUMN_NOTE_TITLE, COLUMN_NOTE_CONTENT,
-                COLUMN_NOTE_TIME, COLUMN_NOTE_CREATED_TIME, COLUMN_NOTE_BACKGROUND_COLOR);
-        // Create table
-        db.execSQL(script);
-
-        script = String.format("CREATE TABLE %s(%s INTEGER, %s BLOB)",
-                TABLE_NOTE_IMAGE, COLUMN_NOTE_IMAGE_ID, COLUMN_IMAGE);
-
-        db.execSQL(script);
-    }
-
-    @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL(String.format("DROP TABLE IF EXISTS %s", TABLE_NOTE));
-        db.execSQL(String.format("DROP TABLE IF EXISTS %s", TABLE_NOTE_IMAGE));
-        onCreate(db);
-    }
-
-/*
     // add new note
     public void addNote(Note note) {
-        SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db = DatabaseManager.getInstance().openDatabase();
         ContentValues values = new ContentValues();
         values.put(COLUMN_NOTE_TITLE, note.getNoteTitle());
         values.put(COLUMN_NOTE_CONTENT, note.getNoteContent());
@@ -68,11 +37,12 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
         values.put(COLUMN_NOTE_CREATED_TIME, note.getCreatedTime());
         values.put(COLUMN_NOTE_BACKGROUND_COLOR, note.getBackgroundColor());
         db.insert(TABLE_NOTE, null, values);
-        db.close();
+        DatabaseManager.getInstance().closeDatabase();
     }
+
     // get one note
     public Note getNote(int id) {
-        SQLiteDatabase db = this.getReadableDatabase();
+        SQLiteDatabase db = DatabaseManager.getInstance().openDatabase();
         Note note = null;
         Cursor cursor = db.query(TABLE_NOTE, new String[]{COLUMN_NOTE_ID,
                         COLUMN_NOTE_TITLE, COLUMN_NOTE_CONTENT, COLUMN_NOTE_TIME,
@@ -88,7 +58,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
                     cursor.getString(cursor.getColumnIndex(COLUMN_NOTE_BACKGROUND_COLOR)));
         }
         cursor.close();
-        db.close();
+        DatabaseManager.getInstance().closeDatabase();
         return note;
     }
 
@@ -97,7 +67,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
         // Select All Query
         String selectQuery = String.format("SELECT * FROM %s", TABLE_NOTE);
 
-        SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db = DatabaseManager.getInstance().openDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);
 
         if (cursor.moveToFirst()) {
@@ -112,13 +82,13 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
             } while (cursor.moveToNext());
         }
         cursor.close();
-        db.close();
+        DatabaseManager.getInstance().closeDatabase();
         return noteList;
     }
 
     public int getNotesCount() {
         String countQuery = String.format("SELECT  * FROM %s", TABLE_NOTE);
-        SQLiteDatabase db = this.getReadableDatabase();
+        SQLiteDatabase db = DatabaseManager.getInstance().openDatabase();
         Cursor cursor = db.rawQuery(countQuery, null);
         int count = cursor.getCount();
         cursor.close();
@@ -127,7 +97,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
     }
 
     public void updateNote(Note note) {
-        SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db = DatabaseManager.getInstance().openDatabase();
         ContentValues values = new ContentValues();
         values.put(COLUMN_NOTE_TITLE, note.getNoteTitle());
         values.put(COLUMN_NOTE_CONTENT, note.getNoteContent());
@@ -138,19 +108,19 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
         // updating row
         db.update(TABLE_NOTE, values, COLUMN_NOTE_ID + " = ?",
                 new String[]{String.valueOf(note.getNoteID())});
-        db.close();
+        DatabaseManager.getInstance().closeDatabase();
     }
 
     public void deleteNote(Note note) {
-        SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db = DatabaseManager.getInstance().openDatabase();
         db.delete(TABLE_NOTE, COLUMN_NOTE_ID + " = ?",
                 new String[]{String.valueOf(note.getNoteID())});
-        db.close();
+        DatabaseManager.getInstance().closeDatabase();
     }
 
     public void deleteAllNotes() {
-        SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db = DatabaseManager.getInstance().openDatabase();
         db.delete(TABLE_NOTE, null, null);
-        db.close();
-    }*/
+        DatabaseManager.getInstance().closeDatabase();
+    }
 }

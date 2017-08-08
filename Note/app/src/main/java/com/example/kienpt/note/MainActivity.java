@@ -6,13 +6,12 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.support.v4.content.ContextCompat;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.GridView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.GridView;
 import android.widget.TextView;
 
 import com.example.kienpt.note.bean.Note;
@@ -23,7 +22,7 @@ public class MainActivity extends Activity {
     private List<Note> mListNote;
     private CustomGridViewAdapter adapter;
     private Context mContext;
-
+    private static MyDatabaseHelper dbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,10 +31,12 @@ public class MainActivity extends Activity {
         getActionBar().setIcon(R.mipmap.ic_launcher);
         getActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#7e1b7eff")));
         setContentView(R.layout.activity_main);
-        final MyDatabaseHelper db = new MyDatabaseHelper(this);
+        dbHelper = new MyDatabaseHelper(this);
+        DatabaseManager.initializeInstance(dbHelper);
         final GridView gvListNote = (GridView) findViewById(R.id.gv_listNote);
         TextView tvNoNotes = (TextView) findViewById(R.id.tv_noNotes);
-        mListNote = db.getAllNotes();
+        NoteRepo dbNote = new NoteRepo();
+        mListNote = dbNote.getAllNotes();
         for (int i = 0; i < mListNote.size() / 2; i++) {
             Note mediate = mListNote.get(i);
             mListNote.set(i, mListNote.get(mListNote.size() - i - 1));

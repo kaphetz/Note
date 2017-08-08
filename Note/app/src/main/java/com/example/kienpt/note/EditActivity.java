@@ -12,7 +12,6 @@ import android.icu.text.SimpleDateFormat;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
-import android.support.v4.content.ContextCompat;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -253,8 +252,8 @@ public class EditActivity extends ActivityParent {
                 switch (which) {
                     // click OK
                     case DialogInterface.BUTTON_POSITIVE:
-                        MyDatabaseHelper db = new MyDatabaseHelper(EditActivity.this);
-                        db.deleteNote(mNote);
+                        NoteRepo dbNote = new NoteRepo();
+                        dbNote.deleteNote(mNote);
                         Intent mainIntent = new Intent(EditActivity.this, MainActivity.class);
                         startActivity(mainIntent);
                         break;
@@ -295,8 +294,8 @@ public class EditActivity extends ActivityParent {
         mNote.setCreatedTime(String.format("%s", convert(mCalendar, "dd/MM HH:mm")));
         mNote.setBackgroundColor(mColor);
         // add new note into db
-        MyDatabaseHelper db = new MyDatabaseHelper(this);
-        db.updateNote(mNote);
+        NoteRepo dbNote = new NoteRepo();
+        dbNote.updateNote(mNote);
         Intent mainIntent = new Intent(this, MainActivity.class);
         startActivity(mainIntent);
     }
