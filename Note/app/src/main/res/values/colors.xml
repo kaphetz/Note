@@ -4,6 +4,7 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
     <color name="colorSky">#7e1b7eff</color>
+    <color name="colorSkyDark">#7e103d78</color>
     <color name="colorForLine">#7b6f6f</color>
     <color name="colorWhite">#FFFF</color>
     <color name="colorYellow">#f9f918</color>

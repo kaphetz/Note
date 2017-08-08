@@ -36,6 +36,11 @@ public class MainActivity extends Activity {
         final GridView gvListNote = (GridView) findViewById(R.id.gv_listNote);
         TextView tvNoNotes = (TextView) findViewById(R.id.tv_noNotes);
         mListNote = db.getAllNotes();
+        for (int i = 0; i < mListNote.size() / 2; i++) {
+            Note mediate = mListNote.get(i);
+            mListNote.set(i, mListNote.get(mListNote.size() - i - 1));
+            mListNote.set(mListNote.size() - i - 1, mediate);
+        }
         adapter = new CustomGridViewAdapter(MainActivity.this, mListNote);
         if (mListNote.size() > 0) {
             gvListNote.setVisibility(View.VISIBLE);
@@ -51,7 +56,7 @@ public class MainActivity extends Activity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent intent = new Intent(MainActivity.this, EditActivity.class);
                 String key = "EDIT";
-                intent.putExtra(key, (Note)adapter.getItem(position));
+                intent.putExtra(key, (Note) adapter.getItem(position));
                 startActivity(intent);
             }
         });

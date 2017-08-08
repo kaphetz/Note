@@ -15,6 +15,8 @@ import com.example.kienpt.note.bean.Note;
 import java.util.List;
 import java.util.Objects;
 
+
+
 public class CustomGridViewAdapter extends BaseAdapter {
     private List<Note> mListData;
     private LayoutInflater layoutInflater;
@@ -67,10 +69,6 @@ public class CustomGridViewAdapter extends BaseAdapter {
             holder.alarmView.setVisibility(View.GONE);
         }
         switch (note.getBackgroundColor()) {
-            case "White":
-                holder.detailNoteView.setBackgroundColor(
-                        ContextCompat.getColor(mContext, R.color.colorWhite));
-                break;
             case "Yellow":
                 holder.detailNoteView.setBackgroundColor(
                         ContextCompat.getColor(mContext, R.color.colorYellow));

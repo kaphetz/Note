@@ -1,110 +1,161 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/ll_note"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    android:id="@+id/rl_note"
     tools:context="com.example.kienpt.note.AddActivity">
 
-    <TextView
-        android:id="@+id/tv_dateTime"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_marginRight="20dp"
-        android:layout_marginTop="20dp"
-        android:text="@string/ex_time" />
-
-    <EditText
-        android:id="@+id/et_title"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/tv_dateTime"
-        android:gravity="top"
-        android:hint="@string/title"
-        android:inputType="textMultiLine"
-        android:paddingLeft="20dp"
-        android:textSize="@dimen/title_size"
-        android:textStyle="bold" />
-
-    <EditText
-        android:id="@+id/et_content"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/et_title"
-        android:background="@android:color/transparent"
-        android:fadingEdge="vertical"
-        android:gravity="top"
-        android:hint="@string/note"
-        android:inputType="textMultiLine"
-        android:paddingLeft="20dp"
-        android:textSize="@dimen/note_size" />
-
-    <ImageView
-        android:id="@+id/img_alarm"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_below="@+id/et_content"
-        android:layout_marginLeft="10dp"
-        android:layout_marginTop="20dp"
-        android:src="@drawable/ic_alarm" />
-
-    <TextView
-        android:id="@+id/tv_alarm"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/et_content"
-        android:layout_marginTop="33dp"
-        android:layout_toRightOf="@id/img_alarm"
-        android:clickable="true"
-        android:onClick="showDateTimePicker"
-        android:text="@string/alarm"
-        android:textSize="@dimen/alarm_size" />
-
     <LinearLayout
-        android:id="@+id/ll_dateTime"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/et_content"
-        android:layout_marginTop="15dp"
-        android:layout_toRightOf="@id/img_alarm"
-        android:visibility="gone">
+        android:padding="10dp">
 
-        <Spinner
-            android:id="@+id/spn_date"
-            android:layout_width="140dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:paddingBottom="5dp"
-            android:theme="@android:style/Theme.Holo.Light.DarkActionBar" />
-
-
-        <Spinner
-            android:id="@+id/spn_time"
-            android:layout_width="90dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:paddingBottom="5dp"
-            android:theme="@android:style/Theme.Holo.Light.DarkActionBar" />
-
-        <ImageButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@null"
-            android:layout_marginBottom="10dp"
-            android:onClick="hideDateTimePicker"
-            android:src="@drawable/ic_x_mark" />
+        <ImageView
+            android:id="@+id/img_photo"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_margin="5dp" />
 
     </LinearLayout>
-    
-    <android.support.design.widget.BottomNavigationView
-        android:id="@+id/bottom_navigation"
-        android:layout_alignParentBottom="true"
+
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:itemBackground="@color/colorSky"
-        app:itemIconTint="@drawable/nav_item_color_state"
-        app:menu="@menu/bottom_bar_menu"/>
-</RelativeLayout>
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/tv_dateTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="20dp"
+            android:layout_marginTop="20dp"
+            android:text="@string/ex_time" />
+
+        <EditText
+            android:id="@+id/et_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tv_dateTime"
+            android:gravity="top"
+            android:hint="@string/title"
+            android:inputType="textMultiLine"
+            android:paddingLeft="20dp"
+            android:textSize="@dimen/title_size"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/et_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/et_title"
+            android:background="@android:color/transparent"
+            android:fadingEdge="vertical"
+            android:gravity="top"
+            android:hint="@string/note"
+            android:inputType="textMultiLine"
+            android:paddingLeft="20dp"
+            android:textSize="@dimen/note_size" />
+
+        <ImageView
+            android:id="@+id/img_alarm"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_below="@+id/et_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="20dp"
+            android:src="@drawable/ic_alarm" />
+
+        <TextView
+            android:id="@+id/tv_alarm"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/et_content"
+            android:layout_marginTop="33dp"
+            android:layout_toRightOf="@id/img_alarm"
+            android:clickable="true"
+            android:onClick="showDateTimePicker"
+            android:text="@string/alarm"
+            android:textSize="@dimen/alarm_size" />
+
+        <LinearLayout
+            android:id="@+id/ll_dateTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/et_content"
+            android:layout_marginTop="15dp"
+            android:layout_toRightOf="@id/img_alarm"
+            android:visibility="gone">
+
+            <Spinner
+                android:id="@+id/spn_date"
+                android:layout_width="140dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:paddingBottom="5dp"
+                android:theme="@android:style/Theme.Holo.Light.DarkActionBar" />
+
+
+            <Spinner
+                android:id="@+id/spn_time"
+                android:layout_width="90dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:paddingBottom="5dp"
+                android:theme="@android:style/Theme.Holo.Light.DarkActionBar" />
+
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:background="@null"
+                android:onClick="hideDateTimePicker"
+                android:src="@drawable/ic_x_mark" />
+
+        </LinearLayout>
+
+        <TableLayout
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_alignParentBottom="true"
+            android:background="@color/colorSky"
+            android:shrinkColumns="*"
+            android:stretchColumns="*">
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <ImageButton
+                    android:id="@+id/btn_previous"
+                    android:layout_width="wrap_content"
+                    android:layout_height="50dp"
+                    android:background="@drawable/button_color"
+                    android:src="@drawable/ic_left" />
+
+                <ImageButton
+                    android:id="@+id/btn_share"
+                    android:layout_width="wrap_content"
+                    android:layout_height="50dp"
+                    android:background="@drawable/button_color"
+                    android:src="@drawable/ic_share" />
+
+                <ImageButton
+                    android:id="@+id/btn_delete"
+                    android:layout_width="wrap_content"
+                    android:layout_height="50dp"
+                    android:background="@drawable/button_color"
+                    android:src="@drawable/ic_delete" />
+
+                <ImageButton
+                    android:id="@+id/btn_forward"
+                    android:layout_width="wrap_content"
+                    android:layout_height="50dp"
+                    android:background="@drawable/button_color"
+                    android:src="@drawable/ic_right" />
+            </TableRow>
+
+        </TableLayout>
+    </RelativeLayout>
+</LinearLayout>
