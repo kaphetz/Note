@@ -16,33 +16,34 @@ import android.widget.TextView;
 
 import com.example.kienpt.note.bean.Note;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 public class MainActivity extends Activity {
-    private List<Note> mListNote;
     private CustomGridViewAdapter adapter;
-    private Context mContext;
-    private static MyDatabaseHelper dbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getActionBar().setDisplayShowHomeEnabled(true);
         getActionBar().setIcon(R.mipmap.ic_launcher);
-        getActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#7e1b7eff")));
+        getActionBar().setBackgroundDrawable(
+                new ColorDrawable(getResources().getColor(R.color.colorSky)));
         setContentView(R.layout.activity_main);
-        dbHelper = new MyDatabaseHelper(this);
+        MyDatabaseHelper dbHelper = new MyDatabaseHelper(this);
         DatabaseManager.initializeInstance(dbHelper);
-        final GridView gvListNote = (GridView) findViewById(R.id.gv_listNote);
+        GridView gvListNote = (GridView) findViewById(R.id.gv_listNote);
         TextView tvNoNotes = (TextView) findViewById(R.id.tv_noNotes);
         NoteRepo dbNote = new NoteRepo();
-        mListNote = dbNote.getAllNotes();
-        for (int i = 0; i < mListNote.size() / 2; i++) {
-            Note mediate = mListNote.get(i);
-            mListNote.set(i, mListNote.get(mListNote.size() - i - 1));
-            mListNote.set(mListNote.size() - i - 1, mediate);
-        }
+        List<Note> mListNote = dbNote.getAllNotes();
+        mListNote = orderByCreatedTime(mListNote);
         adapter = new CustomGridViewAdapter(MainActivity.this, mListNote);
+         /*
+          * show list of notes if count > 0
+          * if count = 0, show "No Notes"
+          */
         if (mListNote.size() > 0) {
             gvListNote.setVisibility(View.VISIBLE);
             tvNoNotes.setVisibility(View.GONE);
@@ -51,7 +52,6 @@ public class MainActivity extends Activity {
             gvListNote.setVisibility(View.GONE);
             tvNoNotes.setVisibility(View.VISIBLE);
         }
-
         gvListNote.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -84,5 +84,25 @@ public class MainActivity extends Activity {
     public void addNote() {
         Intent intentAdd = new Intent(this, AddActivity.class);
         startActivity(intentAdd);
+    }
+
+    public List<Note> orderByCreatedTime(List<Note> listNote) {
+        SimpleDateFormat formatter = new SimpleDateFormat(getString(R.string.ddmmyyyy_hhmm_format));
+        for (int i = 0; i < listNote.size() - 1; i++) {
+            for (int j = i + 1; j < listNote.size(); j++) {
+                try {
+                    Date createdTimeOfNoteA = formatter.parse(listNote.get(i).getCreatedTime());
+                    Date createdTimeOfNoteB = formatter.parse(listNote.get(j).getCreatedTime());
+                    if (createdTimeOfNoteA.before(createdTimeOfNoteB)) {
+                        Note mediate = listNote.get(j);
+                        listNote.set(j, listNote.get(i));
+                        listNote.set(i, mediate);
+                    }
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return listNote;
     }
 }

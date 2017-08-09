@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Objects;
 
 
-
 public class CustomGridViewAdapter extends BaseAdapter {
     private List<Note> mListData;
     private LayoutInflater layoutInflater;
@@ -62,7 +61,15 @@ public class CustomGridViewAdapter extends BaseAdapter {
         Note note = mListData.get(position);
         holder.titleView.setText(note.getNoteTitle());
         holder.contentView.setText(note.getNoteContent());
-        holder.createdTimeView.setText(note.getCreatedTime());
+
+        String createdTime = note.getCreatedTime();
+//        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy hh:mm");
+//            Date date = formatter.parse(createdTime);
+        StringBuffer strBuf = new StringBuffer(createdTime);
+        int start = 5;
+        int end = 10;
+        strBuf.replace(start, end, "");
+        holder.createdTimeView.setText(strBuf);
         if (!Objects.equals(note.getNoteTime(), "")) {
             holder.alarmView.setVisibility(View.VISIBLE);
         } else {

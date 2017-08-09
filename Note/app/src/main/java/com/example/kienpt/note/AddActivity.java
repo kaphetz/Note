@@ -1,15 +1,11 @@
 package com.example.kienpt.note;
 
-import android.Manifest;
 import android.app.AlertDialog;
-import android.app.DatePickerDialog;
-import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.icu.text.SimpleDateFormat;
 import android.net.Uri;
@@ -24,20 +20,25 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.DatePicker;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.example.kienpt.note.bean.Note;
 
+import java.io.File;
 import java.util.Calendar;
+import java.util.jar.Manifest;
 
 @RequiresApi(api = Build.VERSION_CODES.N)
 public class AddActivity extends ActivityParent {
-    static final int REQUEST_IMAGE_CAPTURE = 1;
-    private static final int SELECTED_PICTURE = 2;
+    private static final int REQUEST_ID_IMAGE_CAPTURE = 100;
+    private static final int REQUEST_SELECTED_PICTURE = 2;
+    private static final int CAMERA_PERMISSION_REQUEST_CODE = 90;
+    private static final int PERMISSION_REQUEST_CODE = 125;
+    private static final int SELECT_IMAGE = 42343;
+    private Integer[] mImageList = {R.drawable.ic_take_photo, R.drawable.ic_choose_photo};
+    private String[] mSourceNameList = {"Take photo", "Choose photo"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,8 +48,9 @@ public class AddActivity extends ActivityParent {
         getActionBar().setDisplayHomeAsUpEnabled(true);
         getActionBar().setDisplayShowHomeEnabled(true);
         getActionBar().setIcon(R.mipmap.ic_launcher);
-        getActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#7e1b7eff")));
-        getActionBar().setTitle("Note");
+        getActionBar().setBackgroundDrawable(
+                new ColorDrawable(getResources().getColor(R.color.colorSky)));
+        getActionBar().setTitle(getString(R.string.note));
         initView();
 
         // Set up for date spinner
@@ -65,7 +67,7 @@ public class AddActivity extends ActivityParent {
         mSpnTime.setAdapter(timeAdapter);
         mSpnTime.setOnItemSelectedListener(new TimeSpinnerInfo());
         Calendar now = Calendar.getInstance();
-        mTvDateTime.setText(convert(now, "dd/MM/YYYY hh:mm"));
+        mTvDateTime.setText(convert(now, getString(R.string.ddmmyyyy_format)));
     }
 
 
@@ -76,8 +78,6 @@ public class AddActivity extends ActivityParent {
         return true;
     }
 
-    Integer[] mImageList = {R.drawable.ic_take_photo, R.drawable.ic_choose_photo};
-    String[] mSourceNameList = {"Take Photo", "Choose Photo"};
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -89,72 +89,13 @@ public class AddActivity extends ActivityParent {
                 changeBackgroundColor();
                 return true;
             case R.id.mn_camera:
-                getImage();
+                insertImage();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
-    private static final int REQUEST_ID_READ_WRITE_PERMISSION = 99;
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
-
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        //
-        switch (requestCode) {
-            case REQUEST_ID_READ_WRITE_PERMISSION: {
-
-                // Chú ý: Nếu yêu cầu bị hủy, mảng kết quả trả về là rỗng.
-                // Người dùng đã cấp quyền (đọc/ghi).
-                if (grantResults.length > 1
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED
-                        && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
-
-                    Toast.makeText(this, "Permission granted!", Toast.LENGTH_LONG).show();
-
-                    getImage();
-
-                }
-                // Hủy bỏ hoặc bị từ chối.
-                else {
-                    Toast.makeText(this, "Permission denied!", Toast.LENGTH_LONG).show();
-                }
-                break;
-            }
-        }
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        switch (requestCode) {
-            case REQUEST_IMAGE_CAPTURE:
-                if (resultCode == RESULT_OK) {
-                    Bundle extras = data.getExtras();
-                    Bitmap imageBitmap = (Bitmap) extras.get("data");
-                    ImageView img = (ImageView) findViewById(R.id.img_photo);
-                    img.setImageBitmap(imageBitmap);
-                }
-                break;
-            case SELECTED_PICTURE:
-                if (resultCode == RESULT_OK) {
-                    Uri uri = data.getData();
-                    String[] FILE = {MediaStore.Images.Media.DATA};
-                    Cursor cursor = getContentResolver().query(uri, FILE, null, null, null);
-                    cursor.moveToFirst();
-
-                    int columnIndex = cursor.getColumnIndex(FILE[0]);
-                    String filePath = cursor.getString(columnIndex);
-                    cursor.close();
-                    ImageView img = (ImageView) findViewById(R.id.img_photo);
-                    img.setImageBitmap(BitmapFactory.decodeFile(filePath));
-                }
-                break;
-        }
-    }
 
     private class DateSpinnerInfo implements AdapterView.OnItemSelectedListener {
         @Override
@@ -163,37 +104,20 @@ public class AddActivity extends ActivityParent {
             String selectedDate = spinner.getItemAtPosition(selectedIndex).toString();
             switch (selectedIndex) {
                 case 0:
-                    SimpleDateFormat df = new SimpleDateFormat("dd/MM");
+                    SimpleDateFormat df = new SimpleDateFormat(getString(R.string.ddmmyyyy_format));
                     mSelectedDate = df.format(mCalendar.getTime());
-                    updateAdapterForDateSpinner("Other...");
+                    updateAdapterForDateSpinner(getString(R.string.other));
                     break;
                 case 1:
                     mSelectedDate = getTomorrow();
-                    updateAdapterForDateSpinner("Other...");
+                    updateAdapterForDateSpinner(getString(R.string.other));
                     break;
                 case 2:
                     mSelectedDate = getDayOfNextWeek();
-                    updateAdapterForDateSpinner("Other...");
+                    updateAdapterForDateSpinner(getString(R.string.other));
                     break;
                 case 3:
-                    if (selectedDate.equals("Other...")) {
-                        final int mYear, mMonth, mDay;
-                        final Calendar c = Calendar.getInstance();
-                        mYear = c.get(Calendar.YEAR);
-                        mMonth = c.get(Calendar.MONTH);
-                        mDay = c.get(Calendar.DAY_OF_MONTH);
-                        DatePickerDialog datePickerDialog = new DatePickerDialog(AddActivity.this,
-                                new DatePickerDialog.OnDateSetListener() {
-                                    @Override
-                                    public void onDateSet(DatePicker view, int year, int monthOfYear,
-                                                          int dayOfMonth) {
-                                        String s = String.format("%s/%s/%s", dayOfMonth, monthOfYear + 1, year);
-                                        updateAdapterForDateSpinner(s);
-                                    }
-                                }, mYear, mMonth, mDay);
-                        datePickerDialog.setTitle("Choose Date");
-                        datePickerDialog.show();
-                    }
+                    chooseOptionOtherDate(AddActivity.this, selectedDate);
                     break;
             }
         }
@@ -212,39 +136,23 @@ public class AddActivity extends ActivityParent {
             String selectedTime = spinner.getItemAtPosition(selectedIndex).toString();
             switch (selectedIndex) {
                 case 0:
-                    mSelectedTime = "09:00";
-                    updateAdapterForTimeSpinner("Other...");
+                    mSelectedTime = getString(R.string.hour_9h);
+                    updateAdapterForTimeSpinner(getString(R.string.other));
                     break;
                 case 1:
-                    mSelectedTime = "13:00";
-                    updateAdapterForTimeSpinner("Other...");
+                    mSelectedTime = getString(R.string.hour_13h);
+                    updateAdapterForTimeSpinner(getString(R.string.other));
                     break;
                 case 2:
-                    mSelectedTime = "17:00";
-                    updateAdapterForTimeSpinner("Other...");
+                    mSelectedTime = getString(R.string.hour_17h);
+                    updateAdapterForTimeSpinner(getString(R.string.other));
                     break;
                 case 3:
-                    mSelectedTime = "20:00";
-                    updateAdapterForTimeSpinner("Other...");
+                    mSelectedTime = getString(R.string.hour_20h);
+                    updateAdapterForTimeSpinner(getString(R.string.other));
                     break;
                 case 4:
-                    if (selectedTime.equals("Other...")) {
-                        final Calendar c = Calendar.getInstance();
-                        int hour = c.get(Calendar.HOUR_OF_DAY);
-                        int minute = c.get(Calendar.MINUTE);
-
-                        TimePickerDialog timePickerDialog = new TimePickerDialog(AddActivity.this,
-                                new TimePickerDialog.OnTimeSetListener() {
-                                    @Override
-                                    public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
-                                        String selectedTime = String.format("%s:%s",
-                                                selectedHour, selectedMinute);
-                                        updateAdapterForTimeSpinner(selectedTime);
-                                    }
-                                }, hour, minute, false);
-                        timePickerDialog.setTitle("Choose Time");
-                        timePickerDialog.show();
-                    }
+                    chooseOptionOtherTime(AddActivity.this, selectedTime);
                     break;
             }
         }
@@ -255,13 +163,12 @@ public class AddActivity extends ActivityParent {
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
     public void addNewNote() {
         Note note = new Note();
         if (!mEtTitle.getText().toString().equals("")) {
             note.setNoteTitle(mEtTitle.getText().toString());
         } else {
-            note.setNoteTitle("Untitled");
+            note.setNoteTitle(getString(R.string.untitled));
         }
         note.setNoteContent(mEtContent.getText().toString());
         if (mLlDateTime.getVisibility() == View.VISIBLE) {
@@ -271,7 +178,8 @@ public class AddActivity extends ActivityParent {
         }
         //get create datetime
         mCalendar = Calendar.getInstance();
-        note.setCreatedTime(String.format("%s", convert(mCalendar, "dd/MM HH:mm")));
+        note.setCreatedTime(String.format("%s", convert(mCalendar,
+                getString(R.string.ddmmyyyy_hhmm_format))));
         note.setBackgroundColor(mColor);
         // add new note into db
         NoteRepo dbNote = new NoteRepo();
@@ -280,80 +188,133 @@ public class AddActivity extends ActivityParent {
         startActivity(mainIntent);
     }
 
-    public void getImage() {
-        if (ContextCompat.checkSelfPermission(AddActivity.this,
-                Manifest.permission.READ_CONTACTS)
-                != PackageManager.PERMISSION_GRANTED) {
+    public void insertImage() {
+        AlertDialog.Builder mBuilder = new AlertDialog.Builder(this);
+        View mView = getLayoutInflater().inflate(R.layout.take_photo_alert, null);
+        mBuilder.setView(mView).setTitle(R.string.insert_picture);
+        mLvCamera = (ListView) mView.findViewById(R.id.lv_camera);
+        CustomListViewAdapter adapter = new CustomListViewAdapter(AddActivity.this,
+                mSourceNameList, mImageList);
+        mLvCamera.setAdapter(adapter);
+        mLvCamera.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                switch (position) {
+                    case 0:
+                        takePhoto();
+                        dialog.dismiss();
+                        break;
+                    case 1:
+                        if(Build.VERSION.SDK_INT >=23) {
+                            if (checkPermission()){
+                                Intent intent = new Intent(Intent.ACTION_PICK,
+                                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                                intent.setType("*/*");
+                                startActivityForResult(intent, SELECT_IMAGE);
+                            }else{
+                                requestPermission();
+                            }
+                        }else{
+                            Intent intent = new Intent(Intent.ACTION_PICK,
+                                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                            intent.setType("*/*");
+                            startActivityForResult(intent, SELECT_IMAGE);
 
-            // Should we show an explanation?
-
-            AlertDialog.Builder mBuilder = new AlertDialog.Builder(this);
-            View mView = getLayoutInflater().inflate(R.layout.take_photo_alert, null);
-            mBuilder.setView(mView).setTitle("Insert Picture");
-            mLvCamera = (ListView) mView.findViewById(R.id.lv_camera);
-            CustomListViewAdapter adapter = new CustomListViewAdapter(AddActivity.this,
-                    mSourceNameList, mImageList);
-            mLvCamera.setAdapter(adapter);
-            mLvCamera.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    if (ActivityCompat.shouldShowRequestPermissionRationale(AddActivity.this,
-                            Manifest.permission.READ_CONTACTS)) {
-                        switch (position) {
-                            case 0:
-                                takeImage();
-                                dialog.dismiss();
-                                break;
-                            case 1:
-                                askPermissionAndChooseImage();
-                                dialog.dismiss();
-                                break;
                         }
-
-                    } else {
-                        ActivityCompat.requestPermissions(AddActivity.this,
-                                new String[]{Manifest.permission.READ_CONTACTS},
-                                REQUEST_ID_READ_WRITE_PERMISSION);
-                    }
+                        dialog.dismiss();
+                        break;
                 }
-            });
-            dialog = mBuilder.create();
-            dialog.show();
+            }
+        });
+        dialog = mBuilder.create();
+        dialog.show();
+    }
+
+    private boolean checkPermission() {
+        int result = ContextCompat.checkSelfPermission(AddActivity.this,
+                android.Manifest.permission.READ_EXTERNAL_STORAGE );
+        return result == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private void requestPermission() {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(AddActivity.this,
+                android.Manifest.permission.READ_EXTERNAL_STORAGE)) {
+            Toast.makeText(AddActivity.this,
+                    "Write External Storage permission allows us to access images. " +
+                            "Please allow this permission in App Settings.", Toast.LENGTH_LONG).show();
+        } else {
+            ActivityCompat.requestPermissions(AddActivity.this, new String[]{
+                    android.Manifest.permission.READ_EXTERNAL_STORAGE}, PERMISSION_REQUEST_CODE);
         }
     }
 
-    public void takeImage() {
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+    public void takePhoto() {
+        if (checkSelfPermission(android.Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+            invokeCamera();
+        } else {
+            String[] permissionRequest = {android.Manifest.permission.CAMERA};
+            requestPermissions(permissionRequest, CAMERA_PERMISSION_REQUEST_CODE);
         }
     }
 
-    public void askPermissionAndChooseImage() {
-        if (android.os.Build.VERSION.SDK_INT >= 23) {
-            int readPermission = ActivityCompat.checkSelfPermission(this,
-                    Manifest.permission.READ_EXTERNAL_STORAGE);
-            int writePermission = ActivityCompat.checkSelfPermission(this,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE);
 
-            if (writePermission != PackageManager.PERMISSION_GRANTED ||
-                    readPermission != PackageManager.PERMISSION_GRANTED) {
+    public void invokeCamera() {
+        Intent callCameraApplicationIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        startActivityForResult(callCameraApplicationIntent, REQUEST_ID_IMAGE_CAPTURE);
+    }
 
-                this.requestPermissions(
-                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                                Manifest.permission.READ_EXTERNAL_STORAGE},
-                        REQUEST_ID_READ_WRITE_PERMISSION
-                );
-                return;
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == CAMERA_PERMISSION_REQUEST_CODE) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                invokeCamera();
+            } else {
+                Toast.makeText(this, "Cannot take photo without permission", Toast.LENGTH_SHORT).show();
+            }
+        } else if (requestCode == PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, "Accepted", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(Intent.ACTION_PICK,
+                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                intent.setType("*/*");
+                startActivityForResult(intent, SELECT_IMAGE);
             }
         }
-        chooseImage();
+
     }
 
-    public void chooseImage() {
-        Intent choosePictureIntent = new Intent(Intent.ACTION_PICK,
-                android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        startActivityForResult(choosePictureIntent, SELECTED_PICTURE);
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case REQUEST_ID_IMAGE_CAPTURE:
+                if (resultCode == RESULT_OK) {
+                    Bundle extras = data.getExtras();
+                    Bitmap imageBitmap = (Bitmap) extras.get("data");
+                    ImageView img = new ImageView();
+                    img.setImageBitmap(imageBitmap);
+                    CustomImageView customView1 = new CustomImageView(getBaseContext());
+                    customView1.setImgPhoto(img);
+                    mLlImageContainer.addView(customView1);
+                }
+                break;
+            case SELECT_IMAGE:
+                if (resultCode == RESULT_OK) {
+                    Uri uri = data.getData();
+                    String[] FILE = {MediaStore.Images.Media.DATA};
+                    Cursor cursor = getContentResolver().query(uri, FILE, null, null, null);
+                    cursor.moveToFirst();
+
+                    int columnIndex = cursor.getColumnIndex(FILE[0]);
+                    String filePath = cursor.getString(columnIndex);
+                    cursor.close();
+                    ImageView img = (ImageView) findViewById(R.id.img_photo);
+                    img.setImageBitmap(BitmapFactory.decodeFile(filePath));
+                }
+                break;
+        }
     }
 
 

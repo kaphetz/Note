@@ -3,10 +3,10 @@
     <string name="app_name">Note</string>
     <string name="plus">Plus</string>
     <string name="no_notes">No Notes</string>
-
-    <!--Add activity-->
-    <string name="ex_time">02/08/2017 10:43</string>
     <string name="note">Note</string>
+
+    <!--Add activity and Edit activity-->
+    <string name="ex_time">02/08/2017 10:43</string>
     <string name="title">Title</string>
     <string name="alarm">Alarm</string>
     <string name="title_demo">Title</string>
@@ -14,4 +14,22 @@
     <string name="background">Background</string>
     <string name="save">Save</string>
     <string name="new_note">New Note</string>
+    <string name="cancel">Cancel</string>
+    <string name="untitled">Untitled</string>
+    <string name="ddmmyyyy_hhmm_format">dd/MM/yyyy HH:mm</string>
+    <string name="ddmmyyyy_format">dd/MM/YYYY</string>
+    <string name="hour_9h">09:00</string>
+    <string name="hour_13h">13:00</string>
+    <string name="hour_17h">17:00</string>
+    <string name="hour_20h">20:00</string>
+    <string name="other">Other…</string>
+    <string name="today">Today</string>
+    <string name="tomorrow">Tomorrow</string>
+    <string name="choose_color">Choose Color</string>
+    <string name="choose_time">Choose Time</string>
+    <string name="choose_date">Choose Date</string>
+    <string name="take_photo">Take Photo</string>
+    <string name="choose_photo">Choose Photo</string>
+    <string name="insert_picture">Insert Picture</string>
+    <string name="share_via">Share Via</string>
 </resources>
