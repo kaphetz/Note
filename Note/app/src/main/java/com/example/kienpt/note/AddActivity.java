@@ -26,19 +26,19 @@ import android.widget.Toast;
 
 import com.example.kienpt.note.bean.Note;
 
-import java.io.File;
+import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.jar.Manifest;
 
 @RequiresApi(api = Build.VERSION_CODES.N)
 public class AddActivity extends ActivityParent {
-    private static final int REQUEST_ID_IMAGE_CAPTURE = 100;
-    private static final int REQUEST_SELECTED_PICTURE = 2;
-    private static final int CAMERA_PERMISSION_REQUEST_CODE = 90;
-    private static final int PERMISSION_REQUEST_CODE = 125;
-    private static final int SELECT_IMAGE = 42343;
+    private static final int REQUEST_ID_IMAGE_CAPTURE = 1;
+    private static final int CAMERA_PERMISSION_REQUEST_CODE = 2;
+    private static final int PERMISSION_REQUEST_CODE = 3;
+    private static final int SELECT_IMAGE = 4;
     private Integer[] mImageList = {R.drawable.ic_take_photo, R.drawable.ic_choose_photo};
     private String[] mSourceNameList = {"Take photo", "Choose photo"};
+    private CustomGridViewImageAdapter mAdapter;
+   private ArrayList<Bitmap> mListImages = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -205,16 +205,16 @@ public class AddActivity extends ActivityParent {
                         dialog.dismiss();
                         break;
                     case 1:
-                        if(Build.VERSION.SDK_INT >=23) {
-                            if (checkPermission()){
+                        if (Build.VERSION.SDK_INT >= 23) {
+                            if (checkPermission()) {
                                 Intent intent = new Intent(Intent.ACTION_PICK,
                                         MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                                 intent.setType("*/*");
                                 startActivityForResult(intent, SELECT_IMAGE);
-                            }else{
+                            } else {
                                 requestPermission();
                             }
-                        }else{
+                        } else {
                             Intent intent = new Intent(Intent.ACTION_PICK,
                                     MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                             intent.setType("*/*");
@@ -232,7 +232,7 @@ public class AddActivity extends ActivityParent {
 
     private boolean checkPermission() {
         int result = ContextCompat.checkSelfPermission(AddActivity.this,
-                android.Manifest.permission.READ_EXTERNAL_STORAGE );
+                android.Manifest.permission.READ_EXTERNAL_STORAGE);
         return result == PackageManager.PERMISSION_GRANTED;
     }
 
@@ -284,7 +284,6 @@ public class AddActivity extends ActivityParent {
 
     }
 
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -293,11 +292,9 @@ public class AddActivity extends ActivityParent {
                 if (resultCode == RESULT_OK) {
                     Bundle extras = data.getExtras();
                     Bitmap imageBitmap = (Bitmap) extras.get("data");
-                    ImageView img = new ImageView();
-                    img.setImageBitmap(imageBitmap);
-                    CustomImageView customView1 = new CustomImageView(getBaseContext());
-                    customView1.setImgPhoto(img);
-                    mLlImageContainer.addView(customView1);
+                    mListImages.add(imageBitmap);
+                    mAdapter = new CustomGridViewImageAdapter(AddActivity.this, mListImages);
+                    mGvImage.setAdapter(mAdapter);
                 }
                 break;
             case SELECT_IMAGE:

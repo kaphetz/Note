@@ -63,8 +63,6 @@ public class CustomGridViewAdapter extends BaseAdapter {
         holder.contentView.setText(note.getNoteContent());
 
         String createdTime = note.getCreatedTime();
-//        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy hh:mm");
-//            Date date = formatter.parse(createdTime);
         StringBuffer strBuf = new StringBuffer(createdTime);
         int start = 5;
         int end = 10;

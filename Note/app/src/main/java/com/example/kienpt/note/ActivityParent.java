@@ -15,9 +15,9 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.GridView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -32,6 +32,7 @@ import java.util.List;
 @RequiresApi(api = Build.VERSION_CODES.N)
 public class ActivityParent extends Activity {
     protected ListView mLvCamera;
+    protected GridView mGvImage;
     protected Spinner mSpnDate;
     protected Spinner mSpnTime;
     protected LinearLayout mLlDateTime;
@@ -70,6 +71,7 @@ public class ActivityParent extends Activity {
         mLlDateTime = (LinearLayout) findViewById(R.id.ll_dateTime);
         mLlNote = (LinearLayout) findViewById(R.id.ll_note);
         mLlImageContainer = (LinearLayout) findViewById(R.id.lL_image_container);
+        mGvImage = (GridView) findViewById(R.id.gv_listImage);
         mTvAlarm = (TextView) findViewById(R.id.tv_alarm);
         mTvDateTime = (TextView) findViewById(R.id.tv_dateTime);
         mEtTitle = (EditText) findViewById(R.id.et_title);
