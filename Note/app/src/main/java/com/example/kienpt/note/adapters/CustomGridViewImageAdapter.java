@@ -1,4 +1,4 @@
-package com.example.kienpt.note;
+package com.example.kienpt.note.adapters;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -9,6 +9,8 @@ import android.widget.BaseAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
+
+import com.example.kienpt.note.R;
 
 import java.util.ArrayList;
 
@@ -42,22 +44,31 @@ public class CustomGridViewImageAdapter extends BaseAdapter implements ListAdapt
 
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
+        ImageViewHolder holder;
         if (convertView == null) {
-            convertView = layoutInflater.inflate(R.layout.custom_image_view, null);
-
-            ImageView imgView = (ImageView) convertView.findViewById(R.id.img_photo);
-            ImageButton iBtnDel = (ImageButton) convertView.findViewById(R.id.btn_delete_image);
-            Bitmap image = mListData.get(position);
-            imgView.setImageBitmap(image);
-            iBtnDel.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    //do something
-                    mListData.remove(position);
-                    notifyDataSetChanged();
-                }
-            });
+            convertView = layoutInflater.inflate(R.layout.selected_image, null);
+            holder = new ImageViewHolder();
+            holder.imageView = (ImageView) convertView.findViewById(R.id.img_photo);
+            holder.delView = (ImageButton) convertView.findViewById(R.id.btn_delete_image);
+            convertView.setTag(holder);
+        } else {
+            holder = (ImageViewHolder) convertView.getTag();
         }
+        Bitmap image = mListData.get(position);
+        holder.imageView.setImageBitmap(image);
+        holder.delView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //do something
+                mListData.remove(position);
+                notifyDataSetChanged();
+            }
+        });
         return convertView;
+    }
+
+    private class ImageViewHolder {
+        ImageView imageView;
+        ImageButton delView;
     }
 }

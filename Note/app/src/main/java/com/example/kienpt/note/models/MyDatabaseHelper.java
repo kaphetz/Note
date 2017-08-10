@@ -1,4 +1,4 @@
-package com.example.kienpt.note;
+package com.example.kienpt.note.models;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;

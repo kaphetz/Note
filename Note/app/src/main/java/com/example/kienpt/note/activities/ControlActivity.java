@@ -1,4 +1,4 @@
-package com.example.kienpt.note;
+package com.example.kienpt.note.activities;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -6,11 +6,21 @@ import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.icu.text.SimpleDateFormat;
+import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.annotation.RequiresApi;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -21,7 +31,13 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
+import com.example.kienpt.note.R;
+import com.example.kienpt.note.adapters.CustomGridViewImageAdapter;
+import com.example.kienpt.note.adapters.CustomListViewAdapter;
+
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -30,7 +46,7 @@ import java.util.List;
 
 
 @RequiresApi(api = Build.VERSION_CODES.N)
-public class ActivityParent extends Activity {
+public class ControlActivity extends Activity {
     protected ListView mLvCamera;
     protected GridView mGvImage;
     protected Spinner mSpnDate;
@@ -51,9 +67,18 @@ public class ActivityParent extends Activity {
     protected String[] parts = mCalendar.getTime().toString().split(" ");
     protected ArrayAdapter dateAdapter;
     protected ArrayAdapter timeAdapter;
-
     public List<String> listDate = new ArrayList<>();
     public List<String> listTime = new ArrayList<>();
+    public Integer[] mSourceImageList = {R.drawable.ic_take_photo, R.drawable.ic_choose_photo};
+    public String[] mSourceImageNameList = {"Take photo", "Choose photo"};
+    public CustomGridViewImageAdapter mAdapter;
+    public ArrayList<Bitmap> mImageList = new ArrayList<>();
+
+    // Constant value
+    private static final int REQUEST_ID_IMAGE_CAPTURE = 1;
+    private static final int CAMERA_PERMISSION_REQUEST_CODE = 2;
+    private static final int PERMISSION_REQUEST_CODE = 3;
+    private static final int SELECT_IMAGE = 4;
 
     //Khoi tao initview
     protected void initView() {
@@ -77,6 +102,30 @@ public class ActivityParent extends Activity {
         mEtTitle = (EditText) findViewById(R.id.et_title);
         mEtContent = (EditText) findViewById(R.id.et_content);
     }
+
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState){
+        outState.putString("LinearLayoutState",String.valueOf(mLlDateTime.isShown()));
+        outState.putParcelableArrayList("ImageList",mImageList);
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState){
+        super.onRestoreInstanceState(savedInstanceState);
+        if(savedInstanceState.getString("LinearLayoutState").equals("true")){
+            mLlDateTime.setVisibility(View.VISIBLE);
+            mTvAlarm.setVisibility(View.GONE);
+        }else{
+            mLlDateTime.setVisibility(View.GONE);
+            mTvAlarm.setVisibility(View.VISIBLE);
+        }
+        mImageList = savedInstanceState.getParcelableArrayList("ImageList");
+        mAdapter = new CustomGridViewImageAdapter(this, mImageList);
+        mGvImage.setAdapter(mAdapter);
+    }
+
 
     public String dayOfNextWeek(String dayOfWeek) {
         switch (dayOfWeek) {
@@ -217,12 +266,12 @@ public class ActivityParent extends Activity {
                     }, hour, minute, false);
             timePickerDialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(R.string.cancel),
                     new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int which) {
-                    if (which == DialogInterface.BUTTON_NEGATIVE) {
-                        mSpnTime.setSelection(0);
-                    }
-                }
-            });
+                        public void onClick(DialogInterface dialog, int which) {
+                            if (which == DialogInterface.BUTTON_NEGATIVE) {
+                                mSpnTime.setSelection(0);
+                            }
+                        }
+                    });
             timePickerDialog.setTitle(getString(R.string.choose_time));
             timePickerDialog.show();
         }
@@ -248,14 +297,147 @@ public class ActivityParent extends Activity {
                     }, mYear, mMonth, mDay);
             datePickerDialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(R.string.cancel),
                     new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int which) {
-                    if (which == DialogInterface.BUTTON_NEGATIVE) {
-                        mSpnDate.setSelection(0);
-                    }
-                }
-            });
+                        public void onClick(DialogInterface dialog, int which) {
+                            if (which == DialogInterface.BUTTON_NEGATIVE) {
+                                mSpnDate.setSelection(0);
+                            }
+                        }
+                    });
             datePickerDialog.setTitle(getString(R.string.choose_date));
             datePickerDialog.show();
         }
     }
+
+    public void insertImage() {
+        AlertDialog.Builder mBuilder = new AlertDialog.Builder(this);
+        View mView = getLayoutInflater().inflate(R.layout.select_image_alert, null);
+        mBuilder.setView(mView).setTitle(R.string.insert_picture);
+        mLvCamera = (ListView) mView.findViewById(R.id.lv_camera);
+        CustomListViewAdapter adapter = new CustomListViewAdapter(this,
+                mSourceImageNameList, mSourceImageList);
+        mLvCamera.setAdapter(adapter);
+        mLvCamera.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                switch (position) {
+                    case 0:
+                        takePhoto();
+                        dialog.dismiss();
+                        break;
+                    case 1:
+                        if (Build.VERSION.SDK_INT >= 23) {
+                            if (checkPermission()) {
+                                Intent intent = new Intent(Intent.ACTION_PICK,
+                                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                                intent.setType("*/*");
+                                startActivityForResult(intent, SELECT_IMAGE);
+                            } else {
+                                requestPermission();
+                            }
+                        } else {
+                            Intent intent = new Intent(Intent.ACTION_PICK,
+                                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                            intent.setType("*/*");
+                            startActivityForResult(intent, SELECT_IMAGE);
+
+                        }
+                        dialog.dismiss();
+                        break;
+                }
+            }
+        });
+        dialog = mBuilder.create();
+        dialog.show();
+    }
+
+    private boolean checkPermission() {
+        int result = ContextCompat.checkSelfPermission(this,
+                android.Manifest.permission.READ_EXTERNAL_STORAGE);
+        return result == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private void requestPermission() {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                android.Manifest.permission.READ_EXTERNAL_STORAGE)) {
+            Toast.makeText(this,
+                    "Write External Storage permission allows us to access images. " +
+                            "Please allow this permission in App Settings.", Toast.LENGTH_LONG).show();
+        } else {
+            ActivityCompat.requestPermissions(this, new String[]{
+                    android.Manifest.permission.READ_EXTERNAL_STORAGE}, PERMISSION_REQUEST_CODE);
+        }
+    }
+
+    public void takePhoto() {
+        if (checkSelfPermission(android.Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+            invokeCamera();
+        } else {
+            String[] permissionRequest = {android.Manifest.permission.CAMERA};
+            requestPermissions(permissionRequest, CAMERA_PERMISSION_REQUEST_CODE);
+        }
+    }
+
+
+    public void invokeCamera() {
+        Intent callCameraApplicationIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        startActivityForResult(callCameraApplicationIntent, REQUEST_ID_IMAGE_CAPTURE);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == CAMERA_PERMISSION_REQUEST_CODE) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                invokeCamera();
+            } else {
+                Toast.makeText(this, "Cannot take photo without permission", Toast.LENGTH_SHORT).show();
+            }
+        } else if (requestCode == PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, "Accepted", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(Intent.ACTION_PICK,
+                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                intent.setType("*/*");
+                startActivityForResult(intent, SELECT_IMAGE);
+            }
+        }
+
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        mAdapter = new CustomGridViewImageAdapter(this, mImageList);
+        switch (requestCode) {
+            case REQUEST_ID_IMAGE_CAPTURE:
+                if (resultCode == RESULT_OK) {
+                    Bundle extras = data.getExtras();
+                    Bitmap imageBitmap = (Bitmap) extras.get("data");
+                    mImageList.add(imageBitmap);
+                    mGvImage.setAdapter(mAdapter);
+                }
+                break;
+            case SELECT_IMAGE:
+                if (resultCode == RESULT_OK) {
+                    Uri uri = data.getData();
+                    String[] FILE = {MediaStore.Images.Media.DATA};
+                    Cursor cursor = getContentResolver().query(uri, FILE, null, null, null);
+                    cursor.moveToFirst();
+                    int columnIndex = cursor.getColumnIndex(FILE[0]);
+                    String filePath = cursor.getString(columnIndex);
+                    cursor.close();
+                    mImageList.add(BitmapFactory.decodeFile(filePath));
+                    mGvImage.setAdapter(mAdapter);
+                }
+                break;
+        }
+    }
+
+    // Convert bitmap to byte array
+    public byte[] getBitmapAsByteArray(Bitmap bitmap) {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 0, outputStream);
+        return outputStream.toByteArray();
+    }
+
 }

@@ -1,4 +1,4 @@
-package com.example.kienpt.note;
+package com.example.kienpt.note.adapters;
 
 import android.content.Context;
 import android.support.v4.content.ContextCompat;
@@ -10,18 +10,19 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.example.kienpt.note.bean.Note;
+import com.example.kienpt.note.R;
+import com.example.kienpt.note.models.Note;
 
 import java.util.List;
 import java.util.Objects;
 
 
-public class CustomGridViewAdapter extends BaseAdapter {
+public class CustomGridViewNotesAdapter extends BaseAdapter {
     private List<Note> mListData;
     private LayoutInflater layoutInflater;
     private Context mContext;
 
-    public CustomGridViewAdapter(Context aContext, List<Note> listData) {
+    public CustomGridViewNotesAdapter(Context aContext, List<Note> listData) {
         mContext = aContext;
         mListData = listData;
         layoutInflater = LayoutInflater.from(aContext);
@@ -51,7 +52,6 @@ public class CustomGridViewAdapter extends BaseAdapter {
             holder.titleView = (TextView) convertView.findViewById(R.id.tv_noteTitle);
             holder.contentView = (TextView) convertView.findViewById(R.id.tv_noteContent);
             holder.createdTimeView = (TextView) convertView.findViewById(R.id.tv_noteCreatedTime);
-            holder.alarmView = (ImageView) convertView.findViewById(R.id.img_noteAlarm);
             holder.alarmView = (ImageView) convertView.findViewById(R.id.img_noteAlarm);
             holder.detailNoteView = (LinearLayout) convertView.findViewById(R.id.ll_detailNote);
             convertView.setTag(holder);

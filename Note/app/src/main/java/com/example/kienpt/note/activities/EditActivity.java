@@ -1,9 +1,10 @@
-package com.example.kienpt.note;
+package com.example.kienpt.note.activities;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.ColorDrawable;
 import android.icu.text.SimpleDateFormat;
 import android.os.Build;
@@ -16,19 +17,26 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 
-import com.example.kienpt.note.bean.Note;
+import com.example.kienpt.note.models.NoteImageRepo;
+import com.example.kienpt.note.models.NoteRepo;
+import com.example.kienpt.note.R;
+import com.example.kienpt.note.adapters.CustomGridViewImageAdapter;
+import com.example.kienpt.note.adapters.CustomGridViewNotesAdapter;
+import com.example.kienpt.note.models.Note;
+import com.example.kienpt.note.models.NoteImage;
 
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
 @RequiresApi(api = Build.VERSION_CODES.N)
-public class EditActivity extends ActivityParent {
+public class EditActivity extends ControlActivity {
     private Note mNote;
     //    private Context mContext;
     private List<Note> mListNote;
-    private CustomGridViewAdapter adapter;
+    private CustomGridViewNotesAdapter adapter;
     private int posOfNote;
     private ImageButton imbPrevious;
     private ImageButton imbForward;
@@ -100,6 +108,9 @@ public class EditActivity extends ActivityParent {
                 return true;
             case R.id.mn_save:
                 saveNote();
+                return true;
+            case R.id.mn_camera:
+                insertImage();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -222,6 +233,17 @@ public class EditActivity extends ActivityParent {
                 updateAdapterForTimeSpinner(datetime[1]);
                 mSpnTime.setSelection(4);
             }
+
+            mAdapter = new CustomGridViewImageAdapter(this, mImageList);
+            // Show image
+            NoteImageRepo dbNoteImage = new NoteImageRepo();
+            ArrayList<NoteImage> list = dbNoteImage.getImageById(mNote.getNoteID());
+            for (NoteImage notImage : list) {
+                Bitmap bitmap = BitmapFactory.decodeByteArray(notImage.getImg(), 0,
+                        notImage.getImg().length);
+                mImageList.add(bitmap);
+            }
+            mGvImage.setAdapter(mAdapter);
         }
     }
 
@@ -234,7 +256,9 @@ public class EditActivity extends ActivityParent {
                     // click OK
                     case DialogInterface.BUTTON_POSITIVE:
                         NoteRepo dbNote = new NoteRepo();
+                        NoteImageRepo dbNoteImage = new NoteImageRepo();
                         dbNote.deleteNote(mNote);
+                        dbNoteImage.deleteNoteImage(mNote.getNoteID());
                         Intent mainIntent = new Intent(EditActivity.this, MainActivity.class);
                         startActivity(mainIntent);
                         break;
@@ -283,6 +307,17 @@ public class EditActivity extends ActivityParent {
         // add new note into db
         NoteRepo dbNote = new NoteRepo();
         dbNote.updateNote(mNote);
+
+        NoteImageRepo dbNoteImage = new NoteImageRepo();
+        dbNoteImage.deleteNoteImage(mNote.getNoteID());
+
+        for (Bitmap noteImage: mImageList) {
+            NoteImage noteImg = new NoteImage();
+            noteImg.setNoteId(mNote.getNoteID());
+            noteImg.setImg(getBitmapAsByteArray(noteImage));
+            dbNoteImage.addNoteImage(noteImg);
+        }
+
         Intent mainIntent = new Intent(this, MainActivity.class);
         startActivity(mainIntent);
     }
@@ -291,7 +326,7 @@ public class EditActivity extends ActivityParent {
         NoteRepo dbNote = new NoteRepo();
         mListNote = dbNote.getAllNotes();
         mListNote = orderByCreatedTime(mListNote);
-        adapter = new CustomGridViewAdapter(EditActivity.this, mListNote);
+        adapter = new CustomGridViewNotesAdapter(EditActivity.this, mListNote);
         for (int i = 0; i < mListNote.size(); i++) {
             if (mListNote.get(i).getNoteID() == mNote.getNoteID()) {
                 posOfNote = i;

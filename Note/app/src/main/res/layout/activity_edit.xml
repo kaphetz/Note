@@ -4,26 +4,36 @@
     android:id="@+id/ll_note"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:focusableInTouchMode="true"
     android:orientation="vertical"
-    tools:context="com.example.kienpt.note.AddActivity">
+    tools:context="com.example.kienpt.note.activities.AddActivity">
 
-    <LinearLayout
-        android:visibility="gone"
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="10dp">
+        android:padding="5dp">
 
-        <ImageView
-            android:id="@+id/img_photo"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:layout_margin="5dp" />
+        <LinearLayout
+            android:id="@+id/lL_image_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="5dp">
 
-    </LinearLayout>
+            <GridView
+                android:id="@+id/gv_listImage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:columnWidth="120dp"
+                android:horizontalSpacing="10dp"
+                android:numColumns="3"
+                android:verticalSpacing="10dp">
+            </GridView>
+        </LinearLayout>
+    </ScrollView>
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content">
 
         <TextView
             android:id="@+id/tv_dateTime"

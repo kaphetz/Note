@@ -20,7 +20,7 @@
         android:verticalSpacing="10dp"
         android:horizontalSpacing="10dp"
         android:gravity="center"
-        android:numColumns="2"
+        android:numColumns="3"
         android:padding="10dp" />
 
 </RelativeLayout>

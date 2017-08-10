@@ -1,4 +1,4 @@
-package com.example.kienpt.note;
+package com.example.kienpt.note.adapters;
 
 
 import android.app.Activity;
@@ -8,6 +8,8 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.example.kienpt.note.R;
 
 public class CustomListViewAdapter extends BaseAdapter {
 

@@ -1,11 +1,9 @@
-package com.example.kienpt.note;
+package com.example.kienpt.note.models;
 
 
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-
-import com.example.kienpt.note.bean.NoteImage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +27,7 @@ public class NoteImageRepo {
         values.put(COLUMN_NOTE_IMAGE_ID, noteImage.getNoteId());
         values.put(COLUMN_IMAGE, noteImage.getImg());
         db.insert(TABLE_NOTE_IMAGE, null, values);
-        db.close();
+        DatabaseManager.getInstance().closeDatabase();
     }
 
     // get one note
@@ -45,14 +43,34 @@ public class NoteImageRepo {
                     cursor.getBlob(cursor.getColumnIndex(COLUMN_IMAGE)));
         }
         cursor.close();
-        db.close();
+        DatabaseManager.getInstance().closeDatabase();
         return noteImage;
     }
 
     public List<NoteImage> getAllNoteImages() {
         List<NoteImage> noteImageList = new ArrayList<>();
         // Select All Query
-        String selectQuery = String.format("SELECT * FROM %s", TABLE_NOTE_IMAGE);
+        String selectQuery = String.format("SELECT * FROM %s BY %s", TABLE_NOTE_IMAGE);
+        SQLiteDatabase db = DatabaseManager.getInstance().openDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                NoteImage noteImage = new NoteImage(cursor.getInt(cursor.getColumnIndex(COLUMN_NOTE_IMAGE_ID)),
+                        cursor.getBlob(cursor.getColumnIndex(COLUMN_IMAGE)));
+                noteImageList.add(noteImage);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        DatabaseManager.getInstance().closeDatabase();
+        return noteImageList;
+    }
+
+    public ArrayList<NoteImage> getImageById(int noteId) {
+        ArrayList<NoteImage> noteImageList = new ArrayList<>();
+        // Select image that have id = noteId
+        String selectQuery = String.format("SELECT * FROM %s WHERE %s = '%s'", TABLE_NOTE_IMAGE,
+                COLUMN_NOTE_IMAGE_ID, noteId);
 
         SQLiteDatabase db = DatabaseManager.getInstance().openDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);
@@ -65,29 +83,21 @@ public class NoteImageRepo {
             } while (cursor.moveToNext());
         }
         cursor.close();
-        db.close();
+        DatabaseManager.getInstance().closeDatabase();
         return noteImageList;
+
     }
 
-//    public void updateNoteImage(Note note) {
-//        SQLiteDatabase db = DatabaseManager.getInstance().openDatabase();
-//        ContentValues values = new ContentValues();
-//        values.put(COLUMN_NOTE_TITLE, note.getNoteTitle());
-//        values.put(COLUMN_NOTE_CONTENT, note.getNoteContent());
-//        values.put(COLUMN_NOTE_TIME, note.getNoteTime());
-//        values.put(COLUMN_NOTE_CREATED_TIME, note.getCreatedTime());
-//        values.put(COLUMN_NOTE_BACKGROUND_COLOR, note.getBackgroundColor());
-//
-//        // updating row
-//        db.update(TABLE_NOTE, values, COLUMN_NOTE_ID + " = ?",
-//                new String[]{String.valueOf(note.getNoteID())});
-//        db.close();
-//    }
-
-    public void deleteNoteImage(NoteImage noteImage) {
+    public void deleteNoteImage(Integer noteId) {
         SQLiteDatabase db = DatabaseManager.getInstance().openDatabase();
         db.delete(TABLE_NOTE_IMAGE, COLUMN_NOTE_IMAGE_ID + " = ?",
-                new String[]{String.valueOf(noteImage.getNoteId())});
-        db.close();
+                new String[]{String.valueOf(noteId)});
+        DatabaseManager.getInstance().closeDatabase();
+    }
+
+    public void deleteAllNoteImages() {
+        SQLiteDatabase db = DatabaseManager.getInstance().openDatabase();
+        db.delete(TABLE_NOTE_IMAGE, null, null);
+        DatabaseManager.getInstance().closeDatabase();
     }
 }

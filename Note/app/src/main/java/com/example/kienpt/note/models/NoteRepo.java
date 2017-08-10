@@ -1,13 +1,10 @@
-package com.example.kienpt.note;
+package com.example.kienpt.note.models;
 
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.example.kienpt.note.bean.Note;
-
 import java.util.ArrayList;
-import java.util.List;
 
 public class NoteRepo {
     private Note mNote;
@@ -62,8 +59,31 @@ public class NoteRepo {
         return note;
     }
 
-    public List<Note> getAllNotes() {
-        List<Note> noteList = new ArrayList<>();
+    public Note getLastNote() {
+        SQLiteDatabase db = DatabaseManager.getInstance().openDatabase();
+        Note note = null;
+        String selectQuery = String.format("SELECT * FROM %s WHERE %s = (SELECT MAX(%s) FROM %s)",
+                TABLE_NOTE, COLUMN_NOTE_ID, COLUMN_NOTE_ID, TABLE_NOTE);
+
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                note = new Note(cursor.getInt(cursor.getColumnIndex(COLUMN_NOTE_ID)),
+                        cursor.getString(cursor.getColumnIndex(COLUMN_NOTE_TITLE)),
+                        cursor.getString(cursor.getColumnIndex(COLUMN_NOTE_CONTENT)),
+                        cursor.getString(cursor.getColumnIndex(COLUMN_NOTE_TIME)),
+                        cursor.getString(cursor.getColumnIndex(COLUMN_NOTE_CREATED_TIME)),
+                        cursor.getString(cursor.getColumnIndex(COLUMN_NOTE_BACKGROUND_COLOR)));
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        DatabaseManager.getInstance().closeDatabase();
+        return note;
+    }
+
+    public ArrayList<Note> getAllNotes() {
+        ArrayList<Note> noteList = new ArrayList<>();
         // Select All Query
         String selectQuery = String.format("SELECT * FROM %s", TABLE_NOTE);
 

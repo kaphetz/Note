@@ -1,9 +1,7 @@
-package com.example.kienpt.note;
+package com.example.kienpt.note.activities;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.Menu;
@@ -14,7 +12,13 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.GridView;
 import android.widget.TextView;
 
-import com.example.kienpt.note.bean.Note;
+import com.example.kienpt.note.models.DatabaseManager;
+import com.example.kienpt.note.models.MyDatabaseHelper;
+import com.example.kienpt.note.models.NoteImageRepo;
+import com.example.kienpt.note.models.NoteRepo;
+import com.example.kienpt.note.R;
+import com.example.kienpt.note.adapters.CustomGridViewNotesAdapter;
+import com.example.kienpt.note.models.Note;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -22,7 +26,7 @@ import java.util.Date;
 import java.util.List;
 
 public class MainActivity extends Activity {
-    private CustomGridViewAdapter adapter;
+    private CustomGridViewNotesAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,11 +43,10 @@ public class MainActivity extends Activity {
         NoteRepo dbNote = new NoteRepo();
         List<Note> mListNote = dbNote.getAllNotes();
         mListNote = orderByCreatedTime(mListNote);
-        adapter = new CustomGridViewAdapter(MainActivity.this, mListNote);
-         /*
-          * show list of notes if count > 0
-          * if count = 0, show "No Notes"
-          */
+        adapter = new CustomGridViewNotesAdapter(MainActivity.this, mListNote);
+
+         //show list of notes if count > 0
+         //if count = 0, show "No Notes"
         if (mListNote.size() > 0) {
             gvListNote.setVisibility(View.VISIBLE);
             tvNoNotes.setVisibility(View.GONE);
