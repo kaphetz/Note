@@ -52,12 +52,12 @@ public class EditActivity extends ControlActivity {
         getActionBar().setBackgroundDrawable(
                 new ColorDrawable(getResources().getColor(R.color.colorSky)));
         initView();
-        getData();
-        // Button of bottom menu
         ImageButton imbDel = (ImageButton) findViewById(R.id.btn_delete);
         ImageButton imbShare = (ImageButton) findViewById(R.id.btn_share);
         imbPrevious = (ImageButton) findViewById(R.id.btn_previous);
         imbForward = (ImageButton) findViewById(R.id.btn_forward);
+        getData();
+        // Button of bottom menu
         // Event click for button DEL
         imbDel.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -73,7 +73,6 @@ public class EditActivity extends ControlActivity {
             }
         });
         // Navigation button
-        setUpForNavigationButton();
         imbPrevious.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -189,7 +188,11 @@ public class EditActivity extends ControlActivity {
             getActionBar().setTitle(mNote.getNoteTitle());
             mEtTitle.setText(mNote.getNoteTitle());
             mEtContent.setText(mNote.getNoteContent());
-            mTvDateTime.setText(mNote.getCreatedTime());// Set up for date spinner
+            StringBuffer strBuf = new StringBuffer(mNote.getCreatedTime());
+            int start = 16;
+            int end = 19;
+            strBuf.replace(start, end, "");
+            mTvDateTime.setText(strBuf);
             mColor = mNote.getBackgroundColor();
             switch (mNote.getBackgroundColor()) {
                 case "Yellow":
@@ -233,7 +236,6 @@ public class EditActivity extends ControlActivity {
                 updateAdapterForTimeSpinner(datetime[1]);
                 mSpnTime.setSelection(4);
             }
-
             mAdapter = new CustomGridViewImageAdapter(this, mImageList);
             // Show image
             NoteImageRepo dbNoteImage = new NoteImageRepo();
@@ -243,6 +245,7 @@ public class EditActivity extends ControlActivity {
                         notImage.getImg().length);
                 mImageList.add(bitmap);
             }
+            setUpForNavigationButton();
             mGvImage.setAdapter(mAdapter);
         }
     }
@@ -368,7 +371,7 @@ public class EditActivity extends ControlActivity {
 
     public List<Note> orderByCreatedTime(List<Note> listNote) {
         java.text.SimpleDateFormat formatter = new java.text.SimpleDateFormat(
-                getString(R.string.ddmmyyyy_hhmm_format));
+                getString(R.string.ddmmyyyy_hhmmss_format));
         for (int i = 0; i < listNote.size() - 1; i++) {
             for (int j = i + 1; j < listNote.size(); j++) {
                 try {

@@ -12,13 +12,12 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.GridView;
 import android.widget.TextView;
 
-import com.example.kienpt.note.models.DatabaseManager;
-import com.example.kienpt.note.models.MyDatabaseHelper;
-import com.example.kienpt.note.models.NoteImageRepo;
-import com.example.kienpt.note.models.NoteRepo;
 import com.example.kienpt.note.R;
 import com.example.kienpt.note.adapters.CustomGridViewNotesAdapter;
+import com.example.kienpt.note.models.DatabaseManager;
+import com.example.kienpt.note.models.MyDatabaseHelper;
 import com.example.kienpt.note.models.Note;
+import com.example.kienpt.note.models.NoteRepo;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -90,7 +89,7 @@ public class MainActivity extends Activity {
     }
 
     public List<Note> orderByCreatedTime(List<Note> listNote) {
-        SimpleDateFormat formatter = new SimpleDateFormat(getString(R.string.ddmmyyyy_hhmm_format));
+        SimpleDateFormat formatter = new SimpleDateFormat(getString(R.string.ddmmyyyy_hhmmss_format));
         for (int i = 0; i < listNote.size() - 1; i++) {
             for (int j = i + 1; j < listNote.size(); j++) {
                 try {

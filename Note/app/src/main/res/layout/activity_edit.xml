@@ -44,11 +44,12 @@
             android:layout_marginTop="20dp"
             android:text="@string/ex_time" />
 
-        <EditText
+        <com.example.kienpt.note.LinedEditText
             android:id="@+id/et_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/tv_dateTime"
+            android:background="@null"
             android:gravity="top"
             android:hint="@string/title"
             android:inputType="textMultiLine"
@@ -56,12 +57,12 @@
             android:textSize="@dimen/title_size"
             android:textStyle="bold" />
 
-        <EditText
+        <com.example.kienpt.note.LinedEditText
             android:id="@+id/et_content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/et_title"
-            android:background="@android:color/transparent"
+            android:background="@null"
             android:fadingEdge="vertical"
             android:gravity="top"
             android:hint="@string/note"

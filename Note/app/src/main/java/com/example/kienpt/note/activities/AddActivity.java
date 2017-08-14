@@ -51,7 +51,7 @@ public class AddActivity extends ControlActivity {
         mSpnTime.setAdapter(timeAdapter);
         mSpnTime.setOnItemSelectedListener(new TimeSpinnerInfo());
         Calendar now = Calendar.getInstance();
-        mTvDateTime.setText(convert(now, getString(R.string.ddmmyyyy_format)));
+        mTvDateTime.setText(convert(now, getString(R.string.ddmmyyyy_hhmm_format)));
     }
 
 
@@ -149,11 +149,11 @@ public class AddActivity extends ControlActivity {
     public void addNewNote() {
         Note note = new Note();
         if (!mEtTitle.getText().toString().equals("")) {
-            note.setNoteTitle(mEtTitle.getText().toString());
+            note.setNoteTitle(mEtTitle.getText().toString().trim());
         } else {
             note.setNoteTitle(getString(R.string.untitled));
         }
-        note.setNoteContent(mEtContent.getText().toString());
+        note.setNoteContent(mEtContent.getText().toString().trim());
         if (mLlDateTime.getVisibility() == View.VISIBLE) {
             note.setNoteTime(String.format("%s %s", mSelectedDate, mSelectedTime));
         } else {
@@ -162,7 +162,7 @@ public class AddActivity extends ControlActivity {
         //get create datetime
         mCalendar = Calendar.getInstance();
         note.setCreatedTime(String.format("%s", convert(mCalendar,
-                getString(R.string.ddmmyyyy_hhmm_format))));
+                getString(R.string.ddmmyyyy_hhmmss_format))));
         note.setBackgroundColor(mColor);
         // add new note into db
         NoteRepo dbNote = new NoteRepo();

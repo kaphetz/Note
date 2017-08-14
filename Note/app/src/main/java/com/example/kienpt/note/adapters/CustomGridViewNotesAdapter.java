@@ -67,6 +67,9 @@ public class CustomGridViewNotesAdapter extends BaseAdapter {
         int start = 5;
         int end = 10;
         strBuf.replace(start, end, "");
+        start = 11;
+        end = 14;
+        strBuf.replace(start, end, "");
         holder.createdTimeView.setText(strBuf);
         if (!Objects.equals(note.getNoteTime(), "")) {
             holder.alarmView.setVisibility(View.VISIBLE);
