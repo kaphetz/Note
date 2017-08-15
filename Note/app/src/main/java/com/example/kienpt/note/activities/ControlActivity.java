@@ -1,8 +1,10 @@
 package com.example.kienpt.note.activities;
 
 import android.app.Activity;
+import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
+import android.app.PendingIntent;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -68,12 +70,17 @@ public class ControlActivity extends Activity {
     protected String[] parts = mCalendar.getTime().toString().split(" ");
     protected ArrayAdapter<String> dateAdapter;
     protected ArrayAdapter<String> timeAdapter;
-    public List<String> listDate = new ArrayList<>();
-    public List<String> listTime = new ArrayList<>();
-    public Integer[] mSourceImageList = {R.drawable.ic_take_photo, R.drawable.ic_choose_photo};
-    public String[] mSourceImageNameList = {"Take photo", "Choose photo"};
-    public CustomGridViewImageAdapter mAdapter;
-    public ArrayList<Bitmap> mImageList = new ArrayList<>();
+
+
+    protected AlarmManager mAlarmManager;
+    protected PendingIntent pendingIntent;
+
+    protected List<String> listDate = new ArrayList<>();
+    protected List<String> listTime = new ArrayList<>();
+    protected Integer[] mSourceImageList = {R.drawable.ic_take_photo, R.drawable.ic_choose_photo};
+    protected String[] mSourceImageNameList = {"Take photo", "Choose photo"};
+    protected CustomGridViewImageAdapter mAdapter;
+    protected ArrayList<Bitmap> mImageList = new ArrayList<>();
 
     // Constant value
     private static final int REQUEST_ID_IMAGE_CAPTURE = 1;

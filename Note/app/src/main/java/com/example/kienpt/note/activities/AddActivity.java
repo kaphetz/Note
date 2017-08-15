@@ -149,9 +149,6 @@ public class AddActivity extends ControlActivity {
         }
     }
 
-    AlarmManager mAlarmManager;
-    PendingIntent pendingIntent;
-
     public void addNewNote() {
         Note note = new Note();
         if (!mEtTitle.getText().toString().equals("")) {
@@ -176,22 +173,29 @@ public class AddActivity extends ControlActivity {
 
 
         note = dbNote.getLastNote();
-        String[] selectTime = mSelectedTime.split(":");
-        Calendar calen = Calendar.getInstance();
 
-        calen.set(Calendar.HOUR_OF_DAY, Integer.valueOf(selectTime[0]));
-        calen.set(Calendar.MINUTE, Integer.valueOf(selectTime[1]));
-        calen.set(Calendar.SECOND, 0);
+        if (mLlDateTime.getVisibility() == View.VISIBLE) {
+            String[] selectTime = mSelectedTime.split(":");
+            String[] selectDate = mSelectedDate.split("/");
+            Calendar calendar = Calendar.getInstance();
 
+            calendar.set(Calendar.YEAR, 2017);
+            calendar.set(Calendar.MONTH, 8);
+            calendar.set(Calendar.DATE, 15);
+            calendar.set(Calendar.HOUR_OF_DAY, Integer.valueOf(selectTime[0]));
+            calendar.set(Calendar.MINUTE, Integer.valueOf(selectTime[1]));
+            calendar.set(Calendar.SECOND, 0);
 
-        mAlarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-        Intent intent = new Intent("android.media.action.DISPLAY_NOTIFICATION");
-        intent.addCategory("android.intent.category.DEFAULT");
-        intent.putExtra("id", note.getNoteID());
-        pendingIntent = PendingIntent.getBroadcast(this, note.getNoteID(), intent,
-                PendingIntent.FLAG_UPDATE_CURRENT);
-        mAlarmManager.setExact(AlarmManager.RTC_WAKEUP,
-                calen.getTimeInMillis(), pendingIntent);
+            mAlarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+            Intent intent = new Intent("android.media.action.DISPLAY_NOTIFICATION");
+            intent.addCategory("android.intent.category.DEFAULT");
+            intent.putExtra("id", note.getNoteID());
+            intent.putExtra("title", note.getNoteTitle());
+            pendingIntent = PendingIntent.getBroadcast(this, note.getNoteID(), intent,
+                    PendingIntent.FLAG_UPDATE_CURRENT);
+            mAlarmManager.setExact(AlarmManager.RTC_WAKEUP,
+                    calendar.getTimeInMillis(), pendingIntent);
+        }
 
         NoteImageRepo dbNoteImage = new NoteImageRepo();
         for (Bitmap noteImage : mImageList) {

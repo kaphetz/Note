@@ -1,6 +1,10 @@
 package com.example.kienpt.note.activities;
 
+import android.app.AlarmManager;
 import android.app.AlertDialog;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -17,13 +21,13 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 
-import com.example.kienpt.note.models.NoteImageRepo;
-import com.example.kienpt.note.models.NoteRepo;
 import com.example.kienpt.note.R;
 import com.example.kienpt.note.adapters.CustomGridViewImageAdapter;
 import com.example.kienpt.note.adapters.CustomGridViewNotesAdapter;
 import com.example.kienpt.note.models.Note;
 import com.example.kienpt.note.models.NoteImage;
+import com.example.kienpt.note.models.NoteImageRepo;
+import com.example.kienpt.note.models.NoteRepo;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -263,6 +267,10 @@ public class EditActivity extends ControlActivity {
                         NoteImageRepo dbNoteImage = new NoteImageRepo();
                         dbNote.deleteNote(mNote);
                         dbNoteImage.deleteNoteImage(mNote.getNoteID());
+
+                        NotificationManager notification = (NotificationManager) getApplicationContext()
+                                .getSystemService(Context.NOTIFICATION_SERVICE);
+                        notification.cancel(mNote.getNoteID());
                         Intent mainIntent = new Intent(EditActivity.this, MainActivity.class);
                         startActivity(mainIntent);
                         break;
@@ -315,6 +323,33 @@ public class EditActivity extends ControlActivity {
         // add new note into db
         NoteRepo dbNote = new NoteRepo();
         dbNote.updateNote(mNote);
+
+        if (mLlDateTime.getVisibility() == View.VISIBLE) {
+            String[] selectTime = mSelectedTime.split(":");
+            String[] selectDate = mSelectedDate.split("/");
+            Calendar calendar = Calendar.getInstance();
+
+            calendar.set(Calendar.YEAR, 2017);
+            calendar.set(Calendar.MONTH, 8);
+            calendar.set(Calendar.DATE, 15);
+            calendar.set(Calendar.HOUR_OF_DAY, Integer.valueOf(selectTime[0]));
+            calendar.set(Calendar.MINUTE, Integer.valueOf(selectTime[1]));
+            calendar.set(Calendar.SECOND, 0);
+
+            mAlarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+            Intent intent = new Intent("android.media.action.DISPLAY_NOTIFICATION");
+            intent.addCategory("android.intent.category.DEFAULT");
+            intent.putExtra("id", mNote.getNoteID());
+            intent.putExtra("title", mNote.getNoteTitle());
+            pendingIntent = PendingIntent.getBroadcast(this, mNote.getNoteID(), intent,
+                    PendingIntent.FLAG_UPDATE_CURRENT);
+            mAlarmManager.setExact(AlarmManager.RTC_WAKEUP,
+                    calendar.getTimeInMillis(), pendingIntent);
+        }else{
+            NotificationManager notification = (NotificationManager) getApplicationContext()
+                    .getSystemService(Context.NOTIFICATION_SERVICE);
+            notification.cancel(mNote.getNoteID());
+        }
 
         NoteImageRepo dbNoteImage = new NoteImageRepo();
         dbNoteImage.deleteNoteImage(mNote.getNoteID());
