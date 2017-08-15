@@ -85,6 +85,7 @@ public class EditActivity extends ControlActivity {
                 moveToNextNote();
             }
         });
+        restoreMe();
     }
 
 
@@ -196,19 +197,19 @@ public class EditActivity extends ControlActivity {
             mColor = mNote.getBackgroundColor();
             switch (mNote.getBackgroundColor()) {
                 case "Yellow":
-                    mLlNote.setBackgroundColor(
+                    mRlNote.setBackgroundColor(
                             getResources().getColor(R.color.colorYellow));
                     break;
                 case "Green":
-                    mLlNote.setBackgroundColor(
+                    mRlNote.setBackgroundColor(
                             getResources().getColor(R.color.colorGreen));
                     break;
                 case "Blue":
-                    mLlNote.setBackgroundColor(
+                    mRlNote.setBackgroundColor(
                             getResources().getColor(R.color.colorBlue));
                     break;
                 default:
-                    mLlNote.setBackgroundColor(
+                    mRlNote.setBackgroundColor(
                             getResources().getColor(R.color.colorWhite));
                     break;
             }
@@ -290,8 +291,12 @@ public class EditActivity extends ControlActivity {
 
     // save note
     private void saveNote() {
-        mNote.setNoteTitle(mEtTitle.getText().toString());
-        mNote.setNoteContent(mEtContent.getText().toString());
+        if (!mEtTitle.getText().toString().equals("")) {
+            mNote.setNoteTitle(mEtTitle.getText().toString().trim());
+        } else {
+            mNote.setNoteTitle(getString(R.string.untitled));
+        }
+        mNote.setNoteContent(mEtContent.getText().toString().trim());
         if (!mEtTitle.getText().toString().equals("")) {
             mNote.setNoteTitle(mEtTitle.getText().toString());
         } else {
@@ -305,7 +310,7 @@ public class EditActivity extends ControlActivity {
         //get create datetime
         mCalendar = Calendar.getInstance();
         mNote.setCreatedTime(String.format("%s", convert(mCalendar,
-                getString(R.string.ddmmyyyy_hhmm_format))));
+                getString(R.string.ddmmyyyy_hhmmss_format))));
         mNote.setBackgroundColor(mColor);
         // add new note into db
         NoteRepo dbNote = new NoteRepo();

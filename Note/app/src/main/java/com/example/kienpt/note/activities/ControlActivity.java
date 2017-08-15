@@ -28,6 +28,7 @@ import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -56,8 +57,8 @@ public class ControlActivity extends Activity {
     protected TextView mTvDateTime;
     protected EditText mEtTitle;
     protected EditText mEtContent;
-    protected LinearLayout mLlNote;
-    protected LinearLayout mLlImageContainer;
+    protected RelativeLayout mRlNote;
+    //    protected LinearLayout mLlImageContainer;
     protected Calendar mCalendar = Calendar.getInstance();
     protected String mSelectedDate = "";
     protected String mSelectedTime = "";
@@ -65,8 +66,8 @@ public class ControlActivity extends Activity {
     protected AlertDialog dialog;
     protected Context mContext;
     protected String[] parts = mCalendar.getTime().toString().split(" ");
-    protected ArrayAdapter dateAdapter;
-    protected ArrayAdapter timeAdapter;
+    protected ArrayAdapter<String> dateAdapter;
+    protected ArrayAdapter<String> timeAdapter;
     public List<String> listDate = new ArrayList<>();
     public List<String> listTime = new ArrayList<>();
     public Integer[] mSourceImageList = {R.drawable.ic_take_photo, R.drawable.ic_choose_photo};
@@ -94,8 +95,8 @@ public class ControlActivity extends Activity {
         mSpnDate = (Spinner) findViewById(R.id.spn_date);
         mSpnTime = (Spinner) findViewById(R.id.spn_time);
         mLlDateTime = (LinearLayout) findViewById(R.id.ll_dateTime);
-        mLlNote = (LinearLayout) findViewById(R.id.ll_note);
-        mLlImageContainer = (LinearLayout) findViewById(R.id.lL_image_container);
+        mRlNote = (RelativeLayout) findViewById(R.id.rl_note);
+//        mLlImageContainer = (LinearLayout) findViewById(R.id.lL_image_container);
         mGvImage = (GridView) findViewById(R.id.gv_listImage);
         mTvAlarm = (TextView) findViewById(R.id.tv_alarm);
         mTvDateTime = (TextView) findViewById(R.id.tv_dateTime);
@@ -103,29 +104,45 @@ public class ControlActivity extends Activity {
         mEtContent = (EditText) findViewById(R.id.et_content);
     }
 
+    /**
+     * hàm khôi phục lại trạng thái dữ liệu sau khi activity đã được khởi tạo
+     */
+    public void restoreMe() {
+        // check last state's mImageList
+        if (getLastNonConfigurationInstance() != null) {
+            mImageList = (ArrayList<Bitmap>) getLastNonConfigurationInstance();
+        }
+    }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState){
-        outState.putString("LinearLayoutState",String.valueOf(mLlDateTime.isShown()));
-        outState.putParcelableArrayList("ImageList",mImageList);
+    @Deprecated
+    public Object onRetainNonConfigurationInstance() {
+        return mImageList;
+    }
+
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putString("LinearLayoutState", String.valueOf(mLlDateTime.isShown()));
+//        outState.putParcelableArrayList("ImageList", mImageList);
         super.onSaveInstanceState(outState);
     }
 
+
     @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState){
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        if(savedInstanceState.getString("LinearLayoutState").equals("true")){
+        if (savedInstanceState.getString("LinearLayoutState").equals("true")) {
             mLlDateTime.setVisibility(View.VISIBLE);
             mTvAlarm.setVisibility(View.GONE);
-        }else{
+        } else {
             mLlDateTime.setVisibility(View.GONE);
             mTvAlarm.setVisibility(View.VISIBLE);
         }
-        mImageList = savedInstanceState.getParcelableArrayList("ImageList");
+//        mImageList = savedInstanceState.getParcelableArrayList("ImageList");
         mAdapter = new CustomGridViewImageAdapter(this, mImageList);
         mGvImage.setAdapter(mAdapter);
     }
-
 
     public String dayOfNextWeek(String dayOfWeek) {
         switch (dayOfWeek) {
@@ -209,7 +226,7 @@ public class ControlActivity extends Activity {
         btnWhite.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mLlNote.setBackgroundColor(
+                mRlNote.setBackgroundColor(
                         ContextCompat.getColor(getApplicationContext(), R.color.colorWhite));
                 mColor = "White";
                 dialog.dismiss();
@@ -218,7 +235,7 @@ public class ControlActivity extends Activity {
         btnYellow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mLlNote.setBackgroundColor(
+                mRlNote.setBackgroundColor(
                         ContextCompat.getColor(getApplicationContext(), R.color.colorYellow));
                 mColor = "Yellow";
                 dialog.dismiss();
@@ -227,7 +244,7 @@ public class ControlActivity extends Activity {
         btnGreen.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mLlNote.setBackgroundColor(
+                mRlNote.setBackgroundColor(
                         ContextCompat.getColor(getApplicationContext(), R.color.colorGreen));
                 mColor = "Green";
                 dialog.dismiss();
@@ -236,7 +253,7 @@ public class ControlActivity extends Activity {
         btnBlue.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mLlNote.setBackgroundColor(
+                mRlNote.setBackgroundColor(
                         ContextCompat.getColor(getApplicationContext(), R.color.colorBlue));
                 mColor = "Blue";
                 dialog.dismiss();
@@ -246,6 +263,7 @@ public class ControlActivity extends Activity {
         dialog = mBuilder.create();
         dialog.show();
     }
+
 
     // When click option "Other..." in TimeSpinner
     public void chooseOptionOtherTime(Context context, String selectedTime) {

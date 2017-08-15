@@ -10,8 +10,10 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 
+import com.bumptech.glide.Glide;
 import com.example.kienpt.note.R;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 
 
@@ -55,7 +57,12 @@ public class CustomGridViewImageAdapter extends BaseAdapter implements ListAdapt
             holder = (ImageViewHolder) convertView.getTag();
         }
         Bitmap image = mListData.get(position);
-        holder.imageView.setImageBitmap(image);
+        Glide.with(mContext)
+                .load(bitmapToByte(image))
+                .asBitmap()
+                .fitCenter()
+                .into(holder.imageView);
+//        holder.imageView.setImageBitmap(image);
         holder.delView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -66,7 +73,12 @@ public class CustomGridViewImageAdapter extends BaseAdapter implements ListAdapt
         });
         return convertView;
     }
-
+    private byte[] bitmapToByte(Bitmap bitmap){
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+        byte[] byteArray = stream.toByteArray();
+        return byteArray;
+    }
     private class ImageViewHolder {
         ImageView imageView;
         ImageButton delView;

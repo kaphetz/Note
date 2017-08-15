@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/ll_note"
+    android:id="@+id/rl_note"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:focusableInTouchMode="true"
@@ -11,163 +11,173 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:isScrollContainer="false"
         android:padding="5dp">
 
         <LinearLayout
-            android:id="@+id/lL_image_container"
+            android:id="@+id/content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="5dp">
+            android:orientation="vertical">
 
-            <GridView
+            <com.example.kienpt.note.ExpandableHeightGridView
                 android:id="@+id/gv_listImage"
-                android:layout_width="match_parent"
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:columnWidth="120dp"
+                android:layout_margin="10dp"
                 android:horizontalSpacing="10dp"
+                android:isScrollContainer="false"
                 android:numColumns="3"
+                android:stretchMode="columnWidth"
                 android:verticalSpacing="10dp">
-            </GridView>
+
+            </com.example.kienpt.note.ExpandableHeightGridView>
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent"
+                android:layout_weight="1">
+
+                <TextView
+                    android:id="@+id/tv_dateTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginRight="20dp"
+                    android:layout_marginTop="20dp"
+                    android:text="@string/ex_time" />
+
+                <com.example.kienpt.note.LinedEditText
+                    android:id="@+id/et_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/tv_dateTime"
+                    android:background="@null"
+                    android:gravity="top"
+                    android:hint="@string/title"
+                    android:inputType="textMultiLine"
+                    android:paddingLeft="20dp"
+                    android:textSize="@dimen/title_size"
+                    android:textStyle="bold" />
+
+                <com.example.kienpt.note.LinedEditText
+                    android:id="@+id/et_content"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/et_title"
+                    android:background="@null"
+                    android:fadingEdge="vertical"
+                    android:gravity="top"
+                    android:hint="@string/note"
+                    android:inputType="textMultiLine"
+                    android:paddingLeft="20dp"
+                    android:textSize="@dimen/note_size" />
+
+                <ImageView
+                    android:id="@+id/img_alarm"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_below="@+id/et_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginTop="20dp"
+                    android:src="@drawable/ic_alarm" />
+
+                <TextView
+                    android:id="@+id/tv_alarm"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/et_content"
+                    android:layout_marginTop="33dp"
+                    android:layout_toRightOf="@id/img_alarm"
+                    android:clickable="true"
+                    android:onClick="showDateTimePicker"
+                    android:text="@string/alarm"
+                    android:textSize="@dimen/alarm_size" />
+
+                <LinearLayout
+                    android:id="@+id/ll_dateTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/et_content"
+                    android:layout_marginTop="15dp"
+                    android:layout_toRightOf="@id/img_alarm"
+                    android:visibility="gone">
+
+                    <Spinner
+                        android:id="@+id/spn_date"
+                        android:layout_width="140dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:paddingBottom="5dp"
+                        android:theme="@android:style/Theme.Holo.Light.DarkActionBar" />
+
+
+                    <Spinner
+                        android:id="@+id/spn_time"
+                        android:layout_width="90dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:paddingBottom="5dp"
+                        android:theme="@android:style/Theme.Holo.Light.DarkActionBar" />
+
+                    <ImageButton
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="10dp"
+                        android:background="@null"
+                        android:onClick="hideDateTimePicker"
+                        android:src="@drawable/ic_x_mark" />
+
+                </LinearLayout>
+            </RelativeLayout>
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="70dp"/>
         </LinearLayout>
+
     </ScrollView>
 
-    <RelativeLayout
+    <TableLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:layout_gravity="bottom"
+        android:background="@color/colorSky"
+        android:shrinkColumns="*"
+        android:stretchColumns="*">
 
-        <TextView
-            android:id="@+id/tv_dateTime"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_marginRight="20dp"
-            android:layout_marginTop="20dp"
-            android:text="@string/ex_time" />
-
-        <com.example.kienpt.note.LinedEditText
-            android:id="@+id/et_title"
+        <TableRow
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/tv_dateTime"
-            android:background="@null"
-            android:gravity="top"
-            android:hint="@string/title"
-            android:inputType="textMultiLine"
-            android:paddingLeft="20dp"
-            android:textSize="@dimen/title_size"
-            android:textStyle="bold" />
-
-        <com.example.kienpt.note.LinedEditText
-            android:id="@+id/et_content"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/et_title"
-            android:background="@null"
-            android:fadingEdge="vertical"
-            android:gravity="top"
-            android:hint="@string/note"
-            android:inputType="textMultiLine"
-            android:paddingLeft="20dp"
-            android:textSize="@dimen/note_size" />
-
-        <ImageView
-            android:id="@+id/img_alarm"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_below="@+id/et_content"
-            android:layout_marginLeft="10dp"
-            android:layout_marginTop="20dp"
-            android:src="@drawable/ic_alarm" />
-
-        <TextView
-            android:id="@+id/tv_alarm"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/et_content"
-            android:layout_marginTop="33dp"
-            android:layout_toRightOf="@id/img_alarm"
-            android:clickable="true"
-            android:onClick="showDateTimePicker"
-            android:text="@string/alarm"
-            android:textSize="@dimen/alarm_size" />
-
-        <LinearLayout
-            android:id="@+id/ll_dateTime"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/et_content"
-            android:layout_marginTop="15dp"
-            android:layout_toRightOf="@id/img_alarm"
-            android:visibility="gone">
-
-            <Spinner
-                android:id="@+id/spn_date"
-                android:layout_width="140dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:paddingBottom="5dp"
-                android:theme="@android:style/Theme.Holo.Light.DarkActionBar" />
-
-
-            <Spinner
-                android:id="@+id/spn_time"
-                android:layout_width="90dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:paddingBottom="5dp"
-                android:theme="@android:style/Theme.Holo.Light.DarkActionBar" />
+            android:layout_height="match_parent">
 
             <ImageButton
+                android:id="@+id/btn_previous"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp"
-                android:background="@null"
-                android:onClick="hideDateTimePicker"
-                android:src="@drawable/ic_x_mark" />
+                android:layout_height="50dp"
+                android:background="@drawable/button_color"
+                android:src="@drawable/ic_left" />
 
-        </LinearLayout>
+            <ImageButton
+                android:id="@+id/btn_share"
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:background="@drawable/button_color"
+                android:src="@drawable/ic_share" />
 
-        <TableLayout
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_alignParentBottom="true"
-            android:background="@color/colorSky"
-            android:shrinkColumns="*"
-            android:stretchColumns="*">
+            <ImageButton
+                android:id="@+id/btn_delete"
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:background="@drawable/button_color"
+                android:src="@drawable/ic_delete" />
 
-            <TableRow
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <ImageButton
-                    android:id="@+id/btn_previous"
-                    android:layout_width="wrap_content"
-                    android:layout_height="50dp"
-                    android:background="@drawable/button_color"
-                    android:src="@drawable/ic_left" />
-
-                <ImageButton
-                    android:id="@+id/btn_share"
-                    android:layout_width="wrap_content"
-                    android:layout_height="50dp"
-                    android:background="@drawable/button_color"
-                    android:src="@drawable/ic_share" />
-
-                <ImageButton
-                    android:id="@+id/btn_delete"
-                    android:layout_width="wrap_content"
-                    android:layout_height="50dp"
-                    android:background="@drawable/button_color"
-                    android:src="@drawable/ic_delete" />
-
-                <ImageButton
-                    android:id="@+id/btn_forward"
-                    android:layout_width="wrap_content"
-                    android:layout_height="50dp"
-                    android:background="@drawable/button_color"
-                    android:src="@drawable/ic_right" />
-            </TableRow>
-
-        </TableLayout>
-    </RelativeLayout>
-</LinearLayout>
+            <ImageButton
+                android:id="@+id/btn_forward"
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:background="@drawable/button_color"
+                android:src="@drawable/ic_right" />
+        </TableRow>
+    </TableLayout>
+</RelativeLayout>

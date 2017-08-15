@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/ll_note"
+    android:id="@+id/rl_note"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:focusableInTouchMode="true"
@@ -12,27 +12,30 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:fillViewport="true">
+        android:padding="5dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <GridView
+            <com.example.kienpt.note.ExpandableHeightGridView
                 android:id="@+id/gv_listImage"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
                 android:horizontalSpacing="10dp"
+                android:isScrollContainer="false"
                 android:numColumns="3"
+                android:stretchMode="columnWidth"
                 android:verticalSpacing="10dp">
 
-            </GridView>
+            </com.example.kienpt.note.ExpandableHeightGridView>
 
             <RelativeLayout
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
+                android:layout_height="fill_parent"
+                android:layout_weight="1">
 
                 <TextView
                     android:id="@+id/tv_dateTime"
@@ -129,4 +132,5 @@
             </RelativeLayout>
         </LinearLayout>
     </ScrollView>
-</LinearLayout>
+
+</RelativeLayout>

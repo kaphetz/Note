@@ -16,10 +16,8 @@
         android:id="@+id/gv_listNote"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:columnWidth="120dp"
         android:verticalSpacing="10dp"
         android:horizontalSpacing="10dp"
-        android:gravity="center"
         android:numColumns="2"
         android:padding="10dp" />
 

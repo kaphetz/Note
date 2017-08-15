@@ -1,5 +1,7 @@
 package com.example.kienpt.note.activities;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.ColorDrawable;
@@ -52,6 +54,7 @@ public class AddActivity extends ControlActivity {
         mSpnTime.setOnItemSelectedListener(new TimeSpinnerInfo());
         Calendar now = Calendar.getInstance();
         mTvDateTime.setText(convert(now, getString(R.string.ddmmyyyy_hhmm_format)));
+        restoreMe();
     }
 
 
@@ -146,6 +149,9 @@ public class AddActivity extends ControlActivity {
         }
     }
 
+    AlarmManager mAlarmManager;
+    PendingIntent pendingIntent;
+
     public void addNewNote() {
         Note note = new Note();
         if (!mEtTitle.getText().toString().equals("")) {
@@ -168,9 +174,27 @@ public class AddActivity extends ControlActivity {
         NoteRepo dbNote = new NoteRepo();
         dbNote.addNote(note);
 
+
         note = dbNote.getLastNote();
+        String[] selectTime = mSelectedTime.split(":");
+        Calendar calen = Calendar.getInstance();
+
+        calen.set(Calendar.HOUR_OF_DAY, Integer.valueOf(selectTime[0]));
+        calen.set(Calendar.MINUTE, Integer.valueOf(selectTime[1]));
+        calen.set(Calendar.SECOND, 0);
+
+
+        mAlarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+        Intent intent = new Intent("android.media.action.DISPLAY_NOTIFICATION");
+        intent.addCategory("android.intent.category.DEFAULT");
+        intent.putExtra("id", note.getNoteID());
+        pendingIntent = PendingIntent.getBroadcast(this, note.getNoteID(), intent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+        mAlarmManager.setExact(AlarmManager.RTC_WAKEUP,
+                calen.getTimeInMillis(), pendingIntent);
+
         NoteImageRepo dbNoteImage = new NoteImageRepo();
-        for (Bitmap noteImage: mImageList) {
+        for (Bitmap noteImage : mImageList) {
             NoteImage noteImg = new NoteImage();
             noteImg.setNoteId(note.getNoteID());
             noteImg.setImg(getBitmapAsByteArray(noteImage));
