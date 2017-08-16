@@ -58,8 +58,7 @@ public class MainActivity extends Activity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent intent = new Intent(MainActivity.this, EditActivity.class);
-                String key = "EDIT";
-                intent.putExtra(key, (Note) adapter.getItem(position));
+                intent.putExtra(EditActivity.KEY, (Note) adapter.getItem(position));
                 startActivity(intent);
             }
         });
@@ -83,11 +82,14 @@ public class MainActivity extends Activity {
         }
     }
 
+    // call add activity
     public void addNote() {
         Intent intentAdd = new Intent(this, AddActivity.class);
         startActivity(intentAdd);
     }
 
+
+    // Order by time created
     public List<Note> orderByCreatedTime(List<Note> listNote) {
         SimpleDateFormat formatter = new SimpleDateFormat(getString(R.string.ddmmyyyy_hhmmss_format));
         for (int i = 0; i < listNote.size() - 1; i++) {
