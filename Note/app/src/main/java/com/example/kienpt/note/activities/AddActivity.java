@@ -9,12 +9,16 @@ import android.icu.text.SimpleDateFormat;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Toast;
 
+import com.example.kienpt.note.AlarmReceiver;
 import com.example.kienpt.note.models.NoteImageRepo;
 import com.example.kienpt.note.models.NoteRepo;
 import com.example.kienpt.note.R;
@@ -38,7 +42,7 @@ public class AddActivity extends ControlActivity {
                 new ColorDrawable(getResources().getColor(R.color.colorSky)));
         getActionBar().setTitle(getString(R.string.note));
         initView();
-
+        mGvImage.setExpanded(true);
         // Set up for date spinner
         dateAdapter = new ArrayAdapter<>(AddActivity.this,
                 android.R.layout.simple_spinner_item, listDate);
@@ -54,9 +58,9 @@ public class AddActivity extends ControlActivity {
         mSpnTime.setOnItemSelectedListener(new TimeSpinnerInfo());
         Calendar now = Calendar.getInstance();
         mTvDateTime.setText(convert(now, getString(R.string.ddmmyyyy_hhmm_format)));
+
         restoreMe();
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -64,7 +68,6 @@ public class AddActivity extends ControlActivity {
         getMenuInflater().inflate(R.menu.add_menu, menu);
         return true;
     }
-
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -114,7 +117,6 @@ public class AddActivity extends ControlActivity {
         }
     }
 
-
     private class TimeSpinnerInfo implements AdapterView.OnItemSelectedListener {
         @Override
         public void onItemSelected(AdapterView<?> spinner, View selectedView,
@@ -149,8 +151,42 @@ public class AddActivity extends ControlActivity {
         }
     }
 
-    public void addNewNote() {
+    private void addNewNote() {
         Note note = new Note();
+        // add notification if date time not null
+        if (mLlDateTime.getVisibility() == View.VISIBLE) {
+            String[] selectTime = mSelectedTime.split(":");
+            String[] selectDate = mSelectedDate.split("/");
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(Integer.valueOf(selectDate[2]), Integer.valueOf(selectDate[1]) - 1,
+                    Integer.valueOf(selectDate[0]), Integer.valueOf(selectTime[0]),
+                    Integer.valueOf(selectTime[1]), 0);
+
+            if (mCalendar.getTime().after(calendar.getTime())) {
+                Toast.makeText(this, "The time you have just set before the current time. " +
+                        "Please change!", Toast.LENGTH_SHORT).show();
+            } else {
+                insertIntoDB(note);
+                mAlarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+                Intent intent = new Intent(this, AlarmReceiver.class);
+                intent.putExtra(AlarmReceiver.ID, note.getNoteID());
+                intent.putExtra(AlarmReceiver.TITLE, note.getNoteTitle());
+                pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), note.getNoteID(), intent,
+                        PendingIntent.FLAG_UPDATE_CURRENT);
+                mAlarmManager.setExact(AlarmManager.RTC_WAKEUP,
+                        calendar.getTimeInMillis(), pendingIntent);
+
+                Intent mainIntent = new Intent(this, MainActivity.class);
+                startActivity(mainIntent);
+            }
+        } else {
+            insertIntoDB(note);
+            Intent mainIntent = new Intent(this, MainActivity.class);
+            startActivity(mainIntent);
+        }
+    }
+
+    private void insertIntoDB(Note note){
         if (!mEtTitle.getText().toString().equals("")) {
             note.setNoteTitle(mEtTitle.getText().toString().trim());
         } else {
@@ -170,32 +206,7 @@ public class AddActivity extends ControlActivity {
         // add new note into db
         NoteRepo dbNote = new NoteRepo();
         dbNote.addNote(note);
-
-
         note = dbNote.getLastNote();
-
-        if (mLlDateTime.getVisibility() == View.VISIBLE) {
-            String[] selectTime = mSelectedTime.split(":");
-            String[] selectDate = mSelectedDate.split("/");
-            Calendar calendar = Calendar.getInstance();
-
-            calendar.set(Calendar.YEAR, 2017);
-            calendar.set(Calendar.MONTH, 8);
-            calendar.set(Calendar.DATE, 15);
-            calendar.set(Calendar.HOUR_OF_DAY, Integer.valueOf(selectTime[0]));
-            calendar.set(Calendar.MINUTE, Integer.valueOf(selectTime[1]));
-            calendar.set(Calendar.SECOND, 0);
-
-            mAlarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-            Intent intent = new Intent("android.media.action.DISPLAY_NOTIFICATION");
-            intent.addCategory("android.intent.category.DEFAULT");
-            intent.putExtra("id", note.getNoteID());
-            intent.putExtra("title", note.getNoteTitle());
-            pendingIntent = PendingIntent.getBroadcast(this, note.getNoteID(), intent,
-                    PendingIntent.FLAG_UPDATE_CURRENT);
-            mAlarmManager.setExact(AlarmManager.RTC_WAKEUP,
-                    calendar.getTimeInMillis(), pendingIntent);
-        }
 
         NoteImageRepo dbNoteImage = new NoteImageRepo();
         for (Bitmap noteImage : mImageList) {
@@ -204,7 +215,6 @@ public class AddActivity extends ControlActivity {
             noteImg.setImg(getBitmapAsByteArray(noteImage));
             dbNoteImage.addNoteImage(noteImg);
         }
-        Intent mainIntent = new Intent(this, MainActivity.class);
-        startActivity(mainIntent);
+
     }
 }

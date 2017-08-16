@@ -2,9 +2,7 @@ package com.example.kienpt.note.activities;
 
 import android.app.AlarmManager;
 import android.app.AlertDialog;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -20,7 +18,9 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
+import com.example.kienpt.note.AlarmReceiver;
 import com.example.kienpt.note.R;
 import com.example.kienpt.note.adapters.CustomGridViewImageAdapter;
 import com.example.kienpt.note.adapters.CustomGridViewNotesAdapter;
@@ -37,8 +37,8 @@ import java.util.List;
 
 @RequiresApi(api = Build.VERSION_CODES.N)
 public class EditActivity extends ControlActivity {
+    public static String KEY = "KEY";
     private Note mNote;
-    //    private Context mContext;
     private List<Note> mListNote;
     private CustomGridViewNotesAdapter adapter;
     private int posOfNote;
@@ -56,13 +56,14 @@ public class EditActivity extends ControlActivity {
         getActionBar().setBackgroundDrawable(
                 new ColorDrawable(getResources().getColor(R.color.colorSky)));
         initView();
+        mGvImage.setExpanded(true);
         ImageButton imbDel = (ImageButton) findViewById(R.id.btn_delete);
         ImageButton imbShare = (ImageButton) findViewById(R.id.btn_share);
         imbPrevious = (ImageButton) findViewById(R.id.btn_previous);
         imbForward = (ImageButton) findViewById(R.id.btn_forward);
         getData();
-        // Button of bottom menu
-        // Event click for button DEL
+        // Buttons of bottom menu
+        // Event click for button Delete
         imbDel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -189,14 +190,18 @@ public class EditActivity extends ControlActivity {
     // get data of note that was selected
     private void getData() {
         if (getIntent().getExtras() != null) {
-            mNote = (Note) getIntent().getSerializableExtra("EDIT");
+            mNote = (Note) getIntent().getSerializableExtra(KEY);
             getActionBar().setTitle(mNote.getNoteTitle());
             mEtTitle.setText(mNote.getNoteTitle());
             mEtContent.setText(mNote.getNoteContent());
+
+            //format of mNote.getCreatedTime() is dd/MM/yyyy hh:mm:ss
+            //Delete seconds located from 16 to 19
             StringBuffer strBuf = new StringBuffer(mNote.getCreatedTime());
             int start = 16;
             int end = 19;
             strBuf.replace(start, end, "");
+
             mTvDateTime.setText(strBuf);
             mColor = mNote.getBackgroundColor();
             switch (mNote.getBackgroundColor()) {
@@ -217,6 +222,7 @@ public class EditActivity extends ControlActivity {
                             getResources().getColor(R.color.colorWhite));
                     break;
             }
+            // Set up for date spinner
             dateAdapter = new ArrayAdapter<>(EditActivity.this,
                     android.R.layout.simple_spinner_item, listDate);
             dateAdapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
@@ -230,6 +236,7 @@ public class EditActivity extends ControlActivity {
             mSpnTime.setAdapter(timeAdapter);
             mSpnTime.setOnItemSelectedListener(new TimeSpinnerInfo());
 
+            //if this note have reminder, show datetime was picked
             if (!mNote.getNoteTime().equals("")) {
                 String[] datetime = mNote.getNoteTime().split(" ");
                 mSelectedDate = datetime[0];
@@ -241,6 +248,7 @@ public class EditActivity extends ControlActivity {
                 updateAdapterForTimeSpinner(datetime[1]);
                 mSpnTime.setSelection(4);
             }
+
             mAdapter = new CustomGridViewImageAdapter(this, mImageList);
             // Show image
             NoteImageRepo dbNoteImage = new NoteImageRepo();
@@ -268,13 +276,23 @@ public class EditActivity extends ControlActivity {
                         dbNote.deleteNote(mNote);
                         dbNoteImage.deleteNoteImage(mNote.getNoteID());
 
-                        NotificationManager notification = (NotificationManager) getApplicationContext()
-                                .getSystemService(Context.NOTIFICATION_SERVICE);
-                        notification.cancel(mNote.getNoteID());
+                        AlarmReceiver.cancelNotification(EditActivity.this, mNote.getNoteID());
+
+                        // delete notification
+                        Intent intent = new Intent(EditActivity.this, AlarmReceiver.class);
+                        mAlarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+
+                        PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                                getApplicationContext(),
+                                mNote.getNoteID(),
+                                intent,
+                                PendingIntent.FLAG_UPDATE_CURRENT);
+                        mAlarmManager.cancel(pendingIntent);
+
                         Intent mainIntent = new Intent(EditActivity.this, MainActivity.class);
                         startActivity(mainIntent);
                         break;
-                    // click Cancel
+                    //click cancel
                     case DialogInterface.BUTTON_NEGATIVE:
                         dialog.dismiss();
                         break;
@@ -299,6 +317,50 @@ public class EditActivity extends ControlActivity {
 
     // save note
     private void saveNote() {
+        //get create datetime
+        mCalendar = Calendar.getInstance();
+        // update notification
+        if (mLlDateTime.getVisibility() == View.VISIBLE) {
+            //mSelectedTime: hh:mm
+            String[] selectTime = mSelectedTime.split(":");
+            //mSelectedDate: dd/MM/yyyy
+            String[] selectDate = mSelectedDate.split("/");
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(Integer.valueOf(selectDate[2]), Integer.valueOf(selectDate[1]) - 1,
+                    Integer.valueOf(selectDate[0]), Integer.valueOf(selectTime[0]),
+                    Integer.valueOf(selectTime[1]), 0);
+            if (mCalendar.getTime().after(calendar.getTime())) {
+                Toast.makeText(this, "The time you have just set before the current time. " +
+                        "Please change!", Toast.LENGTH_SHORT).show();
+            } else {
+                updateDB();
+                mAlarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+                Intent intent = new Intent(this, AlarmReceiver.class);
+                intent.putExtra(AlarmReceiver.ID, mNote.getNoteID());
+                intent.putExtra(AlarmReceiver.TITLE, mNote.getNoteTitle());
+                pendingIntent = PendingIntent.getBroadcast(getApplicationContext(),
+                        mNote.getNoteID(), intent,
+                        PendingIntent.FLAG_UPDATE_CURRENT);
+                mAlarmManager.setExact(AlarmManager.RTC_WAKEUP,
+                        calendar.getTimeInMillis(), pendingIntent);
+                Intent mainIntent = new Intent(this, MainActivity.class);
+                startActivity(mainIntent);
+            }
+        } else {
+            updateDB();
+            // delete notification
+            AlarmReceiver.cancelNotification(EditActivity.this, mNote.getNoteID());
+            Intent intent = new Intent(this, AlarmReceiver.class);
+            mAlarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(),
+                    mNote.getNoteID(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
+            mAlarmManager.cancel(pendingIntent);
+            Intent mainIntent = new Intent(this, MainActivity.class);
+            startActivity(mainIntent);
+        }
+    }
+
+    private void updateDB(){
         if (!mEtTitle.getText().toString().equals("")) {
             mNote.setNoteTitle(mEtTitle.getText().toString().trim());
         } else {
@@ -315,8 +377,6 @@ public class EditActivity extends ControlActivity {
         } else {
             mNote.setNoteTime("");
         }
-        //get create datetime
-        mCalendar = Calendar.getInstance();
         mNote.setCreatedTime(String.format("%s", convert(mCalendar,
                 getString(R.string.ddmmyyyy_hhmmss_format))));
         mNote.setBackgroundColor(mColor);
@@ -324,45 +384,15 @@ public class EditActivity extends ControlActivity {
         NoteRepo dbNote = new NoteRepo();
         dbNote.updateNote(mNote);
 
-        if (mLlDateTime.getVisibility() == View.VISIBLE) {
-            String[] selectTime = mSelectedTime.split(":");
-            String[] selectDate = mSelectedDate.split("/");
-            Calendar calendar = Calendar.getInstance();
-
-            calendar.set(Calendar.YEAR, 2017);
-            calendar.set(Calendar.MONTH, 8);
-            calendar.set(Calendar.DATE, 15);
-            calendar.set(Calendar.HOUR_OF_DAY, Integer.valueOf(selectTime[0]));
-            calendar.set(Calendar.MINUTE, Integer.valueOf(selectTime[1]));
-            calendar.set(Calendar.SECOND, 0);
-
-            mAlarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-            Intent intent = new Intent("android.media.action.DISPLAY_NOTIFICATION");
-            intent.addCategory("android.intent.category.DEFAULT");
-            intent.putExtra("id", mNote.getNoteID());
-            intent.putExtra("title", mNote.getNoteTitle());
-            pendingIntent = PendingIntent.getBroadcast(this, mNote.getNoteID(), intent,
-                    PendingIntent.FLAG_UPDATE_CURRENT);
-            mAlarmManager.setExact(AlarmManager.RTC_WAKEUP,
-                    calendar.getTimeInMillis(), pendingIntent);
-        }else{
-            NotificationManager notification = (NotificationManager) getApplicationContext()
-                    .getSystemService(Context.NOTIFICATION_SERVICE);
-            notification.cancel(mNote.getNoteID());
-        }
-
+        // save images of Note
         NoteImageRepo dbNoteImage = new NoteImageRepo();
         dbNoteImage.deleteNoteImage(mNote.getNoteID());
-
-        for (Bitmap noteImage: mImageList) {
+        for (Bitmap noteImage : mImageList) {
             NoteImage noteImg = new NoteImage();
             noteImg.setNoteId(mNote.getNoteID());
             noteImg.setImg(getBitmapAsByteArray(noteImage));
             dbNoteImage.addNoteImage(noteImg);
         }
-
-        Intent mainIntent = new Intent(this, MainActivity.class);
-        startActivity(mainIntent);
     }
 
     private void setUpForNavigationButton() {
@@ -391,8 +421,7 @@ public class EditActivity extends ControlActivity {
         if (posOfNote - 1 >= 0) {
             if (mListNote.get(posOfNote - 1) != null) {
                 Intent intent = new Intent(EditActivity.this, EditActivity.class);
-                String key = "EDIT";
-                intent.putExtra(key, (Note) adapter.getItem(posOfNote - 1));
+                intent.putExtra(EditActivity.KEY, (Note) adapter.getItem(posOfNote - 1));
                 startActivity(intent);
             }
         }
@@ -402,13 +431,16 @@ public class EditActivity extends ControlActivity {
         if ((posOfNote + 1) < (mListNote.size())) {
             if (mListNote.get(posOfNote + 1) != null) {
                 Intent intent = new Intent(EditActivity.this, EditActivity.class);
-                String key = "EDIT";
-                intent.putExtra(key, (Note) adapter.getItem(posOfNote + 1));
+                intent.putExtra(EditActivity.KEY, (Note) adapter.getItem(posOfNote + 1));
                 startActivity(intent);
             }
         }
     }
 
+
+    /*
+     *Order by time created
+     */
     public List<Note> orderByCreatedTime(List<Note> listNote) {
         java.text.SimpleDateFormat formatter = new java.text.SimpleDateFormat(
                 getString(R.string.ddmmyyyy_hhmmss_format));

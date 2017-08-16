@@ -42,11 +42,6 @@
             android:parentActivityName=".activities.MainActivity"
             android:windowSoftInputMode="adjustResize" />
 
-        <service
-            android:name=".MyNewIntentService"
-            android:exported="false" />
-
-        <activity android:name=".activities.NotificationActivity" />
         <receiver android:name=".AlarmReceiver">
             <intent-filter>
                 <action android:name="android.media.action.DISPLAY_NOTIFICATION" />

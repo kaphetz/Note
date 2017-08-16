@@ -61,16 +61,7 @@ public class CustomGridViewNotesAdapter extends BaseAdapter {
         Note note = mListData.get(position);
         holder.titleView.setText(note.getNoteTitle());
         holder.contentView.setText(note.getNoteContent());
-
-        String createdTime = note.getCreatedTime();
-        StringBuffer strBuf = new StringBuffer(createdTime);
-        int start = 5;
-        int end = 10;
-        strBuf.replace(start, end, "");
-        start = 11;
-        end = 14;
-        strBuf.replace(start, end, "");
-        holder.createdTimeView.setText(strBuf);
+        holder.createdTimeView.setText(convertToShortFormat(note.getCreatedTime()));
         if (!Objects.equals(note.getNoteTime(), "")) {
             holder.alarmView.setVisibility(View.VISIBLE);
         } else {
@@ -98,7 +89,20 @@ public class CustomGridViewNotesAdapter extends BaseAdapter {
         return convertView;
     }
 
-    static class ViewHolder {
+    private StringBuffer convertToShortFormat(String longDateTime) {
+        // long version: dd/MM/YYYY hh:mm:ss
+        // -> short version dd/mm hh:mm
+        StringBuffer strBuf = new StringBuffer(longDateTime);
+        int start = 5;
+        int end = 10;
+        strBuf.replace(start, end, "");
+        start = 11;
+        end = 14;
+        strBuf.replace(start, end, "");
+        return strBuf;
+    }
+
+    private static class ViewHolder {
         TextView titleView;
         TextView contentView;
         ImageView alarmView;

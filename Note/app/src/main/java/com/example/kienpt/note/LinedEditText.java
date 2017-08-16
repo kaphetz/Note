@@ -1,8 +1,5 @@
 package com.example.kienpt.note;
 
-/**
- * Created by Mohammad.N on 28/08/2016.
- */
 
 import android.content.Context;
 import android.graphics.Canvas;

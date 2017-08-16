@@ -62,7 +62,6 @@ public class CustomGridViewImageAdapter extends BaseAdapter implements ListAdapt
                 .asBitmap()
                 .fitCenter()
                 .into(holder.imageView);
-//        holder.imageView.setImageBitmap(image);
         holder.delView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -73,12 +72,13 @@ public class CustomGridViewImageAdapter extends BaseAdapter implements ListAdapt
         });
         return convertView;
     }
+
     private byte[] bitmapToByte(Bitmap bitmap){
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-        byte[] byteArray = stream.toByteArray();
-        return byteArray;
+        return stream.toByteArray();
     }
+
     private class ImageViewHolder {
         ImageView imageView;
         ImageButton delView;

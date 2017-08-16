@@ -20,18 +20,17 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <com.example.kienpt.note.ExpandableHeightGridView
+            <com.example.kienpt.note.ExpandedGridView
                 android:id="@+id/gv_listImage"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:layout_margin="10dp"
                 android:horizontalSpacing="10dp"
-                android:isScrollContainer="false"
                 android:numColumns="3"
-                android:stretchMode="columnWidth"
+                android:layout_weight="1"
                 android:verticalSpacing="10dp">
+            </com.example.kienpt.note.ExpandedGridView>
 
-            </com.example.kienpt.note.ExpandableHeightGridView>
 
             <RelativeLayout
                 android:layout_width="wrap_content"

@@ -33,4 +33,8 @@
     <string name="choose_photo">Choose Photo</string>
     <string name="insert_picture">Insert Picture</string>
     <string name="share_via">Share Via</string>
+    <string name="white">White</string>
+    <string name="yellow">Yellow</string>
+    <string name="green">Green</string>
+    <string name="blue">Blue</string>
 </resources>

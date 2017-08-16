@@ -18,6 +18,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -27,7 +28,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.GridView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -36,6 +36,7 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.example.kienpt.note.ExpandedGridView;
 import com.example.kienpt.note.R;
 import com.example.kienpt.note.adapters.CustomGridViewImageAdapter;
 import com.example.kienpt.note.adapters.CustomListViewAdapter;
@@ -50,8 +51,13 @@ import java.util.List;
 
 @RequiresApi(api = Build.VERSION_CODES.N)
 public class ControlActivity extends Activity {
+    private static final int TOMORROW = 1;
+    private static final int NEXT_WEEK = 7;
+    private static final int LAST_OPTION_OF_DATE_SPINNER = 3;
+    private static final int LAST_OPTION_OF_TIME_SPINNER = 4;
+    private static final int FIRST_OPTION = 0;
     protected ListView mLvCamera;
-    protected GridView mGvImage;
+    protected ExpandedGridView mGvImage;
     protected Spinner mSpnDate;
     protected Spinner mSpnTime;
     protected LinearLayout mLlDateTime;
@@ -60,7 +66,6 @@ public class ControlActivity extends Activity {
     protected EditText mEtTitle;
     protected EditText mEtContent;
     protected RelativeLayout mRlNote;
-    //    protected LinearLayout mLlImageContainer;
     protected Calendar mCalendar = Calendar.getInstance();
     protected String mSelectedDate = "";
     protected String mSelectedTime = "";
@@ -104,7 +109,7 @@ public class ControlActivity extends Activity {
         mLlDateTime = (LinearLayout) findViewById(R.id.ll_dateTime);
         mRlNote = (RelativeLayout) findViewById(R.id.rl_note);
 //        mLlImageContainer = (LinearLayout) findViewById(R.id.lL_image_container);
-        mGvImage = (GridView) findViewById(R.id.gv_listImage);
+        mGvImage = (ExpandedGridView) findViewById(R.id.gv_listImage);
         mTvAlarm = (TextView) findViewById(R.id.tv_alarm);
         mTvDateTime = (TextView) findViewById(R.id.tv_dateTime);
         mEtTitle = (EditText) findViewById(R.id.et_title);
@@ -112,7 +117,7 @@ public class ControlActivity extends Activity {
     }
 
     /**
-     * hàm khôi phục lại trạng thái dữ liệu sau khi activity đã được khởi tạo
+     * restore data
      */
     public void restoreMe() {
         // check last state's mImageList
@@ -121,6 +126,9 @@ public class ControlActivity extends Activity {
         }
     }
 
+    /**
+     * retain image list
+     */
     @Override
     @Deprecated
     public Object onRetainNonConfigurationInstance() {
@@ -173,17 +181,15 @@ public class ControlActivity extends Activity {
 
     // update adapter of date spinner
     public void updateAdapterForDateSpinner(String newDay) {
-//        dateAdapter = new ArrayAdapter<>(context,
-//                android.R.layout.simple_spinner_item, list);
-        dateAdapter.remove(listDate.get(3));
-        dateAdapter.insert(newDay, 3);
+        dateAdapter.remove(listDate.get(LAST_OPTION_OF_DATE_SPINNER));
+        dateAdapter.insert(newDay, LAST_OPTION_OF_DATE_SPINNER);
         dateAdapter.notifyDataSetChanged();
     }
 
     // update adapter of time spinner
     public void updateAdapterForTimeSpinner(String newTime) {
-        timeAdapter.remove(listTime.get(4));
-        timeAdapter.insert(newTime, 4);
+        timeAdapter.remove(listTime.get(LAST_OPTION_OF_TIME_SPINNER));
+        timeAdapter.insert(newTime, LAST_OPTION_OF_TIME_SPINNER);
         timeAdapter.notifyDataSetChanged();
     }
 
@@ -201,17 +207,16 @@ public class ControlActivity extends Activity {
     public String getTomorrow() {
         Date dt = new Date();
         mCalendar.setTime(dt);
-        mCalendar.add(Calendar.DATE, 1);
+        mCalendar.add(Calendar.DATE, TOMORROW);
         SimpleDateFormat df = new SimpleDateFormat(getString(R.string.ddmmyyyy_format));
         return df.format(mCalendar.getTime());
     }
-
 
     //get time of next 7 days (day, month, yeah)
     public String getDayOfNextWeek() {
         Date dt = new Date();
         mCalendar.setTime(dt);
-        mCalendar.add(Calendar.DATE, 7);
+        mCalendar.add(Calendar.DATE, NEXT_WEEK);
         SimpleDateFormat df = new SimpleDateFormat(getString(R.string.ddmmyyyy_format));
         return df.format(mCalendar.getTime());
     }
@@ -235,7 +240,7 @@ public class ControlActivity extends Activity {
             public void onClick(View v) {
                 mRlNote.setBackgroundColor(
                         ContextCompat.getColor(getApplicationContext(), R.color.colorWhite));
-                mColor = "White";
+                mColor = getString(R.string.white);
                 dialog.dismiss();
             }
         });
@@ -244,7 +249,7 @@ public class ControlActivity extends Activity {
             public void onClick(View v) {
                 mRlNote.setBackgroundColor(
                         ContextCompat.getColor(getApplicationContext(), R.color.colorYellow));
-                mColor = "Yellow";
+                mColor = getString(R.string.yellow);
                 dialog.dismiss();
             }
         });
@@ -253,7 +258,7 @@ public class ControlActivity extends Activity {
             public void onClick(View v) {
                 mRlNote.setBackgroundColor(
                         ContextCompat.getColor(getApplicationContext(), R.color.colorGreen));
-                mColor = "Green";
+                mColor = getString(R.string.green);
                 dialog.dismiss();
             }
         });
@@ -262,7 +267,7 @@ public class ControlActivity extends Activity {
             public void onClick(View v) {
                 mRlNote.setBackgroundColor(
                         ContextCompat.getColor(getApplicationContext(), R.color.colorBlue));
-                mColor = "Blue";
+                mColor = getString(R.string.blue);
                 dialog.dismiss();
             }
         });
@@ -270,7 +275,6 @@ public class ControlActivity extends Activity {
         dialog = mBuilder.create();
         dialog.show();
     }
-
 
     // When click option "Other..." in TimeSpinner
     public void chooseOptionOtherTime(Context context, String selectedTime) {
@@ -283,8 +287,14 @@ public class ControlActivity extends Activity {
                     new TimePickerDialog.OnTimeSetListener() {
                         @Override
                         public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
-                            String time = String.format("%s:%s",
-                                    selectedHour, selectedMinute);
+                            String time;
+                            if(selectedMinute < 10){
+                                time = String.format("%s:0%s",
+                                        selectedHour, selectedMinute);
+                            }else{
+                                time = String.format("%s:%s",
+                                        selectedHour, selectedMinute);
+                            }
                             updateAdapterForTimeSpinner(time);
                             mSelectedTime = time;
                         }
@@ -293,7 +303,7 @@ public class ControlActivity extends Activity {
                     new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
                             if (which == DialogInterface.BUTTON_NEGATIVE) {
-                                mSpnTime.setSelection(0);
+                                mSpnTime.setSelection(FIRST_OPTION);
                             }
                         }
                     });
@@ -324,7 +334,7 @@ public class ControlActivity extends Activity {
                     new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
                             if (which == DialogInterface.BUTTON_NEGATIVE) {
-                                mSpnDate.setSelection(0);
+                                mSpnDate.setSelection(FIRST_OPTION);
                             }
                         }
                     });
@@ -402,14 +412,14 @@ public class ControlActivity extends Activity {
         }
     }
 
-
     public void invokeCamera() {
         Intent callCameraApplicationIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         startActivityForResult(callCameraApplicationIntent, REQUEST_ID_IMAGE_CAPTURE);
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == CAMERA_PERMISSION_REQUEST_CODE) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
