@@ -3,12 +3,13 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
-    <color name="colorSky">#448ff2</color>
-    <color name="colorSkyDark">#7e103d78</color>
+    <color name="colorSky">#4DB6AC</color>
+    <color name="colorSkyDark">#009688</color>
     <color name="colorForLine">#7b6f6f</color>
     <color name="colorWhite">#FFFF</color>
-    <color name="colorYellow">#f9f918</color>
-    <color name="colorBlue">#75c7f1</color>
-    <color name="colorGreen">#26ec83</color>
-    <color name="colorGray">#d2cdcd</color>
+    <color name="colorWhiteDark">#EfEAEA</color>
+    <color name="colorYellow">#F9F918</color>
+    <color name="colorBlue">#75C7F1</color>
+    <color name="colorGreen">#26EC83</color>
+    <color name="colorGray">#D2CDCD</color>
 </resources>

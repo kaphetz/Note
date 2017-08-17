@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorWhiteDark"
     tools:context="com.example.kienpt.note.activities.MainActivity">
 
     <TextView
@@ -14,8 +15,9 @@
 
     <GridView
         android:id="@+id/gv_listNote"
+        android:background="@color/colorWhiteDark"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:verticalSpacing="10dp"
         android:horizontalSpacing="10dp"
         android:numColumns="2"

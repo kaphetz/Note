@@ -230,7 +230,8 @@ public class ControlActivity extends Activity {
     public void changeBackgroundColor() {
         AlertDialog.Builder mBuilder = new AlertDialog.Builder(this);
         View mView = getLayoutInflater().inflate(R.layout.change_color_alert, null);
-        mBuilder.setView(mView).setTitle(R.string.choose_color).setIcon(R.drawable.ic_change_color);
+        mBuilder.setView(mView).setTitle(R.string.choose_color)
+                .setIcon(R.drawable.ic_change_color_dark);
         Button btnWhite = (Button) mView.findViewById(R.id.btn_white);
         Button btnYellow = (Button) mView.findViewById(R.id.btn_yellow);
         Button btnGreen = (Button) mView.findViewById(R.id.btn_green);

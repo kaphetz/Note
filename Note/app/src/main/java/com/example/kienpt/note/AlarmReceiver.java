@@ -29,7 +29,7 @@ public class AlarmReceiver extends BroadcastReceiver {
 
         Notification notification = builder.setContentTitle(context.getString(R.string.note))
                 .setContentText(intent.getStringExtra(TITLE))
-                .setSmallIcon(R.drawable.ic_note)
+                .setSmallIcon(R.drawable.ic_noti)
                 .setDefaults(Notification.DEFAULT_LIGHTS|
                         Notification.DEFAULT_SOUND|Notification.DEFAULT_VIBRATE)
                 .setContentIntent(pendingIntent).build();
