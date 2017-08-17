@@ -9,16 +9,17 @@
         android:id="@+id/tv_noNotes"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/no_notes"
-        android:layout_centerInParent="true"/>
+        android:layout_centerInParent="true"
+        android:fontFamily="sans-serif-medium"
+        android:text="@string/no_notes" />
 
     <GridView
         android:id="@+id/gv_listNote"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:verticalSpacing="10dp"
         android:horizontalSpacing="10dp"
         android:numColumns="3"
-        android:padding="10dp" />
+        android:padding="10dp"
+        android:verticalSpacing="10dp" />
 
 </RelativeLayout>

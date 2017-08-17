@@ -9,10 +9,8 @@ import android.icu.text.SimpleDateFormat;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -33,7 +31,6 @@ public class AddActivity extends ControlActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add);
         getActionBar().setHomeAsUpIndicator(R.drawable.ic_left);
         getActionBar().setDisplayHomeAsUpEnabled(true);
         getActionBar().setDisplayShowHomeEnabled(true);
@@ -41,6 +38,8 @@ public class AddActivity extends ControlActivity {
         getActionBar().setBackgroundDrawable(
                 new ColorDrawable(getResources().getColor(R.color.colorSky)));
         getActionBar().setTitle(getString(R.string.note));
+        setContentView(R.layout.activity_add);
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         initView();
         mGvImage.setExpanded(true);
         // Set up for date spinner
@@ -58,7 +57,6 @@ public class AddActivity extends ControlActivity {
         mSpnTime.setOnItemSelectedListener(new TimeSpinnerInfo());
         Calendar now = Calendar.getInstance();
         mTvDateTime.setText(convert(now, getString(R.string.ddmmyyyy_hhmm_format)));
-
         restoreMe();
     }
 

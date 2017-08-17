@@ -24,13 +24,9 @@
                 android:id="@+id/gv_listImage"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_margin="10dp"
-                android:horizontalSpacing="10dp"
-                android:numColumns="3"
                 android:layout_weight="1"
-                android:verticalSpacing="10dp">
-            </com.example.kienpt.note.ExpandedGridView>
-
+                android:horizontalSpacing="10dp"
+                android:numColumns="3" />
 
             <RelativeLayout
                 android:layout_width="wrap_content"
@@ -43,7 +39,8 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
                     android:layout_marginRight="20dp"
-                    android:layout_marginTop="20dp"
+                    android:layout_marginTop="10dp"
+                    android:fontFamily="sans-serif-light"
                     android:text="@string/ex_time" />
 
                 <com.example.kienpt.note.LinedEditText
@@ -86,9 +83,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_below="@id/et_content"
-                    android:layout_marginTop="33dp"
+                    android:layout_marginTop="36dp"
                     android:layout_toRightOf="@id/img_alarm"
                     android:clickable="true"
+                    android:fontFamily="sans-serif-medium"
                     android:onClick="showDateTimePicker"
                     android:text="@string/alarm"
                     android:textSize="@dimen/alarm_size" />
@@ -122,22 +120,24 @@
                     <ImageButton
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="15dp"
                         android:layout_marginBottom="10dp"
+                        android:layout_marginTop="15dp"
                         android:background="@null"
                         android:onClick="hideDateTimePicker"
                         android:src="@drawable/ic_x_mark" />
 
                 </LinearLayout>
+
             </RelativeLayout>
 
             <View
                 android:layout_width="0dp"
-                android:layout_height="70dp"/>
+                android:layout_height="70dp" />
         </LinearLayout>
 
     </ScrollView>
 
+    <!--bottom menu-->
     <TableLayout
         android:layout_width="match_parent"
         android:layout_height="50dp"
@@ -179,5 +179,7 @@
                 android:background="@drawable/button_color"
                 android:src="@drawable/ic_right" />
         </TableRow>
+
     </TableLayout>
+
 </RelativeLayout>

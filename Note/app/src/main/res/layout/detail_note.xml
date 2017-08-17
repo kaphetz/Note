@@ -3,13 +3,12 @@
     xmlns:card_view="http://schemas.android.com/tools"
     android:id="@+id/card_view"
     android:layout_width="match_parent"
-    android:layout_height="150dp"
+    android:layout_height="wrap_content"
     android:layout_gravity="center"
     android:background="@color/colorWhite"
     card_view:cardElevation="10dp"
-    card_view:contentPadding="0dp"
-    card_view:cardUseCompatPadding="true">
-
+    card_view:cardUseCompatPadding="true"
+    card_view:contentPadding="0dp">
 
     <LinearLayout
         android:id="@+id/ll_detailNote"
@@ -28,6 +27,7 @@
                 android:layout_width="80dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
+                android:fontFamily="sans-serif-medium"
                 android:maxLines="1"
                 android:text="@string/title_demo"
                 android:textSize="20sp" />
@@ -64,7 +64,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
-                android:layout_below="@+id/tv_noteContent" />
+                android:layout_below="@+id/tv_noteContent"
+                android:layout_marginEnd="8dp"
+                android:layout_marginTop="8dp"
+                android:textSize="13sp"
+                android:fontFamily="sans-serif-light" />
         </RelativeLayout>
+
     </LinearLayout>
+
 </android.support.v7.widget.CardView>

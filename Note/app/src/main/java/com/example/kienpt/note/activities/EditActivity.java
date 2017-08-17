@@ -48,13 +48,14 @@ public class EditActivity extends ControlActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_edit);
         getActionBar().setHomeAsUpIndicator(R.drawable.ic_left);
         getActionBar().setDisplayHomeAsUpEnabled(true);
         getActionBar().setDisplayShowHomeEnabled(true);
         getActionBar().setIcon(R.mipmap.ic_launcher);
         getActionBar().setBackgroundDrawable(
                 new ColorDrawable(getResources().getColor(R.color.colorSky)));
+        setContentView(R.layout.activity_edit);
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         initView();
         mGvImage.setExpanded(true);
         ImageButton imbDel = (ImageButton) findViewById(R.id.btn_delete);
@@ -260,6 +261,8 @@ public class EditActivity extends ControlActivity {
             }
             setUpForNavigationButton();
             mGvImage.setAdapter(mAdapter);
+            //clear notification icon at status bar
+            AlarmReceiver.cancelNotification(EditActivity.this, mNote.getNoteID());
         }
     }
 
@@ -280,9 +283,7 @@ public class EditActivity extends ControlActivity {
                         Intent intent = new Intent(getApplicationContext(), AlarmReceiver.class);
                         mAlarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
                         PendingIntent pendingIntent = PendingIntent.getBroadcast(
-                                getApplicationContext(),
-                                mNote.getNoteID(),
-                                intent,
+                                getApplicationContext(), mNote.getNoteID(), intent,
                                 PendingIntent.FLAG_UPDATE_CURRENT);
                         mAlarmManager.cancel(pendingIntent);
                         Intent mainIntent = new Intent(EditActivity.this, MainActivity.class);
@@ -335,8 +336,7 @@ public class EditActivity extends ControlActivity {
                 intent.putExtra(AlarmReceiver.ID, mNote.getNoteID());
                 intent.putExtra(AlarmReceiver.TITLE, mNote.getNoteTitle());
                 PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(),
-                        mNote.getNoteID(), intent,
-                        PendingIntent.FLAG_UPDATE_CURRENT);
+                        mNote.getNoteID(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
                 mAlarmManager.setExact(AlarmManager.RTC_WAKEUP,
                         calendar.getTimeInMillis(), pendingIntent);
                 Intent mainIntent = new Intent(this, MainActivity.class);

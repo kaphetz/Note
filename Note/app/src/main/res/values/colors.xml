@@ -8,8 +8,8 @@
     <color name="colorForLine">#7b6f6f</color>
     <color name="colorWhite">#FFFF</color>
     <color name="colorWhiteDark">#EfEAEA</color>
-    <color name="colorYellow">#F9F918</color>
-    <color name="colorBlue">#75C7F1</color>
-    <color name="colorGreen">#26EC83</color>
+    <color name="colorYellow">#FFEE58</color>
+    <color name="colorBlue">#94D8FA</color>
+    <color name="colorGreen">#79F1B1</color>
     <color name="colorGray">#D2CDCD</color>
 </resources>

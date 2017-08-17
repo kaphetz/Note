@@ -6,6 +6,7 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 
@@ -26,10 +27,11 @@ public class AlarmReceiver extends BroadcastReceiver {
                 PendingIntent.FLAG_UPDATE_CURRENT);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
-
         Notification notification = builder.setContentTitle(context.getString(R.string.note))
                 .setContentText(intent.getStringExtra(TITLE))
                 .setSmallIcon(R.drawable.ic_noti)
+                .setLargeIcon(BitmapFactory.decodeResource(
+                        context.getResources(), R.drawable.ic_note))
                 .setDefaults(Notification.DEFAULT_LIGHTS|
                         Notification.DEFAULT_SOUND|Notification.DEFAULT_VIBRATE)
                 .setContentIntent(pendingIntent).build();

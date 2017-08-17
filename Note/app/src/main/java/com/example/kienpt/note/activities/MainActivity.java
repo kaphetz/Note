@@ -35,6 +35,7 @@ public class MainActivity extends Activity {
         getActionBar().setBackgroundDrawable(
                 new ColorDrawable(getResources().getColor(R.color.colorSky)));
         setContentView(R.layout.activity_main);
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         MyDatabaseHelper dbHelper = new MyDatabaseHelper(this);
         DatabaseManager.initializeInstance(dbHelper);
         GridView gvListNote = (GridView) findViewById(R.id.gv_listNote);
@@ -70,6 +71,7 @@ public class MainActivity extends Activity {
         getMenuInflater().inflate(R.menu.main_menu, menu);
         return true;
     }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
