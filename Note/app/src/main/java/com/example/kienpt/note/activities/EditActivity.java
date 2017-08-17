@@ -275,20 +275,16 @@ public class EditActivity extends ControlActivity {
                         NoteImageRepo dbNoteImage = new NoteImageRepo();
                         dbNote.deleteNote(mNote);
                         dbNoteImage.deleteNoteImage(mNote.getNoteID());
-
                         AlarmReceiver.cancelNotification(EditActivity.this, mNote.getNoteID());
-
                         // delete notification
-                        Intent intent = new Intent(EditActivity.this, AlarmReceiver.class);
+                        Intent intent = new Intent(getApplicationContext(), AlarmReceiver.class);
                         mAlarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-
                         PendingIntent pendingIntent = PendingIntent.getBroadcast(
                                 getApplicationContext(),
                                 mNote.getNoteID(),
                                 intent,
                                 PendingIntent.FLAG_UPDATE_CURRENT);
                         mAlarmManager.cancel(pendingIntent);
-
                         Intent mainIntent = new Intent(EditActivity.this, MainActivity.class);
                         startActivity(mainIntent);
                         break;
@@ -335,10 +331,10 @@ public class EditActivity extends ControlActivity {
             } else {
                 updateDB();
                 mAlarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-                Intent intent = new Intent(this, AlarmReceiver.class);
+                Intent intent = new Intent(getApplicationContext(), AlarmReceiver.class);
                 intent.putExtra(AlarmReceiver.ID, mNote.getNoteID());
                 intent.putExtra(AlarmReceiver.TITLE, mNote.getNoteTitle());
-                pendingIntent = PendingIntent.getBroadcast(getApplicationContext(),
+                PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(),
                         mNote.getNoteID(), intent,
                         PendingIntent.FLAG_UPDATE_CURRENT);
                 mAlarmManager.setExact(AlarmManager.RTC_WAKEUP,
@@ -350,7 +346,7 @@ public class EditActivity extends ControlActivity {
             updateDB();
             // delete notification
             AlarmReceiver.cancelNotification(EditActivity.this, mNote.getNoteID());
-            Intent intent = new Intent(this, AlarmReceiver.class);
+            Intent intent = new Intent(getApplicationContext(), AlarmReceiver.class);
             mAlarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
             PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(),
                     mNote.getNoteID(), intent, PendingIntent.FLAG_UPDATE_CURRENT);

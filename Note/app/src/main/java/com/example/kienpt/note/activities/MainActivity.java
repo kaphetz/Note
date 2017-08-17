@@ -75,19 +75,13 @@ public class MainActivity extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.mn_plus:
-                addNote();
+                Intent intentAdd = new Intent(this, AddActivity.class);
+                startActivity(intentAdd);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
-
-    // call add activity
-    public void addNote() {
-        Intent intentAdd = new Intent(this, AddActivity.class);
-        startActivity(intentAdd);
-    }
-
 
     // Order by time created
     public List<Note> orderByCreatedTime(List<Note> listNote) {

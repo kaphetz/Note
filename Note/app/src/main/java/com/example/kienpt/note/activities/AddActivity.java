@@ -167,8 +167,10 @@ public class AddActivity extends ControlActivity {
                         "Please change!", Toast.LENGTH_SHORT).show();
             } else {
                 insertIntoDB(note);
+                NoteRepo dbNote = new NoteRepo();
+                note = dbNote.getLastNote();
                 mAlarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-                Intent intent = new Intent(this, AlarmReceiver.class);
+                Intent intent = new Intent(getApplicationContext(), AlarmReceiver.class);
                 intent.putExtra(AlarmReceiver.ID, note.getNoteID());
                 intent.putExtra(AlarmReceiver.TITLE, note.getNoteTitle());
                 pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), note.getNoteID(), intent,
@@ -207,7 +209,6 @@ public class AddActivity extends ControlActivity {
         NoteRepo dbNote = new NoteRepo();
         dbNote.addNote(note);
         note = dbNote.getLastNote();
-
         NoteImageRepo dbNoteImage = new NoteImageRepo();
         for (Bitmap noteImage : mImageList) {
             NoteImage noteImg = new NoteImage();
@@ -215,6 +216,5 @@ public class AddActivity extends ControlActivity {
             noteImg.setImg(getBitmapAsByteArray(noteImage));
             dbNoteImage.addNoteImage(noteImg);
         }
-
     }
 }
