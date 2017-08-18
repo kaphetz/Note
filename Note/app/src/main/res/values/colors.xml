@@ -3,8 +3,8 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
-    <color name="colorSky">#4DB6AC</color>
-    <color name="colorSkyDark">#009688</color>
+    <color name="colorCyan">#00BCD4</color>
+    <color name="colorCyanDark">#00838F</color>
     <color name="colorForLine">#7b6f6f</color>
     <color name="colorWhite">#FFFF</color>
     <color name="colorWhiteDark">#EfEAEA</color>

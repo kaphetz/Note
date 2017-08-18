@@ -8,10 +8,11 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.ColorDrawable;
-import android.icu.text.SimpleDateFormat;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
+import android.text.format.DateFormat;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -35,9 +36,11 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-@RequiresApi(api = Build.VERSION_CODES.N)
 public class EditActivity extends ControlActivity {
     public static String KEY = "KEY";
+    public static String NOTE = "NOTE";
+    private static final int LAST_OPTION_OF_DATE_SPINNER = 3;
+    private static final int LAST_OPTION_OF_TIME_SPINNER = 4;
     private Note mNote;
     private List<Note> mListNote;
     private CustomGridViewNotesAdapter adapter;
@@ -53,7 +56,7 @@ public class EditActivity extends ControlActivity {
         getActionBar().setDisplayShowHomeEnabled(true);
         getActionBar().setIcon(R.mipmap.ic_launcher);
         getActionBar().setBackgroundDrawable(
-                new ColorDrawable(getResources().getColor(R.color.colorSky)));
+                new ColorDrawable(getResources().getColor(R.color.colorCyan)));
         setContentView(R.layout.activity_edit);
         overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         initView();
@@ -94,7 +97,6 @@ public class EditActivity extends ControlActivity {
         restoreMe();
     }
 
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -102,12 +104,17 @@ public class EditActivity extends ControlActivity {
         return true;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case android.R.id.home:
+                Intent intentMain = new Intent(EditActivity.this, MainActivity.class);
+                startActivity(intentMain);
+                return true;
             case R.id.mn_new_note:
-                Intent intent = new Intent(EditActivity.this, AddActivity.class);
-                startActivity(intent);
+                Intent intentAdd = new Intent(EditActivity.this, AddActivity.class);
+                startActivity(intentAdd);
                 return true;
             case R.id.mn_change_color:
                 changeBackgroundColor();
@@ -130,8 +137,9 @@ public class EditActivity extends ControlActivity {
             String selectedDate = spinner.getItemAtPosition(selectedIndex).toString();
             switch (selectedIndex) {
                 case 0:
-                    SimpleDateFormat df = new SimpleDateFormat(getString(R.string.ddmmyyyy_format));
-                    mSelectedDate = df.format(mCalendar.getTime());
+                    Date date = new Date();
+                    mSelectedDate = String.valueOf(DateFormat.format(
+                            getString(R.string.ddmmyyyy_format), date));
                     updateAdapterForDateSpinner(getString(R.string.other));
                     break;
                 case 1:
@@ -186,12 +194,19 @@ public class EditActivity extends ControlActivity {
         public void onNothingSelected(AdapterView<?> spinner) {
             //do something
         }
+
     }
 
     // get data of note that was selected
     private void getData() {
         if (getIntent().getExtras() != null) {
-            mNote = (Note) getIntent().getSerializableExtra(KEY);
+            mNote = (Note) getIntent().getSerializableExtra(NOTE);
+            if (mNote == null) {
+                Bundle bundle = getIntent().getExtras();
+                int id = bundle.getInt(KEY);
+                NoteRepo noteRepo = new NoteRepo();
+                mNote = noteRepo.getNote(id);
+            }
             getActionBar().setTitle(mNote.getNoteTitle());
             mEtTitle.setText(mNote.getNoteTitle());
             mEtContent.setText(mNote.getNoteContent());
@@ -202,7 +217,6 @@ public class EditActivity extends ControlActivity {
             int start = 16;
             int end = 19;
             strBuf.replace(start, end, "");
-
             mTvDateTime.setText(strBuf);
             mColor = mNote.getBackgroundColor();
             switch (mNote.getBackgroundColor()) {
@@ -245,9 +259,9 @@ public class EditActivity extends ControlActivity {
                 mLlDateTime.setVisibility(View.VISIBLE);
                 mTvAlarm.setVisibility(View.GONE);
                 updateAdapterForDateSpinner(datetime[0]);
-                mSpnDate.setSelection(3);
+                mSpnDate.setSelection(LAST_OPTION_OF_DATE_SPINNER);
                 updateAdapterForTimeSpinner(datetime[1]);
-                mSpnTime.setSelection(4);
+                mSpnTime.setSelection(LAST_OPTION_OF_TIME_SPINNER);
             }
 
             mAdapter = new CustomGridViewImageAdapter(this, mImageList);
@@ -356,7 +370,7 @@ public class EditActivity extends ControlActivity {
         }
     }
 
-    private void updateDB(){
+    private void updateDB() {
         if (!mEtTitle.getText().toString().equals("")) {
             mNote.setNoteTitle(mEtTitle.getText().toString().trim());
         } else {
@@ -373,8 +387,10 @@ public class EditActivity extends ControlActivity {
         } else {
             mNote.setNoteTime("");
         }
-        mNote.setCreatedTime(String.format("%s", convert(mCalendar,
-                getString(R.string.ddmmyyyy_hhmmss_format))));
+
+        Date date = new Date();
+        mNote.setCreatedTime(String.valueOf(DateFormat.format(
+                getString(R.string.ddmmyyyy_hhmmss_format), date)));
         mNote.setBackgroundColor(mColor);
         // add new note into db
         NoteRepo dbNote = new NoteRepo();
@@ -416,9 +432,9 @@ public class EditActivity extends ControlActivity {
     private void moveToPreviousNote() {
         if (posOfNote - 1 >= 0) {
             if (mListNote.get(posOfNote - 1) != null) {
-                Intent intent = new Intent(EditActivity.this, EditActivity.class);
-                intent.putExtra(EditActivity.KEY, (Note) adapter.getItem(posOfNote - 1));
-                startActivity(intent);
+                Intent intent = new Intent(getApplicationContext(), EditActivity.class);
+                intent.putExtra(EditActivity.NOTE, (Note) adapter.getItem(posOfNote - 1));
+                EditActivity.this.startActivity(intent);
             }
         }
     }
@@ -426,13 +442,12 @@ public class EditActivity extends ControlActivity {
     private void moveToNextNote() {
         if ((posOfNote + 1) < (mListNote.size())) {
             if (mListNote.get(posOfNote + 1) != null) {
-                Intent intent = new Intent(EditActivity.this, EditActivity.class);
-                intent.putExtra(EditActivity.KEY, (Note) adapter.getItem(posOfNote + 1));
-                startActivity(intent);
+                Intent intent = new Intent(getApplicationContext(), EditActivity.class);
+                intent.putExtra(EditActivity.NOTE, (Note) adapter.getItem(posOfNote + 1));
+                EditActivity.this.startActivity(intent);
             }
         }
     }
-
 
     /*
      *Order by time created

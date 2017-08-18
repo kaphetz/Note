@@ -1,27 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorWhiteDark"
+    android:clipToPadding="false"
     tools:context="com.example.kienpt.note.activities.MainActivity">
 
     <TextView
         android:id="@+id/tv_noNotes"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/no_notes"
+        android:layout_centerInParent="true"
         android:fontFamily="sans-serif-medium"
-        android:layout_centerInParent="true"/>
+        android:text="@string/no_notes" />
 
     <GridView
         android:id="@+id/gv_listNote"
-        android:background="@color/colorWhiteDark"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:verticalSpacing="10dp"
+        android:background="@color/colorWhiteDark"
         android:horizontalSpacing="10dp"
         android:numColumns="2"
-        android:padding="10dp" />
+        android:padding="10dp"
+        android:verticalSpacing="10dp" />
+
+    <android.support.design.widget.CoordinatorLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fab_add_note"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"
+            android:layout_gravity="bottom|end"
+            android:layout_marginBottom="@dimen/fab_margin_bot"
+            android:layout_marginEnd="@dimen/fab_margin_end"
+            android:elevation="10dp"
+            android:src="@drawable/ic_plus"
+            android:stateListAnimator="@null"
+            app:backgroundTint="@color/colorCyan"
+            app:borderWidth="0dp"
+            app:fabSize="normal"
+            app:pressedTranslationZ="12dp"
+            app:rippleColor="@color/colorCyanDark" />
+
+    </android.support.design.widget.CoordinatorLayout>
 
 </RelativeLayout>

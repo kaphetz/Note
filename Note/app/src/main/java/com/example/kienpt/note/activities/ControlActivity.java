@@ -1,5 +1,6 @@
 package com.example.kienpt.note.activities;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
@@ -42,14 +43,16 @@ import com.example.kienpt.note.adapters.CustomGridViewImageAdapter;
 import com.example.kienpt.note.adapters.CustomListViewAdapter;
 
 import java.io.ByteArrayOutputStream;
+import java.sql.Time;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 
-@RequiresApi(api = Build.VERSION_CODES.N)
 public class ControlActivity extends Activity {
     private static final int TOMORROW = 1;
     private static final int NEXT_WEEK = 7;
@@ -203,29 +206,39 @@ public class ControlActivity extends Activity {
         mTvAlarm.setVisibility(View.VISIBLE);
     }
 
+    private static class DateUtil
+    {
+        static Date addDays(Date date, int days)
+        {
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(date);
+            cal.add(Calendar.DATE, days); //minus number would decrement the days
+            return cal.getTime();
+        }
+    }
+
     //get time of tomorrow (day, month, yeah)
     public String getTomorrow() {
-        Date dt = new Date();
-        mCalendar.setTime(dt);
-        mCalendar.add(Calendar.DATE, TOMORROW);
-        SimpleDateFormat df = new SimpleDateFormat(getString(R.string.ddmmyyyy_format));
-        return df.format(mCalendar.getTime());
+        Date date = new Date();
+        date = DateUtil.addDays(date, TOMORROW);
+        return String.valueOf(android.text.format.DateFormat.format(
+                getString(R.string.ddmmyyyy_format), date));
     }
 
     //get time of next 7 days (day, month, yeah)
     public String getDayOfNextWeek() {
-        Date dt = new Date();
-        mCalendar.setTime(dt);
-        mCalendar.add(Calendar.DATE, NEXT_WEEK);
-        SimpleDateFormat df = new SimpleDateFormat(getString(R.string.ddmmyyyy_format));
-        return df.format(mCalendar.getTime());
+        Date date = new Date();
+        date = DateUtil.addDays(date, NEXT_WEEK);
+        return String.valueOf(android.text.format.DateFormat.format(
+                getString(R.string.ddmmyyyy_format), date));
     }
 
-    //convert from date to string type
-    public String convert(Calendar calendar, String format) {
-        SimpleDateFormat df = new SimpleDateFormat(format);
-        return df.format(calendar.getTime());
-    }
+//    //convert from date to string type
+//    @RequiresApi(api = Build.VERSION_CODES.N)
+//    public String convert(Calendar calendar, String format) {
+//        SimpleDateFormat df = new SimpleDateFormat(format);
+//        return df.format(calendar.getTime());
+//    }
 
     public void changeBackgroundColor() {
         AlertDialog.Builder mBuilder = new AlertDialog.Builder(this);
@@ -344,6 +357,8 @@ public class ControlActivity extends Activity {
         }
     }
 
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
     public void insertImage() {
         AlertDialog.Builder mBuilder = new AlertDialog.Builder(this);
         View mView = getLayoutInflater().inflate(R.layout.select_image_alert, null);
@@ -353,6 +368,8 @@ public class ControlActivity extends Activity {
                 mSourceImageNameList, mSourceImageList);
         mLvCamera.setAdapter(adapter);
         mLvCamera.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @TargetApi(Build.VERSION_CODES.N)
+            @RequiresApi(api = Build.VERSION_CODES.M)
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 switch (position) {
@@ -404,6 +421,7 @@ public class ControlActivity extends Activity {
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     public void takePhoto() {
         if (checkSelfPermission(android.Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
             invokeCamera();

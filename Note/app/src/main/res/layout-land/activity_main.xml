@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context="com.example.kienpt.note.activities.MainActivity">
 
     <TextView
@@ -21,5 +22,29 @@
         android:numColumns="3"
         android:padding="10dp"
         android:verticalSpacing="10dp" />
+
+    <android.support.design.widget.CoordinatorLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fab_add_note"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"
+            android:layout_gravity="bottom|end"
+            android:layout_marginBottom="@dimen/fab_margin_bot"
+            android:layout_marginEnd="@dimen/fab_margin_end"
+            android:elevation="10dp"
+            android:src="@drawable/ic_plus"
+            android:stateListAnimator="@null"
+            app:backgroundTint="@color/colorCyan"
+            app:borderWidth="0dp"
+            app:fabSize="normal"
+            app:pressedTranslationZ="12dp"
+            app:rippleColor="@color/colorCyanDark" />
+
+    </android.support.design.widget.CoordinatorLayout>
 
 </RelativeLayout>

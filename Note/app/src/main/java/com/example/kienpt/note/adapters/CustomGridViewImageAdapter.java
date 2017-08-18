@@ -5,6 +5,8 @@ import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.BaseAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -60,7 +62,7 @@ public class CustomGridViewImageAdapter extends BaseAdapter implements ListAdapt
         Glide.with(mContext)
                 .load(bitmapToByte(image))
                 .asBitmap()
-                .fitCenter()
+//                .fitCenter()
                 .into(holder.imageView);
         holder.delView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -70,10 +72,16 @@ public class CustomGridViewImageAdapter extends BaseAdapter implements ListAdapt
                 notifyDataSetChanged();
             }
         });
+
+        Animation animation;
+        animation = AnimationUtils.loadAnimation(mContext, R.anim.fade_in);
+        animation.setDuration(300);
+
+        convertView.startAnimation(animation);
         return convertView;
     }
 
-    private byte[] bitmapToByte(Bitmap bitmap){
+    private byte[] bitmapToByte(Bitmap bitmap) {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
         return stream.toByteArray();

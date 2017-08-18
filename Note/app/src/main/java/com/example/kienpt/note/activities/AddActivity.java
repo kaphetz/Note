@@ -9,6 +9,7 @@ import android.icu.text.SimpleDateFormat;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
+import android.text.format.DateFormat;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -24,8 +25,9 @@ import com.example.kienpt.note.models.Note;
 import com.example.kienpt.note.models.NoteImage;
 
 import java.util.Calendar;
+import java.util.Date;
 
-@RequiresApi(api = Build.VERSION_CODES.N)
+
 public class AddActivity extends ControlActivity {
 
     @Override
@@ -36,7 +38,7 @@ public class AddActivity extends ControlActivity {
         getActionBar().setDisplayShowHomeEnabled(true);
         getActionBar().setIcon(R.mipmap.ic_launcher);
         getActionBar().setBackgroundDrawable(
-                new ColorDrawable(getResources().getColor(R.color.colorSky)));
+                new ColorDrawable(getResources().getColor(R.color.colorCyan)));
         getActionBar().setTitle(getString(R.string.note));
         setContentView(R.layout.activity_add);
         overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
@@ -55,8 +57,9 @@ public class AddActivity extends ControlActivity {
         timeAdapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
         mSpnTime.setAdapter(timeAdapter);
         mSpnTime.setOnItemSelectedListener(new TimeSpinnerInfo());
-        Calendar now = Calendar.getInstance();
-        mTvDateTime.setText(convert(now, getString(R.string.ddmmyyyy_hhmm_format)));
+        Date date = new Date();
+        mTvDateTime.setText(String.valueOf(DateFormat.format(
+                getString(R.string.ddmmyyyy_hhmm_format), date)));
         restoreMe();
     }
 
@@ -67,6 +70,7 @@ public class AddActivity extends ControlActivity {
         return true;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -91,8 +95,9 @@ public class AddActivity extends ControlActivity {
             String selectedDate = spinner.getItemAtPosition(selectedIndex).toString();
             switch (selectedIndex) {
                 case 0:
-                    SimpleDateFormat df = new SimpleDateFormat(getString(R.string.ddmmyyyy_format));
-                    mSelectedDate = df.format(mCalendar.getTime());
+                    Date date = new Date();
+                    mSelectedDate = String.valueOf(DateFormat.format(
+                            getString(R.string.ddmmyyyy_format), date));
                     updateAdapterForDateSpinner(getString(R.string.other));
                     break;
                 case 1:
@@ -199,9 +204,10 @@ public class AddActivity extends ControlActivity {
             note.setNoteTime("");
         }
         //get create datetime
-        mCalendar = Calendar.getInstance();
-        note.setCreatedTime(String.format("%s", convert(mCalendar,
-                getString(R.string.ddmmyyyy_hhmmss_format))));
+
+        Date date = new Date();
+        note.setCreatedTime(String.valueOf(DateFormat.format(
+                getString(R.string.ddmmyyyy_hhmmss_format), date)));
         note.setBackgroundColor(mColor);
         // add new note into db
         NoteRepo dbNote = new NoteRepo();

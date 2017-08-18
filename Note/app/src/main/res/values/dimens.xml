@@ -6,4 +6,6 @@
 
     <dimen name="width_popup">500dp</dimen>
     <dimen name="height_popup">300dp</dimen>
+    <dimen name="fab_margin_bot">20dp</dimen>
+    <dimen name="fab_margin_end">20dp</dimen>
 </resources>
