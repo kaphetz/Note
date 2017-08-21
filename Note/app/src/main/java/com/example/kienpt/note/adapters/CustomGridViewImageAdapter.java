@@ -2,6 +2,8 @@ package com.example.kienpt.note.adapters;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.media.ThumbnailUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,12 +22,11 @@ import java.util.ArrayList;
 
 
 public class CustomGridViewImageAdapter extends BaseAdapter implements ListAdapter {
-
-    private ArrayList<Bitmap> mListData;
+    private ArrayList<String> mListData;
     private Context mContext;
     private LayoutInflater layoutInflater;
 
-    public CustomGridViewImageAdapter(Context aContext, ArrayList<Bitmap> listData) {
+    public CustomGridViewImageAdapter(Context aContext, ArrayList<String> listData) {
         mContext = aContext;
         mListData = listData;
         layoutInflater = LayoutInflater.from(aContext);
@@ -58,12 +59,17 @@ public class CustomGridViewImageAdapter extends BaseAdapter implements ListAdapt
         } else {
             holder = (ImageViewHolder) convertView.getTag();
         }
-        Bitmap image = mListData.get(position);
-        Glide.with(mContext)
-                .load(bitmapToByte(image))
-                .asBitmap()
-//                .fitCenter()
-                .into(holder.imageView);
+        String imagePath = mListData.get(position);
+        final int THUMB_SIZE = 96;
+        if (ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(imagePath),
+                THUMB_SIZE, THUMB_SIZE) != null) {
+            holder.imageView.setImageBitmap(ThumbnailUtils
+                    .extractThumbnail(BitmapFactory.decodeFile(imagePath), THUMB_SIZE, THUMB_SIZE));
+        } else {
+            holder.imageView.setImageBitmap(ThumbnailUtils
+                    .extractThumbnail(BitmapFactory.decodeResource(mContext.getResources(),
+                            R.drawable.default_image), THUMB_SIZE, THUMB_SIZE));
+        }
         holder.delView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -81,11 +87,11 @@ public class CustomGridViewImageAdapter extends BaseAdapter implements ListAdapt
         return convertView;
     }
 
-    private byte[] bitmapToByte(Bitmap bitmap) {
+    /*private byte[] bitmapToByte(Bitmap bitmap) {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
         return stream.toByteArray();
-    }
+    }*/
 
     private class ImageViewHolder {
         ImageView imageView;

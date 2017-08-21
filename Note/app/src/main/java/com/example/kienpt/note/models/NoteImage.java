@@ -2,14 +2,14 @@ package com.example.kienpt.note.models;
 
 public class NoteImage {
     private int mNoteId;
-    private byte[] mImg;
+    private String mImgPath;
 
     public NoteImage() {
     }
 
-    public NoteImage(int noteId, byte[] img) {
+    public NoteImage(int noteId, String imgPath) {
         mNoteId = noteId;
-        mImg = img;
+        mImgPath = imgPath;
     }
 
     public int getNoteId() {
@@ -17,14 +17,26 @@ public class NoteImage {
     }
 
     public void setNoteId(int noteId) {
-        this.mNoteId = noteId;
+        mNoteId = noteId;
     }
 
-    public byte[] getImg() {
-        return mImg;
+    public String getImgPath() {
+        return mImgPath;
     }
 
-    public void setImg(byte[] img) {
-        this.mImg = img;
+    public void setImgPath(String imgPath) {
+        mImgPath = imgPath;
+    }
+
+    public boolean hasImage() {
+        return getImgPath() != null || !getImgPath().isEmpty();
+    }
+
+    @Override
+    public String toString() {
+        return "NoteImage{" +
+                "mNoteId=" + mNoteId +
+                ", mImgPath='" + mImgPath + '\'' +
+                '}';
     }
 }

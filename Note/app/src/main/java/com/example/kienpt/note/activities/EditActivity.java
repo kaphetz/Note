@@ -267,13 +267,13 @@ public class EditActivity extends ControlActivity {
             // Show image
             NoteImageRepo dbNoteImage = new NoteImageRepo();
             ArrayList<NoteImage> list = dbNoteImage.getImageById(mNote.getNoteID());
-            for (NoteImage notImage : list) {
-                Bitmap bitmap = BitmapFactory.decodeByteArray(notImage.getImg(), 0,
-                        notImage.getImg().length);
-                mImageList.add(bitmap);
+            for (NoteImage noteImage : list) {
+//                Bitmap bitmap = BitmapFactory.decodeByteArray(notImage.getImgPath(), 0,
+//                        notImage.getImgPath().length);
+                mImageList.add(noteImage.getImgPath());
             }
-            setUpForNavigationButton();
             mGvImage.setAdapter(mAdapter);
+            setUpForNavigationButton();
             //clear notification icon at status bar
             AlarmReceiver.cancelNotification(EditActivity.this, mNote.getNoteID());
         }
@@ -398,10 +398,11 @@ public class EditActivity extends ControlActivity {
         // save images of Note
         NoteImageRepo dbNoteImage = new NoteImageRepo();
         dbNoteImage.deleteNoteImage(mNote.getNoteID());
-        for (Bitmap noteImage : mImageList) {
+        for (String noteImage : mImageList) {
             NoteImage noteImg = new NoteImage();
             noteImg.setNoteId(mNote.getNoteID());
-            noteImg.setImg(getBitmapAsByteArray(noteImage));
+//            noteImg.setImgPath(getBitmapAsByteArray(noteImage));
+            noteImg.setImgPath(noteImage);
             dbNoteImage.addNoteImage(noteImg);
         }
     }

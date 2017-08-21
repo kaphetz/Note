@@ -18,14 +18,14 @@ public class NoteImageRepo {
     private static final String TABLE_NOTE_IMAGE = "NoteImage";
 
     private static final String COLUMN_NOTE_IMAGE_ID = "NoteId";
-    private static final String COLUMN_IMAGE = "Image";
+    private static final String COLUMN_IMAGE_PATH = "ImagePath";
 
-    // add new note
+    // add new image
     public void addNoteImage(NoteImage noteImage) {
         SQLiteDatabase db = DatabaseManager.getInstance().openDatabase();
         ContentValues values = new ContentValues();
         values.put(COLUMN_NOTE_IMAGE_ID, noteImage.getNoteId());
-        values.put(COLUMN_IMAGE, noteImage.getImg());
+        values.put(COLUMN_IMAGE_PATH, noteImage.getImgPath());
         db.insert(TABLE_NOTE_IMAGE, null, values);
         DatabaseManager.getInstance().closeDatabase();
     }
@@ -35,12 +35,12 @@ public class NoteImageRepo {
         SQLiteDatabase db = DatabaseManager.getInstance().openDatabase();
         NoteImage noteImage = null;
         Cursor cursor = db.query(TABLE_NOTE_IMAGE, new String[]{COLUMN_NOTE_IMAGE_ID,
-                        COLUMN_IMAGE},
+                        COLUMN_IMAGE_PATH},
                 COLUMN_NOTE_IMAGE_ID + "=?", new String[]{String.valueOf(id)}, null, null, null, null);
         if (cursor != null) {
             cursor.moveToFirst();
             noteImage = new NoteImage(cursor.getInt(cursor.getColumnIndex(COLUMN_NOTE_IMAGE_ID)),
-                    cursor.getBlob(cursor.getColumnIndex(COLUMN_IMAGE)));
+                    cursor.getString(cursor.getColumnIndex(COLUMN_IMAGE_PATH)));
         }
         cursor.close();
         DatabaseManager.getInstance().closeDatabase();
@@ -57,7 +57,7 @@ public class NoteImageRepo {
         if (cursor.moveToFirst()) {
             do {
                 NoteImage noteImage = new NoteImage(cursor.getInt(cursor.getColumnIndex(COLUMN_NOTE_IMAGE_ID)),
-                        cursor.getBlob(cursor.getColumnIndex(COLUMN_IMAGE)));
+                        cursor.getString(cursor.getColumnIndex(COLUMN_IMAGE_PATH)));
                 noteImageList.add(noteImage);
             } while (cursor.moveToNext());
         }
@@ -78,7 +78,7 @@ public class NoteImageRepo {
         if (cursor.moveToFirst()) {
             do {
                 NoteImage noteImage = new NoteImage(cursor.getInt(cursor.getColumnIndex(COLUMN_NOTE_IMAGE_ID)),
-                        cursor.getBlob(cursor.getColumnIndex(COLUMN_IMAGE)));
+                        cursor.getString(cursor.getColumnIndex(COLUMN_IMAGE_PATH)));
                 noteImageList.add(noteImage);
             } while (cursor.moveToNext());
         }

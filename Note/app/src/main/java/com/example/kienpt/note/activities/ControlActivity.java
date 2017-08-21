@@ -7,6 +7,7 @@ import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.PendingIntent;
 import android.app.TimePickerDialog;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -64,6 +65,8 @@ public class ControlActivity extends Activity {
     private static final int LAST_OPTION_OF_DATE_SPINNER = 3;
     private static final int LAST_OPTION_OF_TIME_SPINNER = 4;
     private static final int FIRST_OPTION = 0;
+
+    private Uri mCapturedImageURI;
     protected ListView mLvCamera;
     protected ExpandedGridView mGvImage;
     protected Spinner mSpnDate;
@@ -89,7 +92,7 @@ public class ControlActivity extends Activity {
     protected Integer[] mSourceImageList = {R.drawable.ic_take_photo, R.drawable.ic_choose_photo};
     protected String[] mSourceImageNameList = {"Take photo", "Choose photo"};
     protected CustomGridViewImageAdapter mAdapter;
-    protected ArrayList<Bitmap> mImageList = new ArrayList<>();
+    protected ArrayList<String> mImageList = new ArrayList<>();
 
 
     protected void initView() {
@@ -119,7 +122,7 @@ public class ControlActivity extends Activity {
     public void restoreMe() {
         // check last state's mImageList
         if (getLastNonConfigurationInstance() != null) {
-            mImageList = (ArrayList<Bitmap>) getLastNonConfigurationInstance();
+            mImageList = (ArrayList<String>) getLastNonConfigurationInstance();
         }
     }
 
@@ -200,10 +203,8 @@ public class ControlActivity extends Activity {
         mTvAlarm.setVisibility(View.VISIBLE);
     }
 
-    private static class DateUtil
-    {
-        static Date addDays(Date date, int days)
-        {
+    private static class DateUtil {
+        static Date addDays(Date date, int days) {
             Calendar cal = Calendar.getInstance();
             cal.setTime(date);
             cal.add(Calendar.DATE, days); //minus number would decrement the days
@@ -296,10 +297,10 @@ public class ControlActivity extends Activity {
                         @Override
                         public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
                             String time;
-                            if(selectedMinute < 10){
+                            if (selectedMinute < 10) {
                                 time = String.format("%s:0%s",
                                         selectedHour, selectedMinute);
-                            }else{
+                            } else {
                                 time = String.format("%s:%s",
                                         selectedHour, selectedMinute);
                             }
@@ -386,7 +387,6 @@ public class ControlActivity extends Activity {
                                     MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                             intent.setType("*/*");
                             startActivityForResult(intent, SELECT_IMAGE);
-
                         }
                         dialog.dismiss();
                         break;
@@ -417,7 +417,8 @@ public class ControlActivity extends Activity {
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void takePhoto() {
-        if (checkSelfPermission(android.Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+        if (checkSelfPermission(android.Manifest.permission.CAMERA)
+                == PackageManager.PERMISSION_GRANTED) {
             invokeCamera();
         } else {
             String[] permissionRequest = {android.Manifest.permission.CAMERA};
@@ -427,6 +428,11 @@ public class ControlActivity extends Activity {
 
     public void invokeCamera() {
         Intent callCameraApplicationIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        String fileName = "temp.jpg";
+        ContentValues values = new ContentValues();
+        values.put(MediaStore.Images.Media.TITLE, fileName);
+        mCapturedImageURI = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+        callCameraApplicationIntent.putExtra(MediaStore.EXTRA_OUTPUT, mCapturedImageURI);
         startActivityForResult(callCameraApplicationIntent, REQUEST_ID_IMAGE_CAPTURE);
     }
 
@@ -459,9 +465,15 @@ public class ControlActivity extends Activity {
         switch (requestCode) {
             case REQUEST_ID_IMAGE_CAPTURE:
                 if (resultCode == RESULT_OK) {
-                    Bundle extras = data.getExtras();
-                    Bitmap imageBitmap = (Bitmap) extras.get("data");
-                    mImageList.add(imageBitmap);
+//                    Bundle extras = data.getExtras();
+//                    Bitmap imageBitmap = (Bitmap) extras.get("data");
+//                    Uri tempUri = getImageUri(getApplicationContext(), imageBitmap);
+                    String[] projection = {MediaStore.Images.Media.DATA};
+                    Cursor cursor = managedQuery(mCapturedImageURI, projection, null, null, null);
+                    int column_index_data = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+                    cursor.moveToFirst();
+                    String imagePath = cursor.getString(column_index_data);
+                    mImageList.add(imagePath);
                     mGvImage.setAdapter(mAdapter);
                 }
                 break;
@@ -474,11 +486,19 @@ public class ControlActivity extends Activity {
                     int columnIndex = cursor.getColumnIndex(FILE[0]);
                     String filePath = cursor.getString(columnIndex);
                     cursor.close();
-                    mImageList.add(BitmapFactory.decodeFile(filePath));
+//                    mImageList.add(BitmapFactory.decodeFile(filePath));
+                    mImageList.add(filePath);
                     mGvImage.setAdapter(mAdapter);
                 }
                 break;
         }
+    }
+
+    public Uri getImageUri(Context inContext, Bitmap inImage) {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+        String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "Title", null);
+        return Uri.parse(path);
     }
 
     // Convert bitmap to byte array

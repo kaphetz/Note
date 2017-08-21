@@ -176,8 +176,8 @@ public class AddActivity extends ControlActivity {
                 Intent intent = new Intent(getApplicationContext(), AlarmReceiver.class);
                 intent.putExtra(AlarmReceiver.ID, note.getNoteID());
                 intent.putExtra(AlarmReceiver.TITLE, note.getNoteTitle());
-                pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), note.getNoteID(), intent,
-                        PendingIntent.FLAG_UPDATE_CURRENT);
+                pendingIntent = PendingIntent.getBroadcast(getApplicationContext(),
+                        note.getNoteID(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
                 mAlarmManager.setExact(AlarmManager.RTC_WAKEUP,
                         calendar.getTimeInMillis(), pendingIntent);
 
@@ -212,10 +212,11 @@ public class AddActivity extends ControlActivity {
         dbNote.addNote(note);
         note = dbNote.getLastNote();
         NoteImageRepo dbNoteImage = new NoteImageRepo();
-        for (Bitmap noteImage : mImageList) {
+        for (String noteImage : mImageList) {
             NoteImage noteImg = new NoteImage();
             noteImg.setNoteId(note.getNoteID());
-            noteImg.setImg(getBitmapAsByteArray(noteImage));
+//            noteImg.setImgPath(getBitmapAsByteArray(noteImage));
+            noteImg.setImgPath(noteImage);
             dbNoteImage.addNoteImage(noteImg);
         }
     }
