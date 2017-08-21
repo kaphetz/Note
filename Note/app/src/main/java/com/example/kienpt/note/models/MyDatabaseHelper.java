@@ -37,7 +37,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         // Script create table
-        String script = String.format("CREATE TABLE %s(%s INTEGER PRIMARY sKEY, %s TEXT, "
+        String script = String.format("CREATE TABLE %s(%s INTEGER PRIMARY KEY, %s TEXT, "
                         + "%s TEXT, %s TEXT, %s TEXT, %s TEXT)",
                 TABLE_NOTE, COLUMN_NOTE_ID, COLUMN_NOTE_TITLE, COLUMN_NOTE_CONTENT,
                 COLUMN_NOTE_TIME, COLUMN_NOTE_CREATED_TIME, COLUMN_NOTE_BACKGROUND_COLOR);
