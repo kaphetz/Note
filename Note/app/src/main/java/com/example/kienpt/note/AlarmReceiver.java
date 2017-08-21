@@ -10,7 +10,6 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
-import android.util.Log;
 
 import com.example.kienpt.note.activities.EditActivity;
 import com.example.kienpt.note.activities.MainActivity;
@@ -24,7 +23,7 @@ public class AlarmReceiver extends BroadcastReceiver {
         int result = intent.getIntExtra(ID, 0);
         Intent notificationIntent = new Intent(context, EditActivity.class);
         Bundle bundle = new Bundle();
-        bundle.putInt(EditActivity.KEY, result);
+        bundle.putInt(EditActivity.sKEY, result);
         notificationIntent.putExtras(bundle);
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP |
                 Intent.FLAG_ACTIVITY_SINGLE_TOP);

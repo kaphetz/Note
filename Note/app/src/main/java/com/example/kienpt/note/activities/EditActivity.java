@@ -12,7 +12,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
 import android.text.format.DateFormat;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -37,14 +36,14 @@ import java.util.Date;
 import java.util.List;
 
 public class EditActivity extends ControlActivity {
-    public static String KEY = "KEY";
-    public static String NOTE = "NOTE";
+    public static String sKEY = "sKEY";
+    public static String sNOTE = "sNOTE";
     private static final int LAST_OPTION_OF_DATE_SPINNER = 3;
     private static final int LAST_OPTION_OF_TIME_SPINNER = 4;
+    private int posOfNote;
     private Note mNote;
     private List<Note> mListNote;
     private CustomGridViewNotesAdapter adapter;
-    private int posOfNote;
     private ImageButton imbPrevious;
     private ImageButton imbForward;
 
@@ -200,10 +199,10 @@ public class EditActivity extends ControlActivity {
     // get data of note that was selected
     private void getData() {
         if (getIntent().getExtras() != null) {
-            mNote = (Note) getIntent().getSerializableExtra(NOTE);
+            mNote = (Note) getIntent().getSerializableExtra(sNOTE);
             if (mNote == null) {
                 Bundle bundle = getIntent().getExtras();
-                int id = bundle.getInt(KEY);
+                int id = bundle.getInt(sKEY);
                 NoteRepo noteRepo = new NoteRepo();
                 mNote = noteRepo.getNote(id);
             }
@@ -433,7 +432,7 @@ public class EditActivity extends ControlActivity {
         if (posOfNote - 1 >= 0) {
             if (mListNote.get(posOfNote - 1) != null) {
                 Intent intent = new Intent(getApplicationContext(), EditActivity.class);
-                intent.putExtra(EditActivity.NOTE, (Note) adapter.getItem(posOfNote - 1));
+                intent.putExtra(EditActivity.sNOTE, (Note) adapter.getItem(posOfNote - 1));
                 EditActivity.this.startActivity(intent);
             }
         }
@@ -443,7 +442,7 @@ public class EditActivity extends ControlActivity {
         if ((posOfNote + 1) < (mListNote.size())) {
             if (mListNote.get(posOfNote + 1) != null) {
                 Intent intent = new Intent(getApplicationContext(), EditActivity.class);
-                intent.putExtra(EditActivity.NOTE, (Note) adapter.getItem(posOfNote + 1));
+                intent.putExtra(EditActivity.sNOTE, (Note) adapter.getItem(posOfNote + 1));
                 EditActivity.this.startActivity(intent);
             }
         }

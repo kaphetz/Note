@@ -203,8 +203,6 @@ public class AddActivity extends ControlActivity {
         } else {
             note.setNoteTime("");
         }
-        //get create datetime
-
         Date date = new Date();
         note.setCreatedTime(String.valueOf(DateFormat.format(
                 getString(R.string.ddmmyyyy_hhmmss_format), date)));

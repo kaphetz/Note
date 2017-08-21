@@ -28,7 +28,6 @@ public class ExpandedGridView extends GridView {
 
     @Override
     public void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        // HACK! TAKE THAT ANDROID!
         if (isExpanded()) {
             // Calculate entire height by providing a very large height hint.
             // But do not use the highest 2 bits of this integer; those are

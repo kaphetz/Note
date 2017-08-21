@@ -54,6 +54,11 @@ import java.util.Locale;
 
 
 public class ControlActivity extends Activity {
+    // Constant value
+    private static final int REQUEST_ID_IMAGE_CAPTURE = 1;
+    private static final int CAMERA_PERMISSION_REQUEST_CODE = 2;
+    private static final int PERMISSION_REQUEST_CODE = 3;
+    private static final int SELECT_IMAGE = 4;
     private static final int TOMORROW = 1;
     private static final int NEXT_WEEK = 7;
     private static final int LAST_OPTION_OF_DATE_SPINNER = 3;
@@ -74,15 +79,11 @@ public class ControlActivity extends Activity {
     protected String mSelectedTime = "";
     protected String mColor = "";
     protected AlertDialog dialog;
-    protected Context mContext;
     protected String[] parts = mCalendar.getTime().toString().split(" ");
     protected ArrayAdapter<String> dateAdapter;
     protected ArrayAdapter<String> timeAdapter;
-
-
     protected AlarmManager mAlarmManager;
     protected PendingIntent pendingIntent;
-
     protected List<String> listDate = new ArrayList<>();
     protected List<String> listTime = new ArrayList<>();
     protected Integer[] mSourceImageList = {R.drawable.ic_take_photo, R.drawable.ic_choose_photo};
@@ -90,13 +91,7 @@ public class ControlActivity extends Activity {
     protected CustomGridViewImageAdapter mAdapter;
     protected ArrayList<Bitmap> mImageList = new ArrayList<>();
 
-    // Constant value
-    private static final int REQUEST_ID_IMAGE_CAPTURE = 1;
-    private static final int CAMERA_PERMISSION_REQUEST_CODE = 2;
-    private static final int PERMISSION_REQUEST_CODE = 3;
-    private static final int SELECT_IMAGE = 4;
 
-    //Khoi tao initview
     protected void initView() {
         listDate.addAll(Arrays.asList(getString(R.string.today),
                 getString(R.string.tomorrow),
@@ -111,7 +106,6 @@ public class ControlActivity extends Activity {
         mSpnTime = (Spinner) findViewById(R.id.spn_time);
         mLlDateTime = (LinearLayout) findViewById(R.id.ll_dateTime);
         mRlNote = (RelativeLayout) findViewById(R.id.rl_note);
-//        mLlImageContainer = (LinearLayout) findViewById(R.id.lL_image_container);
         mGvImage = (ExpandedGridView) findViewById(R.id.gv_listImage);
         mTvAlarm = (TextView) findViewById(R.id.tv_alarm);
         mTvDateTime = (TextView) findViewById(R.id.tv_dateTime);

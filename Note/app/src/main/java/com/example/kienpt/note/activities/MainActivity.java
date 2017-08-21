@@ -64,12 +64,12 @@ public class MainActivity extends Activity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent intent = new Intent(MainActivity.this, EditActivity.class);
-                intent.putExtra(EditActivity.NOTE, (Note) adapter.getItem(position));
+                intent.putExtra(EditActivity.sNOTE, (Note) adapter.getItem(position));
                 startActivity(intent);
             }
         });
 
-        /*gvListNote.setOnScrollListener(new AbsListView.OnScrollListener() {
+        gvListNote.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
                 int btnPosY = fabAddNote.getScrollY();
@@ -90,7 +90,7 @@ public class MainActivity extends Activity {
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
 
             }
-        });*/
+        });
 
         fabAddNote.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -102,25 +102,25 @@ public class MainActivity extends Activity {
         });
     }
 
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        // Inflate the menu; this adds items to the action bar if it is present.
-//        getMenuInflater().inflate(R.menu.main_menu, menu);
-//        return true;
-//    }
+    /*@Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+        return true;
+    }
 
 
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        switch (item.getItemId()) {
-//            case R.id.mn_plus:
-//                Intent intentAdd = new Intent(this, AddActivity.class);
-//                startActivity(intentAdd);
-//                return true;
-//            default:
-//                return super.onOptionsItemSelected(item);
-//        }
-//    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.mn_plus:
+                Intent intentAdd = new Intent(this, AddActivity.class);
+                startActivity(intentAdd);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }*/
 
     // Order by time created
     public List<Note> orderByCreatedTime(List<Note> listNote) {
