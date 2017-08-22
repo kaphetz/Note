@@ -41,7 +41,7 @@
             android:stateListAnimator="@null"
             app:backgroundTint="@color/colorCyan"
             app:borderWidth="0dp"
-            app:fabSize="normal"
+            app:fabSize="mini"
             app:pressedTranslationZ="12dp"
             app:rippleColor="@color/colorCyanDark" />
 
