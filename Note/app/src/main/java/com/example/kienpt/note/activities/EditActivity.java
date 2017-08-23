@@ -5,8 +5,6 @@ import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -20,7 +18,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
-import com.example.kienpt.note.AlarmReceiver;
+import com.example.kienpt.note.notifications.AlarmReceiver;
 import com.example.kienpt.note.R;
 import com.example.kienpt.note.adapters.CustomGridViewImageAdapter;
 import com.example.kienpt.note.adapters.CustomGridViewNotesAdapter;
@@ -28,6 +26,8 @@ import com.example.kienpt.note.models.Note;
 import com.example.kienpt.note.models.NoteImage;
 import com.example.kienpt.note.models.NoteImageRepo;
 import com.example.kienpt.note.models.NoteRepo;
+import com.example.kienpt.note.utils.DateUtil;
+import com.example.kienpt.note.utils.SpinnerUtil;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -129,73 +129,6 @@ public class EditActivity extends ControlActivity {
         }
     }
 
-    private class DateSpinnerInfo implements AdapterView.OnItemSelectedListener {
-        @Override
-        public void onItemSelected(AdapterView<?> spinner, View selectedView,
-                                   int selectedIndex, long id) {
-            String selectedDate = spinner.getItemAtPosition(selectedIndex).toString();
-            switch (selectedIndex) {
-                case 0:
-                    Date date = new Date();
-                    mSelectedDate = String.valueOf(DateFormat.format(
-                            getString(R.string.ddmmyyyy_format), date));
-                    updateAdapterForDateSpinner(getString(R.string.other));
-                    break;
-                case 1:
-                    mSelectedDate = getTomorrow();
-                    updateAdapterForDateSpinner(getString(R.string.other));
-                    break;
-                case 2:
-                    mSelectedDate = getDayOfNextWeek();
-                    updateAdapterForDateSpinner(getString(R.string.other));
-                    break;
-                case 3:
-                    chooseOptionOtherDate(EditActivity.this, selectedDate);
-                    break;
-            }
-        }
-
-        @Override
-        public void onNothingSelected(AdapterView<?> spinner) {
-            //do something
-        }
-    }
-
-    private class TimeSpinnerInfo implements AdapterView.OnItemSelectedListener {
-        @Override
-        public void onItemSelected(AdapterView<?> spinner, View selectedView,
-                                   int selectedIndex, long id) {
-            String selectedTime = spinner.getItemAtPosition(selectedIndex).toString();
-            switch (selectedIndex) {
-                case 0:
-                    mSelectedTime = getString(R.string.hour_9h);
-                    updateAdapterForTimeSpinner(getString(R.string.other));
-                    break;
-                case 1:
-                    mSelectedTime = getString(R.string.hour_13h);
-                    updateAdapterForTimeSpinner(getString(R.string.other));
-                    break;
-                case 2:
-                    mSelectedTime = getString(R.string.hour_17h);
-                    updateAdapterForTimeSpinner(getString(R.string.other));
-                    break;
-                case 3:
-                    mSelectedTime = getString(R.string.hour_20h);
-                    updateAdapterForTimeSpinner(getString(R.string.other));
-                    break;
-                case 4:
-                    chooseOptionOtherTime(EditActivity.this, selectedTime);
-                    break;
-            }
-        }
-
-        @Override
-        public void onNothingSelected(AdapterView<?> spinner) {
-            //do something
-        }
-
-    }
-
     // get data of note that was selected
     private void getData() {
         if (getIntent().getExtras() != null) {
@@ -241,14 +174,14 @@ public class EditActivity extends ControlActivity {
                     android.R.layout.simple_spinner_item, listDate);
             dateAdapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
             mSpnDate.setAdapter(dateAdapter);
-            mSpnDate.setOnItemSelectedListener(new DateSpinnerInfo());
+            mSpnDate.setOnItemSelectedListener(new DateSpinnerInfo(EditActivity.this));
 
             // Set up for time spinner
             timeAdapter = new ArrayAdapter<>(EditActivity.this,
                     android.R.layout.simple_spinner_item, listTime);
             timeAdapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
             mSpnTime.setAdapter(timeAdapter);
-            mSpnTime.setOnItemSelectedListener(new TimeSpinnerInfo());
+            mSpnTime.setOnItemSelectedListener(new TimeSpinnerInfo(EditActivity.this));
 
             //if this note have reminder, show datetime was picked
             if (!mNote.getNoteTime().equals("")) {
@@ -257,9 +190,9 @@ public class EditActivity extends ControlActivity {
                 mSelectedTime = datetime[1];
                 mLlDateTime.setVisibility(View.VISIBLE);
                 mTvAlarm.setVisibility(View.GONE);
-                updateAdapterForDateSpinner(datetime[0]);
+                SpinnerUtil.updateAdapterForDateSpinner(dateAdapter, datetime[0], listDate);
                 mSpnDate.setSelection(LAST_OPTION_OF_DATE_SPINNER);
-                updateAdapterForTimeSpinner(datetime[1]);
+                SpinnerUtil.updateAdapterForTimeSpinner(timeAdapter, datetime[1], listTime);
                 mSpnTime.setSelection(LAST_OPTION_OF_TIME_SPINNER);
             }
 
@@ -331,14 +264,24 @@ public class EditActivity extends ControlActivity {
         mCalendar = Calendar.getInstance();
         // update notification
         if (mLlDateTime.getVisibility() == View.VISIBLE) {
-            //mSelectedTime: hh:mm
+            mSelectedTime = mSpnTime.getSelectedItem().toString();
+            String[] selectDate;
+            int month, year, day, hour, minute, second = 0;
+            if (mSelectedDate.equals("")) {
+                mSelectedDate = mSpnDate.getSelectedItem().toString();
+                selectDate = mSelectedDate.split("/");
+                month = Integer.valueOf(selectDate[1]) - 1;
+            } else {
+                selectDate = mSelectedDate.split("/");
+                month = Integer.valueOf(selectDate[1])-1;
+            }
             String[] selectTime = mSelectedTime.split(":");
-            //mSelectedDate: dd/MM/yyyy
-            String[] selectDate = mSelectedDate.split("/");
+            year = Integer.valueOf(selectDate[2]);
+            day = Integer.valueOf(selectDate[0]);
+            hour = Integer.valueOf(selectTime[0]);
+            minute = Integer.valueOf(selectTime[1]);
             Calendar calendar = Calendar.getInstance();
-            calendar.set(Integer.valueOf(selectDate[2]), Integer.valueOf(selectDate[1]) - 1,
-                    Integer.valueOf(selectDate[0]), Integer.valueOf(selectTime[0]),
-                    Integer.valueOf(selectTime[1]), 0);
+            calendar.set(year, month, day , hour, minute, second);
             if (mCalendar.getTime().after(calendar.getTime())) {
                 Toast.makeText(this, "The time you have just set before the current time. " +
                         "Please change!", Toast.LENGTH_SHORT).show();

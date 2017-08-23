@@ -3,7 +3,6 @@ package com.example.kienpt.note.adapters;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.ThumbnailUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,10 +13,11 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 
-import com.bumptech.glide.Glide;
 import com.example.kienpt.note.R;
+import com.squareup.picasso.Picasso;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.util.ArrayList;
 
 
@@ -61,14 +61,23 @@ public class CustomGridViewImageAdapter extends BaseAdapter implements ListAdapt
         }
         String imagePath = mListData.get(position);
         final int THUMB_SIZE = 96;
-        if (ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(imagePath),
-                THUMB_SIZE, THUMB_SIZE) != null) {
-            holder.imageView.setImageBitmap(ThumbnailUtils
-                    .extractThumbnail(BitmapFactory.decodeFile(imagePath), THUMB_SIZE, THUMB_SIZE));
+        if (BitmapFactory.decodeFile(imagePath) != null) {
+            Picasso.with(mContext)
+                    .load(new File(imagePath))
+                    .resize(96, 96)
+                    .placeholder(R.drawable.default_image)
+                    .error(R.drawable.not_defound)
+                    .into(holder.imageView);
+      /*      holder.imageView.setImageBitmap(ThumbnailUtils
+                    .extractThumbnail(BitmapFactory.decodeFile(imagePath), THUMB_SIZE, THUMB_SIZE));*/
         } else {
-            holder.imageView.setImageBitmap(ThumbnailUtils
+            Picasso.with(mContext)
+                    .load(R.drawable.not_defound)
+                    .placeholder(R.drawable.default_image)
+                    .into(holder.imageView);
+           /* holder.imageView.setImageBitmap(ThumbnailUtils
                     .extractThumbnail(BitmapFactory.decodeResource(mContext.getResources(),
-                            R.drawable.default_image), THUMB_SIZE, THUMB_SIZE));
+                            R.drawable.not_defound), THUMB_SIZE, THUMB_SIZE));*/
         }
         holder.delView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -87,11 +96,11 @@ public class CustomGridViewImageAdapter extends BaseAdapter implements ListAdapt
         return convertView;
     }
 
-    /*private byte[] bitmapToByte(Bitmap bitmap) {
+    private byte[] bitmapToByte(Bitmap bitmap) {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
         return stream.toByteArray();
-    }*/
+    }
 
     private class ImageViewHolder {
         ImageView imageView;

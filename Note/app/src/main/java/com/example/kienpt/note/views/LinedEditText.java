@@ -1,5 +1,4 @@
-package com.example.kienpt.note;
-
+package com.example.kienpt.note.views;
 
 import android.content.Context;
 import android.graphics.Canvas;

@@ -49,7 +49,6 @@ public class MainActivity extends Activity {
         List<Note> mListNote = dbNote.getAllNotes();
         mListNote = orderByCreatedTime(mListNote);
         adapter = new CustomGridViewNotesAdapter(MainActivity.this, mListNote);
-
         //show list of notes if count > 0
         //if count = 0, show "No Notes"
         if (mListNote.size() > 0) {

@@ -1,4 +1,4 @@
-package com.example.kienpt.note;
+package com.example.kienpt.note.notifications;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 
+import com.example.kienpt.note.R;
 import com.example.kienpt.note.activities.EditActivity;
 import com.example.kienpt.note.activities.MainActivity;
 

@@ -28,9 +28,9 @@ public class NoteImage {
         mImgPath = imgPath;
     }
 
-    public boolean hasImage() {
-        return getImgPath() != null || !getImgPath().isEmpty();
-    }
+//    public boolean hasImage() {
+//        return getImgPath() != null || !getImgPath().isEmpty();
+//    }
 
     @Override
     public String toString() {

@@ -13,9 +13,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.icu.text.SimpleDateFormat;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -24,6 +21,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.text.format.DateFormat;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -38,20 +36,18 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
-import com.example.kienpt.note.ExpandedGridView;
+import com.example.kienpt.note.utils.DateUtil;
+import com.example.kienpt.note.utils.SpinnerUtil;
+import com.example.kienpt.note.views.ExpandedGridView;
 import com.example.kienpt.note.R;
 import com.example.kienpt.note.adapters.CustomGridViewImageAdapter;
 import com.example.kienpt.note.adapters.CustomListViewAdapter;
 
-import java.io.ByteArrayOutputStream;
-import java.sql.Time;
-import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 
 public class ControlActivity extends Activity {
@@ -60,10 +56,6 @@ public class ControlActivity extends Activity {
     private static final int CAMERA_PERMISSION_REQUEST_CODE = 2;
     private static final int PERMISSION_REQUEST_CODE = 3;
     private static final int SELECT_IMAGE = 4;
-    private static final int TOMORROW = 1;
-    private static final int NEXT_WEEK = 7;
-    private static final int LAST_OPTION_OF_DATE_SPINNER = 3;
-    private static final int LAST_OPTION_OF_TIME_SPINNER = 4;
     private static final int FIRST_OPTION = 0;
 
     private Uri mCapturedImageURI;
@@ -93,12 +85,13 @@ public class ControlActivity extends Activity {
     protected String[] mSourceImageNameList = {"Take photo", "Choose photo"};
     protected CustomGridViewImageAdapter mAdapter;
     protected ArrayList<String> mImageList = new ArrayList<>();
+    protected Context mContext;
 
 
     protected void initView() {
         listDate.addAll(Arrays.asList(getString(R.string.today),
                 getString(R.string.tomorrow),
-                dayOfNextWeek(parts[0]),
+                DateUtil.dayOfNextWeek(parts[0]),
                 getString(R.string.other)));
         listTime.addAll(Arrays.asList(getString(R.string.hour_9h),
                 getString(R.string.hour_13h),
@@ -135,14 +128,11 @@ public class ControlActivity extends Activity {
         return mImageList;
     }
 
-
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         outState.putString("LinearLayoutState", String.valueOf(mLlDateTime.isShown()));
-//        outState.putParcelableArrayList("ImageList", mImageList);
         super.onSaveInstanceState(outState);
     }
-
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
@@ -159,40 +149,6 @@ public class ControlActivity extends Activity {
         mGvImage.setAdapter(mAdapter);
     }
 
-    public String dayOfNextWeek(String dayOfWeek) {
-        switch (dayOfWeek) {
-            case "Mon":
-                return "Next Monday";
-            case "Tue":
-                return "Next Tuesday";
-            case "Wed":
-                return "Next Wednesday";
-            case "Thu":
-                return "Next Thursday";
-            case "Fri":
-                return "Next Friday";
-            case "Sat":
-                return "Next Saturday";
-            default:
-                return "Next Sunday";
-
-        }
-    }
-
-    // update adapter of date spinner
-    public void updateAdapterForDateSpinner(String newDay) {
-        dateAdapter.remove(listDate.get(LAST_OPTION_OF_DATE_SPINNER));
-        dateAdapter.insert(newDay, LAST_OPTION_OF_DATE_SPINNER);
-        dateAdapter.notifyDataSetChanged();
-    }
-
-    // update adapter of time spinner
-    public void updateAdapterForTimeSpinner(String newTime) {
-        timeAdapter.remove(listTime.get(LAST_OPTION_OF_TIME_SPINNER));
-        timeAdapter.insert(newTime, LAST_OPTION_OF_TIME_SPINNER);
-        timeAdapter.notifyDataSetChanged();
-    }
-
     public void showDateTimePicker(View v) {
         mLlDateTime.setVisibility(View.VISIBLE);
         mTvAlarm.setVisibility(View.GONE);
@@ -202,38 +158,6 @@ public class ControlActivity extends Activity {
         mLlDateTime.setVisibility(View.GONE);
         mTvAlarm.setVisibility(View.VISIBLE);
     }
-
-    private static class DateUtil {
-        static Date addDays(Date date, int days) {
-            Calendar cal = Calendar.getInstance();
-            cal.setTime(date);
-            cal.add(Calendar.DATE, days); //minus number would decrement the days
-            return cal.getTime();
-        }
-    }
-
-    //get time of tomorrow (day, month, yeah)
-    public String getTomorrow() {
-        Date date = new Date();
-        date = DateUtil.addDays(date, TOMORROW);
-        return String.valueOf(android.text.format.DateFormat.format(
-                getString(R.string.ddmmyyyy_format), date));
-    }
-
-    //get time of next 7 days (day, month, yeah)
-    public String getDayOfNextWeek() {
-        Date date = new Date();
-        date = DateUtil.addDays(date, NEXT_WEEK);
-        return String.valueOf(android.text.format.DateFormat.format(
-                getString(R.string.ddmmyyyy_format), date));
-    }
-
-//    //convert from date to string type
-//    @RequiresApi(api = Build.VERSION_CODES.N)
-//    public String convert(Calendar calendar, String format) {
-//        SimpleDateFormat df = new SimpleDateFormat(format);
-//        return df.format(calendar.getTime());
-//    }
 
     public void changeBackgroundColor() {
         AlertDialog.Builder mBuilder = new AlertDialog.Builder(this);
@@ -284,74 +208,6 @@ public class ControlActivity extends Activity {
         dialog = mBuilder.create();
         dialog.show();
     }
-
-    // When click option "Other..." in TimeSpinner
-    public void chooseOptionOtherTime(Context context, String selectedTime) {
-        if (selectedTime.equals(getString(R.string.other))) {
-            final Calendar c = Calendar.getInstance();
-            int hour = c.get(Calendar.HOUR_OF_DAY);
-            int minute = c.get(Calendar.MINUTE);
-
-            TimePickerDialog timePickerDialog = new TimePickerDialog(context,
-                    new TimePickerDialog.OnTimeSetListener() {
-                        @Override
-                        public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
-                            String time;
-                            if (selectedMinute < 10) {
-                                time = String.format("%s:0%s",
-                                        selectedHour, selectedMinute);
-                            } else {
-                                time = String.format("%s:%s",
-                                        selectedHour, selectedMinute);
-                            }
-                            updateAdapterForTimeSpinner(time);
-                            mSelectedTime = time;
-                        }
-                    }, hour, minute, false);
-            timePickerDialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(R.string.cancel),
-                    new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            if (which == DialogInterface.BUTTON_NEGATIVE) {
-                                mSpnTime.setSelection(FIRST_OPTION);
-                            }
-                        }
-                    });
-            timePickerDialog.setTitle(getString(R.string.choose_time));
-            timePickerDialog.show();
-        }
-    }
-
-    // When click option "Other..." in DateSpinner
-    public void chooseOptionOtherDate(Context context, final String selectedDate) {
-        if (selectedDate.equals(getString(R.string.other))) {
-            final int mYear, mMonth, mDay;
-            final Calendar c = Calendar.getInstance();
-            mYear = c.get(Calendar.YEAR);
-            mMonth = c.get(Calendar.MONTH);
-            mDay = c.get(Calendar.DAY_OF_MONTH);
-            DatePickerDialog datePickerDialog = new DatePickerDialog(context,
-                    new DatePickerDialog.OnDateSetListener() {
-                        @Override
-                        public void onDateSet(DatePicker view, int year, int monthOfYear,
-                                              int dayOfMonth) {
-                            String date = String.format("%s/%s/%s", dayOfMonth, monthOfYear + 1, year);
-                            updateAdapterForDateSpinner(date);
-                            mSelectedDate = date;
-                        }
-                    }, mYear, mMonth, mDay);
-            datePickerDialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(R.string.cancel),
-                    new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            if (which == DialogInterface.BUTTON_NEGATIVE) {
-                                mSpnDate.setSelection(FIRST_OPTION);
-                            }
-                        }
-                    });
-            datePickerDialog.setTitle(getString(R.string.choose_date));
-            datePickerDialog.show();
-        }
-    }
-
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void insertImage() {
@@ -494,7 +350,96 @@ public class ControlActivity extends Activity {
         }
     }
 
-    public Uri getImageUri(Context inContext, Bitmap inImage) {
+    class DateSpinnerInfo implements AdapterView.OnItemSelectedListener {
+        public Context context;
+
+        DateSpinnerInfo(Context context) {
+            this.context = context;
+        }
+
+        @Override
+        public void onItemSelected(AdapterView<?> spinner, View selectedView,
+                                   int selectedIndex, long id) {
+            String selectedDate = spinner.getItemAtPosition(selectedIndex).toString();
+            switch (selectedIndex) {
+                case 0:
+                    Date date = new Date();
+                    mSelectedDate = String.valueOf(DateFormat.format(
+                            getString(R.string.ddmmyyyy_format), date));
+                    SpinnerUtil.updateAdapterForDateSpinner(dateAdapter,
+                            getString(R.string.other), listDate);
+                    break;
+                case 1:
+                    mSelectedDate = DateUtil.getTomorrow();
+                    SpinnerUtil.updateAdapterForDateSpinner(dateAdapter,
+                            getString(R.string.other), listDate);
+                    break;
+                case 2:
+                    mSelectedDate = DateUtil.getDayOfNextWeek();
+                    SpinnerUtil.updateAdapterForDateSpinner(dateAdapter,
+                            getString(R.string.other), listDate);
+                    break;
+                case 3:
+                    mSelectedDate = "";
+                    SpinnerUtil.chooseOptionOtherDate(context, mSpnDate,
+                            dateAdapter, listDate, selectedDate);
+                    break;
+            }
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> spinner) {
+            //do something
+        }
+    }
+
+    class TimeSpinnerInfo implements AdapterView.OnItemSelectedListener {
+        public Context context;
+
+        TimeSpinnerInfo(Context context) {
+            this.context = context;
+        }
+
+        @Override
+        public void onItemSelected(AdapterView<?> spinner, View selectedView,
+                                   int selectedIndex, long id) {
+            String selectedTime = spinner.getItemAtPosition(selectedIndex).toString();
+            switch (selectedIndex) {
+                case 0:
+                    mSelectedTime = getString(R.string.hour_9h);
+                    SpinnerUtil.updateAdapterForTimeSpinner(timeAdapter,
+                            getString(R.string.other), listTime);
+                    break;
+                case 1:
+                    mSelectedTime = getString(R.string.hour_13h);
+                    SpinnerUtil.updateAdapterForTimeSpinner(timeAdapter,
+                            getString(R.string.other), listTime);
+                    break;
+                case 2:
+                    mSelectedTime = getString(R.string.hour_17h);
+                    SpinnerUtil.updateAdapterForTimeSpinner(timeAdapter,
+                            getString(R.string.other), listTime);
+                    break;
+                case 3:
+                    mSelectedTime = getString(R.string.hour_20h);
+                    SpinnerUtil.updateAdapterForTimeSpinner(timeAdapter,
+                            getString(R.string.other), listTime);
+                    break;
+                case 4:
+                    SpinnerUtil.chooseOptionOtherTime(context, mSpnTime,
+                            timeAdapter, listTime, selectedTime);
+                    break;
+            }
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> spinner) {
+            //do something
+        }
+    }
+
+
+   /* public Uri getImageUri(Context inContext, Bitmap inImage) {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
         String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "Title", null);
@@ -506,6 +451,12 @@ public class ControlActivity extends Activity {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.PNG, 0, outputStream);
         return outputStream.toByteArray();
-    }
+    }*/
 
+   /* //convert from date to string type
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public String convert(Calendar calendar, String format) {
+        SimpleDateFormat df = new SimpleDateFormat(format);
+        return df.format(calendar.getTime());
+    }*/
 }
