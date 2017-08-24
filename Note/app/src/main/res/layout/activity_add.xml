@@ -24,11 +24,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:horizontalSpacing="10dp"
-                android:numColumns="3"
-                android:paddingLeft="5dp"
-                android:paddingRight="5dp"
-                android:paddingTop="5dp"
-                android:verticalSpacing="5dp" />
+                android:numColumns="4"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:paddingTop="10dp"
+                android:verticalSpacing="10dp" />
 
             <RelativeLayout
                 android:layout_width="wrap_content"
@@ -89,7 +89,6 @@
                     android:layout_toRightOf="@id/img_alarm"
                     android:clickable="true"
                     android:fontFamily="sans-serif-medium"
-                    android:onClick="showDateTimePicker"
                     android:text="@string/alarm"
                     android:textSize="@dimen/alarm_size" />
 
@@ -120,12 +119,12 @@
                         android:theme="@android:style/Theme.Holo.Light.DarkActionBar" />
 
                     <ImageButton
+                        android:id="@+id/iBtn_hide"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="10dp"
                         android:layout_marginTop="15dp"
                         android:background="@null"
-                        android:onClick="hideDateTimePicker"
                         android:src="@drawable/ic_x_mark" />
 
                 </LinearLayout>

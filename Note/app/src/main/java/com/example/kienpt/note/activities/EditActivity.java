@@ -1,11 +1,14 @@
 package com.example.kienpt.note.activities;
 
+import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.drawable.ColorDrawable;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
@@ -13,7 +16,6 @@ import android.text.format.DateFormat;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.Toast;
@@ -26,10 +28,12 @@ import com.example.kienpt.note.models.Note;
 import com.example.kienpt.note.models.NoteImage;
 import com.example.kienpt.note.models.NoteImageRepo;
 import com.example.kienpt.note.models.NoteRepo;
-import com.example.kienpt.note.utils.DateUtil;
+import com.example.kienpt.note.utils.ListUtil;
 import com.example.kienpt.note.utils.SpinnerUtil;
 
-import java.text.ParseException;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -40,12 +44,12 @@ public class EditActivity extends ControlActivity {
     public static String sNOTE = "sNOTE";
     private static final int LAST_OPTION_OF_DATE_SPINNER = 3;
     private static final int LAST_OPTION_OF_TIME_SPINNER = 4;
-    private int posOfNote;
+    private int mPosOfNote;
     private Note mNote;
     private List<Note> mListNote;
     private CustomGridViewNotesAdapter adapter;
-    private ImageButton imbPrevious;
-    private ImageButton imbForward;
+    private ImageButton mImbPrevious;
+    private ImageButton mImbForward;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,13 +61,13 @@ public class EditActivity extends ControlActivity {
         getActionBar().setBackgroundDrawable(
                 new ColorDrawable(getResources().getColor(R.color.colorCyan)));
         setContentView(R.layout.activity_edit);
-        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+//        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         initView();
         mGvImage.setExpanded(true);
         ImageButton imbDel = (ImageButton) findViewById(R.id.btn_delete);
         ImageButton imbShare = (ImageButton) findViewById(R.id.btn_share);
-        imbPrevious = (ImageButton) findViewById(R.id.btn_previous);
-        imbForward = (ImageButton) findViewById(R.id.btn_forward);
+        mImbPrevious = (ImageButton) findViewById(R.id.btn_previous);
+        mImbForward = (ImageButton) findViewById(R.id.btn_forward);
         getData();
         // Buttons of bottom menu
         // Event click for button Delete
@@ -81,19 +85,19 @@ public class EditActivity extends ControlActivity {
             }
         });
         // Navigation button
-        imbPrevious.setOnClickListener(new View.OnClickListener() {
+        mImbPrevious.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 moveToPreviousNote();
             }
         });
-        imbForward.setOnClickListener(new View.OnClickListener() {
+        mImbForward.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 moveToNextNote();
             }
         });
-        restoreMe();
+//        restoreMe();
     }
 
     @Override
@@ -171,14 +175,14 @@ public class EditActivity extends ControlActivity {
             }
             // Set up for date spinner
             dateAdapter = new ArrayAdapter<>(EditActivity.this,
-                    android.R.layout.simple_spinner_item, listDate);
+                    android.R.layout.simple_spinner_item, mListDate);
             dateAdapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
             mSpnDate.setAdapter(dateAdapter);
             mSpnDate.setOnItemSelectedListener(new DateSpinnerInfo(EditActivity.this));
 
             // Set up for time spinner
             timeAdapter = new ArrayAdapter<>(EditActivity.this,
-                    android.R.layout.simple_spinner_item, listTime);
+                    android.R.layout.simple_spinner_item, mListTime);
             timeAdapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
             mSpnTime.setAdapter(timeAdapter);
             mSpnTime.setOnItemSelectedListener(new TimeSpinnerInfo(EditActivity.this));
@@ -188,24 +192,47 @@ public class EditActivity extends ControlActivity {
                 String[] datetime = mNote.getNoteTime().split(" ");
                 mSelectedDate = datetime[0];
                 mSelectedTime = datetime[1];
-                mLlDateTime.setVisibility(View.VISIBLE);
-                mTvAlarm.setVisibility(View.GONE);
-                SpinnerUtil.updateAdapterForDateSpinner(dateAdapter, datetime[0], listDate);
+                SpinnerUtil.showSpinner(mLlDateTime, mTvAlarm);
+                SpinnerUtil.updateAdapterForDateSpinner(dateAdapter, mSelectedDate, mListDate);
                 mSpnDate.setSelection(LAST_OPTION_OF_DATE_SPINNER);
-                SpinnerUtil.updateAdapterForTimeSpinner(timeAdapter, datetime[1], listTime);
+                SpinnerUtil.updateAdapterForTimeSpinner(timeAdapter, mSelectedTime, mListTime);
                 mSpnTime.setSelection(LAST_OPTION_OF_TIME_SPINNER);
             }
+           /* new AsyncTask<Integer, CustomGridViewImageAdapter, Void>() {
+                @Override
+                protected Void doInBackground(Integer... params) {
+                    // Show image
+                    mAdapter = new CustomGridViewImageAdapter(getApplicationContext(), mImageList);
+                    NoteImageRepo dbNoteImage = new NoteImageRepo();
+                    ArrayList<NoteImage> list = dbNoteImage.getImageById(params[0]);
+                    for (NoteImage noteImage : list) {
+                        mImageList.add(noteImage.getImgPath());
+                    }
+                    publishProgress(mAdapter);
+                    return null;
+                }
 
+                // show result
+                @Override
+                protected void onProgressUpdate(CustomGridViewImageAdapter... values) {
+                    super.onProgressUpdate(values);
+                    mGvImage.setAdapter(values[0]);
+                }
+
+                @Override
+                protected void onPostExecute(Void result) {
+                    super.onPostExecute(result);
+                }
+            }.execute(mNote.getNoteID());*/
             mAdapter = new CustomGridViewImageAdapter(this, mImageList);
             // Show image
             NoteImageRepo dbNoteImage = new NoteImageRepo();
             ArrayList<NoteImage> list = dbNoteImage.getImageById(mNote.getNoteID());
             for (NoteImage noteImage : list) {
-//                Bitmap bitmap = BitmapFactory.decodeByteArray(notImage.getImgPath(), 0,
-//                        notImage.getImgPath().length);
                 mImageList.add(noteImage.getImgPath());
             }
             mGvImage.setAdapter(mAdapter);
+            // show result
             setUpForNavigationButton();
             //clear notification icon at status bar
             AlarmReceiver.cancelNotification(EditActivity.this, mNote.getNoteID());
@@ -220,10 +247,8 @@ public class EditActivity extends ControlActivity {
                 switch (which) {
                     // click OK
                     case DialogInterface.BUTTON_POSITIVE:
-                        NoteRepo dbNote = new NoteRepo();
-                        NoteImageRepo dbNoteImage = new NoteImageRepo();
-                        dbNote.deleteNote(mNote);
-                        dbNoteImage.deleteNoteImage(mNote.getNoteID());
+                        new NoteRepo().deleteNote(mNote);
+                        new NoteImageRepo().deleteNoteImage(mNote.getNoteID());
                         AlarmReceiver.cancelNotification(EditActivity.this, mNote.getNoteID());
                         // delete notification
                         Intent intent = new Intent(getApplicationContext(), AlarmReceiver.class);
@@ -243,9 +268,9 @@ public class EditActivity extends ControlActivity {
             }
         };
         AlertDialog.Builder ab = new AlertDialog.Builder(EditActivity.this);
-        ab.setMessage("Are you sure you want to delete this?").setTitle("Confirm Delete").
-                setPositiveButton("OK", dialogClickListener).
-                setNegativeButton("Cancel", dialogClickListener).show();
+        ab.setMessage(R.string.confirm_delete).setTitle(R.string.confirm_del_title).
+                setPositiveButton(R.string.ok, dialogClickListener).
+                setNegativeButton(R.string.cancel, dialogClickListener).show();
     }
 
     // share note
@@ -260,47 +285,20 @@ public class EditActivity extends ControlActivity {
 
     // save note
     private void saveNote() {
-        //get create datetime
-        mCalendar = Calendar.getInstance();
         // update notification
         if (mLlDateTime.getVisibility() == View.VISIBLE) {
-            mSelectedTime = mSpnTime.getSelectedItem().toString();
-            String[] selectDate;
-            int month, year, day, hour, minute, second = 0;
-            if (mSelectedDate.equals("")) {
-                mSelectedDate = mSpnDate.getSelectedItem().toString();
-                selectDate = mSelectedDate.split("/");
-                month = Integer.valueOf(selectDate[1]) - 1;
-            } else {
-                selectDate = mSelectedDate.split("/");
-                month = Integer.valueOf(selectDate[1])-1;
-            }
-            String[] selectTime = mSelectedTime.split(":");
-            year = Integer.valueOf(selectDate[2]);
-            day = Integer.valueOf(selectDate[0]);
-            hour = Integer.valueOf(selectTime[0]);
-            minute = Integer.valueOf(selectTime[1]);
-            Calendar calendar = Calendar.getInstance();
-            calendar.set(year, month, day , hour, minute, second);
+            Calendar calendar = getSelectedDateTime();
             if (mCalendar.getTime().after(calendar.getTime())) {
-                Toast.makeText(this, "The time you have just set before the current time. " +
-                        "Please change!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.please_change, Toast.LENGTH_SHORT).show();
             } else {
                 updateDB();
-                mAlarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-                Intent intent = new Intent(getApplicationContext(), AlarmReceiver.class);
-                intent.putExtra(AlarmReceiver.ID, mNote.getNoteID());
-                intent.putExtra(AlarmReceiver.TITLE, mNote.getNoteTitle());
-                PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(),
-                        mNote.getNoteID(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
-                mAlarmManager.setExact(AlarmManager.RTC_WAKEUP,
-                        calendar.getTimeInMillis(), pendingIntent);
+                createNotification(mNote, calendar);
                 Intent mainIntent = new Intent(this, MainActivity.class);
                 startActivity(mainIntent);
             }
         } else {
             updateDB();
-            // delete notification
+            // delete notification at bar
             AlarmReceiver.cancelNotification(EditActivity.this, mNote.getNoteID());
             Intent intent = new Intent(getApplicationContext(), AlarmReceiver.class);
             mAlarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
@@ -319,24 +317,16 @@ public class EditActivity extends ControlActivity {
             mNote.setNoteTitle(getString(R.string.untitled));
         }
         mNote.setNoteContent(mEtContent.getText().toString().trim());
-        if (!mEtTitle.getText().toString().equals("")) {
-            mNote.setNoteTitle(mEtTitle.getText().toString());
-        } else {
-            mNote.setNoteTitle(getString(R.string.untitled));
-        }
         if (mLlDateTime.getVisibility() == View.VISIBLE) {
             mNote.setNoteTime(String.format("%s %s", mSelectedDate, mSelectedTime));
         } else {
             mNote.setNoteTime("");
         }
-
-        Date date = new Date();
         mNote.setCreatedTime(String.valueOf(DateFormat.format(
-                getString(R.string.ddmmyyyy_hhmmss_format), date)));
+                getString(R.string.ddmmyyyy_hhmmss_format), new Date())));
         mNote.setBackgroundColor(mColor);
         // add new note into db
-        NoteRepo dbNote = new NoteRepo();
-        dbNote.updateNote(mNote);
+        new NoteRepo().updateNote(mNote);
 
         // save images of Note
         NoteImageRepo dbNoteImage = new NoteImageRepo();
@@ -344,75 +334,50 @@ public class EditActivity extends ControlActivity {
         for (String noteImage : mImageList) {
             NoteImage noteImg = new NoteImage();
             noteImg.setNoteId(mNote.getNoteID());
-//            noteImg.setImgPath(getBitmapAsByteArray(noteImage));
             noteImg.setImgPath(noteImage);
             dbNoteImage.addNoteImage(noteImg);
         }
     }
 
     private void setUpForNavigationButton() {
-        NoteRepo dbNote = new NoteRepo();
-        mListNote = dbNote.getAllNotes();
-        mListNote = orderByCreatedTime(mListNote);
+        mListNote = ListUtil.orderByCreatedTime(new NoteRepo().getAllNotes());
         adapter = new CustomGridViewNotesAdapter(EditActivity.this, mListNote);
         for (int i = 0; i < mListNote.size(); i++) {
             if (mListNote.get(i).getNoteID() == mNote.getNoteID()) {
-                posOfNote = i;
+                mPosOfNote = i;
             }
         }
-        if (posOfNote - 1 < 0) {
-            imbPrevious.setImageResource(R.drawable.ic_left_disable);
-            imbPrevious.setClickable(false);
-            imbPrevious.setBackgroundResource(R.drawable.button_color_disable);
+        if (mPosOfNote - 1 < 0) {
+            disableButton(mImbPrevious, R.drawable.ic_left_disable);
         }
-        if ((posOfNote + 1) >= (mListNote.size())) {
-            imbForward.setImageResource(R.drawable.ic_right_disable);
-            imbForward.setClickable(false);
-            imbForward.setBackgroundResource(R.drawable.button_color_disable);
+        if ((mPosOfNote + 1) >= (mListNote.size())) {
+            disableButton(mImbForward, R.drawable.ic_right_disable);
         }
     }
 
+    private void disableButton(ImageButton imgButton, int icon) {
+        imgButton.setImageResource(icon);
+        imgButton.setClickable(false);
+        imgButton.setBackgroundResource(R.drawable.button_color_disable);
+    }
+
     private void moveToPreviousNote() {
-        if (posOfNote - 1 >= 0) {
-            if (mListNote.get(posOfNote - 1) != null) {
+        if (mPosOfNote - 1 >= 0) {
+            if (mListNote.get(mPosOfNote - 1) != null) {
                 Intent intent = new Intent(getApplicationContext(), EditActivity.class);
-                intent.putExtra(EditActivity.sNOTE, (Note) adapter.getItem(posOfNote - 1));
-                EditActivity.this.startActivity(intent);
+                intent.putExtra(EditActivity.sNOTE, (Note) adapter.getItem(mPosOfNote - 1));
+                startActivity(intent);
             }
         }
     }
 
     private void moveToNextNote() {
-        if ((posOfNote + 1) < (mListNote.size())) {
-            if (mListNote.get(posOfNote + 1) != null) {
+        if ((mPosOfNote + 1) < (mListNote.size())) {
+            if (mListNote.get(mPosOfNote + 1) != null) {
                 Intent intent = new Intent(getApplicationContext(), EditActivity.class);
-                intent.putExtra(EditActivity.sNOTE, (Note) adapter.getItem(posOfNote + 1));
-                EditActivity.this.startActivity(intent);
+                intent.putExtra(EditActivity.sNOTE, (Note) adapter.getItem(mPosOfNote + 1));
+                startActivity(intent);
             }
         }
-    }
-
-    /*
-     *Order by time created
-     */
-    public List<Note> orderByCreatedTime(List<Note> listNote) {
-        java.text.SimpleDateFormat formatter = new java.text.SimpleDateFormat(
-                getString(R.string.ddmmyyyy_hhmmss_format));
-        for (int i = 0; i < listNote.size() - 1; i++) {
-            for (int j = i + 1; j < listNote.size(); j++) {
-                try {
-                    Date a = formatter.parse(listNote.get(i).getCreatedTime());
-                    Date b = formatter.parse(listNote.get(j).getCreatedTime());
-                    if (a.before(b)) {
-                        Note mediate = listNote.get(j);
-                        listNote.set(j, listNote.get(i));
-                        listNote.set(i, mediate);
-                    }
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        return listNote;
     }
 }

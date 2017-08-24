@@ -20,10 +20,8 @@ import com.example.kienpt.note.models.DatabaseManager;
 import com.example.kienpt.note.models.MyDatabaseHelper;
 import com.example.kienpt.note.models.Note;
 import com.example.kienpt.note.models.NoteRepo;
+import com.example.kienpt.note.utils.ListUtil;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 
 public class MainActivity extends Activity {
@@ -37,17 +35,13 @@ public class MainActivity extends Activity {
         getActionBar().setBackgroundDrawable(
                 new ColorDrawable(getResources().getColor(R.color.colorCyan)));
         setContentView(R.layout.activity_main);
-        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-        MyDatabaseHelper dbHelper = new MyDatabaseHelper(this);
-        DatabaseManager.initializeInstance(dbHelper);
+//        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+        DatabaseManager.initializeInstance(new MyDatabaseHelper(this));
         GridView gvListNote = (GridView) findViewById(R.id.gv_listNote);
         TextView tvNoNotes = (TextView) findViewById(R.id.tv_noNotes);
         final FloatingActionButton fabAddNote = (FloatingActionButton) findViewById(R.id.fab_add_note);
         final Animation animAlpha = AnimationUtils.loadAnimation(this, R.anim.anim_alpha);
-
-        NoteRepo dbNote = new NoteRepo();
-        List<Note> mListNote = dbNote.getAllNotes();
-        mListNote = orderByCreatedTime(mListNote);
+        List<Note> mListNote = ListUtil.orderByCreatedTime(new NoteRepo().getAllNotes());
         adapter = new CustomGridViewNotesAdapter(MainActivity.this, mListNote);
         //show list of notes if count > 0
         //if count = 0, show "No Notes"
@@ -82,7 +76,6 @@ public class MainActivity extends Activity {
                     fabAddNote.animate().cancel();
                     fabAddNote.animate().translationY(btnPosY);
                 }
-
             }
 
             @Override
@@ -100,6 +93,7 @@ public class MainActivity extends Activity {
             }
         });
     }
+}
 
     /*@Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -120,25 +114,3 @@ public class MainActivity extends Activity {
                 return super.onOptionsItemSelected(item);
         }
     }*/
-
-    // Order by time created
-    public List<Note> orderByCreatedTime(List<Note> listNote) {
-        SimpleDateFormat formatter = new SimpleDateFormat(getString(R.string.ddmmyyyy_hhmmss_format));
-        for (int i = 0; i < listNote.size() - 1; i++) {
-            for (int j = i + 1; j < listNote.size(); j++) {
-                try {
-                    Date createdTimeOfNoteA = formatter.parse(listNote.get(i).getCreatedTime());
-                    Date createdTimeOfNoteB = formatter.parse(listNote.get(j).getCreatedTime());
-                    if (createdTimeOfNoteA.before(createdTimeOfNoteB)) {
-                        Note mediate = listNote.get(j);
-                        listNote.set(j, listNote.get(i));
-                        listNote.set(i, mediate);
-                    }
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        return listNote;
-    }
-}

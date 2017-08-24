@@ -1,20 +1,17 @@
 package com.example.kienpt.note.utils;
 
-
-import android.app.Activity;
 import android.text.format.DateFormat;
 
-import com.example.kienpt.note.R;
-
+import java.text.DateFormatSymbols;
 import java.util.Calendar;
 import java.util.Date;
 
-public final class DateUtil  {
+public class DateUtil  {
     private static final int TOMORROW = 1;
     private static final int NEXT_WEEK = 7;
     private static final String dateFormat = "dd/MM/yyyy";
 
-    static Date addDays(Date date, int days) {
+    private static Date addDays(Date date, int days) {
         Calendar cal = Calendar.getInstance();
         cal.setTime(date);
         cal.add(Calendar.DATE, days); //minus number would decrement the days
@@ -35,25 +32,9 @@ public final class DateUtil  {
         return String.valueOf(DateFormat.format(dateFormat, date));
     }
 
-    public static String dayOfNextWeek(String dayOfWeek) {
-        switch (dayOfWeek) {
-            case "Mon":
-                return "Next Monday";
-            case "Tue":
-                return "Next Tuesday";
-            case "Wed":
-                return "Next Wednesday";
-            case "Thu":
-                return "Next Thursday";
-            case "Fri":
-                return "Next Friday";
-            case "Sat":
-                return "Next Saturday";
-            default:
-                return "Next Sunday";
-
-        }
+    public static String dayOfNextWeek(int dayOfWeek) {
+        String weekday = new DateFormatSymbols().getWeekdays()[dayOfWeek];
+        return String.format("Next %s", weekday);
     }
-
 }
 

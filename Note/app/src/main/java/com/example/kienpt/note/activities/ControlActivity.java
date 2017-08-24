@@ -4,12 +4,9 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
-import android.app.DatePickerDialog;
 import android.app.PendingIntent;
-import android.app.TimePickerDialog;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -26,16 +23,17 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.example.kienpt.note.models.Note;
+import com.example.kienpt.note.notifications.AlarmReceiver;
 import com.example.kienpt.note.utils.DateUtil;
 import com.example.kienpt.note.utils.SpinnerUtil;
 import com.example.kienpt.note.views.ExpandedGridView;
@@ -56,50 +54,47 @@ public class ControlActivity extends Activity {
     private static final int CAMERA_PERMISSION_REQUEST_CODE = 2;
     private static final int PERMISSION_REQUEST_CODE = 3;
     private static final int SELECT_IMAGE = 4;
-    private static final int FIRST_OPTION = 0;
+    private static final String LINEAR_LAYOUT_STATE = "LinearLayoutState";
+    private static final String IMAGE_LIST = "ImageList";
+    private static final String TAKE_PHOTO = "Take photo";
+    private static final String CHOOSE_PHOTO = "Choose photo";
 
     private Uri mCapturedImageURI;
     protected ListView mLvCamera;
     protected ExpandedGridView mGvImage;
-    protected Spinner mSpnDate;
-    protected Spinner mSpnTime;
+    protected Spinner mSpnDate, mSpnTime;
+    protected ImageButton mIBtnHide;
     protected LinearLayout mLlDateTime;
-    protected TextView mTvAlarm;
-    protected TextView mTvDateTime;
-    protected EditText mEtTitle;
-    protected EditText mEtContent;
+    protected TextView mTvAlarm, mTvDateTime;
+    protected EditText mEtTitle, mEtContent;
     protected RelativeLayout mRlNote;
     protected Calendar mCalendar = Calendar.getInstance();
-    protected String mSelectedDate = "";
-    protected String mSelectedTime = "";
-    protected String mColor = "";
-    protected AlertDialog dialog;
-    protected String[] parts = mCalendar.getTime().toString().split(" ");
-    protected ArrayAdapter<String> dateAdapter;
-    protected ArrayAdapter<String> timeAdapter;
+    protected String mSelectedDate = "", mSelectedTime = "", mColor = "";
+    protected AlertDialog mDialog;
+    protected ArrayAdapter<String> dateAdapter, timeAdapter;
     protected AlarmManager mAlarmManager;
-    protected PendingIntent pendingIntent;
-    protected List<String> listDate = new ArrayList<>();
-    protected List<String> listTime = new ArrayList<>();
+    protected PendingIntent mPendingIntent;
+    protected List<String> mListDate = new ArrayList<>();
+    protected List<String> mListTime = new ArrayList<>();
     protected Integer[] mSourceImageList = {R.drawable.ic_take_photo, R.drawable.ic_choose_photo};
-    protected String[] mSourceImageNameList = {"Take photo", "Choose photo"};
+    protected String[] mSourceImageNameList = {TAKE_PHOTO, CHOOSE_PHOTO};
     protected CustomGridViewImageAdapter mAdapter;
     protected ArrayList<String> mImageList = new ArrayList<>();
-    protected Context mContext;
-
 
     protected void initView() {
-        listDate.addAll(Arrays.asList(getString(R.string.today),
+        int dayOfWeek = mCalendar.get(Calendar.DAY_OF_WEEK);
+        mListDate.addAll(Arrays.asList(getString(R.string.today),
                 getString(R.string.tomorrow),
-                DateUtil.dayOfNextWeek(parts[0]),
+                DateUtil.dayOfNextWeek(dayOfWeek),
                 getString(R.string.other)));
-        listTime.addAll(Arrays.asList(getString(R.string.hour_9h),
+        mListTime.addAll(Arrays.asList(getString(R.string.hour_9h),
                 getString(R.string.hour_13h),
                 getString(R.string.hour_17h),
                 getString(R.string.hour_20h),
                 getString(R.string.other)));
         mSpnDate = (Spinner) findViewById(R.id.spn_date);
         mSpnTime = (Spinner) findViewById(R.id.spn_time);
+        mIBtnHide = (ImageButton) findViewById(R.id.iBtn_hide);
         mLlDateTime = (LinearLayout) findViewById(R.id.ll_dateTime);
         mRlNote = (RelativeLayout) findViewById(R.id.rl_note);
         mGvImage = (ExpandedGridView) findViewById(R.id.gv_listImage);
@@ -107,56 +102,44 @@ public class ControlActivity extends Activity {
         mTvDateTime = (TextView) findViewById(R.id.tv_dateTime);
         mEtTitle = (EditText) findViewById(R.id.et_title);
         mEtContent = (EditText) findViewById(R.id.et_content);
-    }
-
-    /**
-     * restore data
-     */
-    public void restoreMe() {
-        // check last state's mImageList
-        if (getLastNonConfigurationInstance() != null) {
-            mImageList = (ArrayList<String>) getLastNonConfigurationInstance();
-        }
-    }
-
-    /**
-     * retain image list
-     */
-    @Override
-    @Deprecated
-    public Object onRetainNonConfigurationInstance() {
-        return mImageList;
+        // show datetime picker
+        mTvAlarm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SpinnerUtil.showSpinner(mLlDateTime, mTvAlarm);
+            }
+        });
+        //hide datetime picker
+        mIBtnHide.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SpinnerUtil.hideSpinner(mLlDateTime, mTvAlarm);
+            }
+        });
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        outState.putString("LinearLayoutState", String.valueOf(mLlDateTime.isShown()));
+        outState.putString(LINEAR_LAYOUT_STATE, String.valueOf(mLlDateTime.isShown()));
+        if (mImageList.size() > 0) {
+            outState.putStringArrayList(IMAGE_LIST, mImageList);
+        }
         super.onSaveInstanceState(outState);
     }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        if (savedInstanceState.getString("LinearLayoutState").equals("true")) {
+        if (savedInstanceState.getString(LINEAR_LAYOUT_STATE).equals("true")) {
             mLlDateTime.setVisibility(View.VISIBLE);
             mTvAlarm.setVisibility(View.GONE);
         } else {
             mLlDateTime.setVisibility(View.GONE);
             mTvAlarm.setVisibility(View.VISIBLE);
         }
-//        mImageList = savedInstanceState.getParcelableArrayList("ImageList");
+        mImageList = savedInstanceState.getStringArrayList(IMAGE_LIST);
         mAdapter = new CustomGridViewImageAdapter(this, mImageList);
         mGvImage.setAdapter(mAdapter);
-    }
-
-    public void showDateTimePicker(View v) {
-        mLlDateTime.setVisibility(View.VISIBLE);
-        mTvAlarm.setVisibility(View.GONE);
-    }
-
-    public void hideDateTimePicker(View v) {
-        mLlDateTime.setVisibility(View.GONE);
-        mTvAlarm.setVisibility(View.VISIBLE);
     }
 
     public void changeBackgroundColor() {
@@ -168,45 +151,30 @@ public class ControlActivity extends Activity {
         Button btnYellow = (Button) mView.findViewById(R.id.btn_yellow);
         Button btnGreen = (Button) mView.findViewById(R.id.btn_green);
         Button btnBlue = (Button) mView.findViewById(R.id.btn_blue);
-        btnWhite.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mRlNote.setBackgroundColor(
-                        ContextCompat.getColor(getApplicationContext(), R.color.colorWhite));
-                mColor = getString(R.string.white);
-                dialog.dismiss();
-            }
-        });
-        btnYellow.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mRlNote.setBackgroundColor(
-                        ContextCompat.getColor(getApplicationContext(), R.color.colorYellow));
-                mColor = getString(R.string.yellow);
-                dialog.dismiss();
-            }
-        });
-        btnGreen.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mRlNote.setBackgroundColor(
-                        ContextCompat.getColor(getApplicationContext(), R.color.colorGreen));
-                mColor = getString(R.string.green);
-                dialog.dismiss();
-            }
-        });
-        btnBlue.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mRlNote.setBackgroundColor(
-                        ContextCompat.getColor(getApplicationContext(), R.color.colorBlue));
-                mColor = getString(R.string.blue);
-                dialog.dismiss();
-            }
-        });
+        btnWhite.setOnClickListener(new ChangeColor(R.color.colorWhite, R.string.white));
+        btnYellow.setOnClickListener(new ChangeColor(R.color.colorYellow, R.string.yellow));
+        btnGreen.setOnClickListener(new ChangeColor(R.color.colorGreen, R.string.green));
+        btnBlue.setOnClickListener(new ChangeColor(R.color.colorBlue, R.string.blue));
+        mDialog = mBuilder.create();
+        mDialog.show();
+    }
 
-        dialog = mBuilder.create();
-        dialog.show();
+    private class ChangeColor implements View.OnClickListener {
+        private int mBackgroundColor;
+        private int mBackgroundColorName;
+
+        private ChangeColor(int color, int colorName) {
+            mBackgroundColor = color;
+            mBackgroundColorName = colorName;
+        }
+
+        @Override
+        public void onClick(View v) {
+            mRlNote.setBackgroundColor(
+                    ContextCompat.getColor(getApplicationContext(), mBackgroundColor));
+            mColor = getString(mBackgroundColorName);
+            mDialog.dismiss();
+        }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -226,7 +194,7 @@ public class ControlActivity extends Activity {
                 switch (position) {
                     case 0:
                         takePhoto();
-                        dialog.dismiss();
+                        mDialog.dismiss();
                         break;
                     case 1:
                         if (Build.VERSION.SDK_INT >= 23) {
@@ -244,13 +212,13 @@ public class ControlActivity extends Activity {
                             intent.setType("*/*");
                             startActivityForResult(intent, SELECT_IMAGE);
                         }
-                        dialog.dismiss();
+                        mDialog.dismiss();
                         break;
                 }
             }
         });
-        dialog = mBuilder.create();
-        dialog.show();
+        mDialog = mBuilder.create();
+        mDialog.show();
     }
 
     private boolean checkPermission() {
@@ -260,12 +228,8 @@ public class ControlActivity extends Activity {
     }
 
     private void requestPermission() {
-        if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+        if (!ActivityCompat.shouldShowRequestPermissionRationale(this,
                 android.Manifest.permission.READ_EXTERNAL_STORAGE)) {
-            Toast.makeText(this,
-                    "Write External Storage permission allows us to access images. " +
-                            "Please allow this permission in App Settings.", Toast.LENGTH_LONG).show();
-        } else {
             ActivityCompat.requestPermissions(this, new String[]{
                     android.Manifest.permission.READ_EXTERNAL_STORAGE}, PERMISSION_REQUEST_CODE);
         }
@@ -300,18 +264,17 @@ public class ControlActivity extends Activity {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 invokeCamera();
             } else {
-                Toast.makeText(this, "Cannot take photo without permission", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.cannot_take_photo, Toast.LENGTH_SHORT).show();
             }
         } else if (requestCode == PERMISSION_REQUEST_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(this, "Accepted", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.accepted, Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(Intent.ACTION_PICK,
                         MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                 intent.setType("*/*");
                 startActivityForResult(intent, SELECT_IMAGE);
             }
         }
-
     }
 
     @Override
@@ -321,9 +284,6 @@ public class ControlActivity extends Activity {
         switch (requestCode) {
             case REQUEST_ID_IMAGE_CAPTURE:
                 if (resultCode == RESULT_OK) {
-//                    Bundle extras = data.getExtras();
-//                    Bitmap imageBitmap = (Bitmap) extras.get("data");
-//                    Uri tempUri = getImageUri(getApplicationContext(), imageBitmap);
                     String[] projection = {MediaStore.Images.Media.DATA};
                     Cursor cursor = managedQuery(mCapturedImageURI, projection, null, null, null);
                     int column_index_data = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
@@ -342,7 +302,6 @@ public class ControlActivity extends Activity {
                     int columnIndex = cursor.getColumnIndex(FILE[0]);
                     String filePath = cursor.getString(columnIndex);
                     cursor.close();
-//                    mImageList.add(BitmapFactory.decodeFile(filePath));
                     mImageList.add(filePath);
                     mGvImage.setAdapter(mAdapter);
                 }
@@ -350,11 +309,41 @@ public class ControlActivity extends Activity {
         }
     }
 
+    public void createNotification(Note note, Calendar calendar){
+        mAlarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+        Intent intent = new Intent(getApplicationContext(), AlarmReceiver.class);
+        intent.putExtra(AlarmReceiver.ID, note.getNoteID());
+        intent.putExtra(AlarmReceiver.TITLE, note.getNoteTitle());
+        mPendingIntent = PendingIntent.getBroadcast(getApplicationContext(),
+                note.getNoteID(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        mAlarmManager.setExact(AlarmManager.RTC_WAKEUP,
+                calendar.getTimeInMillis(), mPendingIntent);
+    }
+
+    public Calendar getSelectedDateTime(){
+        mSelectedTime = mSpnTime.getSelectedItem().toString();
+        String[] selectDate;
+        int month, year, day, hour, minute, second = 0;
+        if (mSelectedDate.equals("")) {
+            mSelectedDate = mSpnDate.getSelectedItem().toString();
+        }
+        selectDate = mSelectedDate.split("/");
+        month = Integer.valueOf(selectDate[1]) - 1;
+        String[] selectTime = mSelectedTime.split(":");
+        year = Integer.valueOf(selectDate[2]);
+        day = Integer.valueOf(selectDate[0]);
+        hour = Integer.valueOf(selectTime[0]);
+        minute = Integer.valueOf(selectTime[1]);
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(year, month, day, hour, minute, second);
+        return calendar;
+    }
+
     class DateSpinnerInfo implements AdapterView.OnItemSelectedListener {
-        public Context context;
+        private Context mContext;
 
         DateSpinnerInfo(Context context) {
-            this.context = context;
+            mContext = context;
         }
 
         @Override
@@ -367,22 +356,22 @@ public class ControlActivity extends Activity {
                     mSelectedDate = String.valueOf(DateFormat.format(
                             getString(R.string.ddmmyyyy_format), date));
                     SpinnerUtil.updateAdapterForDateSpinner(dateAdapter,
-                            getString(R.string.other), listDate);
+                            getString(R.string.other), mListDate);
                     break;
                 case 1:
                     mSelectedDate = DateUtil.getTomorrow();
                     SpinnerUtil.updateAdapterForDateSpinner(dateAdapter,
-                            getString(R.string.other), listDate);
+                            getString(R.string.other), mListDate);
                     break;
                 case 2:
                     mSelectedDate = DateUtil.getDayOfNextWeek();
                     SpinnerUtil.updateAdapterForDateSpinner(dateAdapter,
-                            getString(R.string.other), listDate);
+                            getString(R.string.other), mListDate);
                     break;
                 case 3:
                     mSelectedDate = "";
-                    SpinnerUtil.chooseOptionOtherDate(context, mSpnDate,
-                            dateAdapter, listDate, selectedDate);
+                    SpinnerUtil.chooseOptionOtherDate(mContext, mSpnDate,
+                            dateAdapter, mListDate, selectedDate);
                     break;
             }
         }
@@ -394,10 +383,10 @@ public class ControlActivity extends Activity {
     }
 
     class TimeSpinnerInfo implements AdapterView.OnItemSelectedListener {
-        public Context context;
+        private Context mContext;
 
         TimeSpinnerInfo(Context context) {
-            this.context = context;
+            mContext = context;
         }
 
         @Override
@@ -408,26 +397,26 @@ public class ControlActivity extends Activity {
                 case 0:
                     mSelectedTime = getString(R.string.hour_9h);
                     SpinnerUtil.updateAdapterForTimeSpinner(timeAdapter,
-                            getString(R.string.other), listTime);
+                            getString(R.string.other), mListTime);
                     break;
                 case 1:
                     mSelectedTime = getString(R.string.hour_13h);
                     SpinnerUtil.updateAdapterForTimeSpinner(timeAdapter,
-                            getString(R.string.other), listTime);
+                            getString(R.string.other), mListTime);
                     break;
                 case 2:
                     mSelectedTime = getString(R.string.hour_17h);
                     SpinnerUtil.updateAdapterForTimeSpinner(timeAdapter,
-                            getString(R.string.other), listTime);
+                            getString(R.string.other), mListTime);
                     break;
                 case 3:
                     mSelectedTime = getString(R.string.hour_20h);
                     SpinnerUtil.updateAdapterForTimeSpinner(timeAdapter,
-                            getString(R.string.other), listTime);
+                            getString(R.string.other), mListTime);
                     break;
                 case 4:
-                    SpinnerUtil.chooseOptionOtherTime(context, mSpnTime,
-                            timeAdapter, listTime, selectedTime);
+                    SpinnerUtil.chooseOptionOtherTime(mContext, mSpnTime,
+                            timeAdapter, mListTime, selectedTime);
                     break;
             }
         }
@@ -439,24 +428,4 @@ public class ControlActivity extends Activity {
     }
 
 
-   /* public Uri getImageUri(Context inContext, Bitmap inImage) {
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
-        String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "Title", null);
-        return Uri.parse(path);
-    }
-
-    // Convert bitmap to byte array
-    public byte[] getBitmapAsByteArray(Bitmap bitmap) {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.PNG, 0, outputStream);
-        return outputStream.toByteArray();
-    }*/
-
-   /* //convert from date to string type
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    public String convert(Calendar calendar, String format) {
-        SimpleDateFormat df = new SimpleDateFormat(format);
-        return df.format(calendar.getTime());
-    }*/
 }

@@ -1,6 +1,5 @@
 package com.example.kienpt.note.adapters;
 
-
 import android.app.Activity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -40,13 +39,11 @@ public class CustomListViewAdapter extends BaseAdapter {
         return 0;
     }
 
-
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View listViewSingle = layoutInflater.inflate(R.layout.custom_detail_camera, null, true);
         TextView listViewItems = (TextView) listViewSingle.findViewById(R.id.tv_source_name);
         ImageView listViewImage = (ImageView) listViewSingle.findViewById(R.id.img_camera_source);
-
         listViewItems.setText(mSourceName[position]);
         listViewImage.setImageResource(mImageId[position]);
         return listViewSingle;

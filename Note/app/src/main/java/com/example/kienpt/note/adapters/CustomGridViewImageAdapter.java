@@ -60,46 +60,27 @@ public class CustomGridViewImageAdapter extends BaseAdapter implements ListAdapt
             holder = (ImageViewHolder) convertView.getTag();
         }
         String imagePath = mListData.get(position);
-        final int THUMB_SIZE = 96;
         if (BitmapFactory.decodeFile(imagePath) != null) {
-            Picasso.with(mContext)
-                    .load(new File(imagePath))
-                    .resize(96, 96)
-                    .placeholder(R.drawable.default_image)
-                    .error(R.drawable.not_defound)
+            Picasso.with(mContext).load(new File(imagePath)).centerCrop().fit()
+                    .placeholder(R.drawable.default_image).error(R.drawable.not_defound)
                     .into(holder.imageView);
-      /*      holder.imageView.setImageBitmap(ThumbnailUtils
-                    .extractThumbnail(BitmapFactory.decodeFile(imagePath), THUMB_SIZE, THUMB_SIZE));*/
         } else {
-            Picasso.with(mContext)
-                    .load(R.drawable.not_defound)
-                    .placeholder(R.drawable.default_image)
-                    .into(holder.imageView);
-           /* holder.imageView.setImageBitmap(ThumbnailUtils
-                    .extractThumbnail(BitmapFactory.decodeResource(mContext.getResources(),
-                            R.drawable.not_defound), THUMB_SIZE, THUMB_SIZE));*/
+            Picasso.with(mContext).load(R.drawable.not_defound).centerCrop().fit()
+                    .placeholder(R.drawable.default_image).into(holder.imageView);
         }
         holder.delView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //do something
+
                 mListData.remove(position);
                 notifyDataSetChanged();
             }
         });
-
-        Animation animation;
+        /*Animation animation;
         animation = AnimationUtils.loadAnimation(mContext, R.anim.fade_in);
         animation.setDuration(300);
-
-        convertView.startAnimation(animation);
+        convertView.startAnimation(animation);*/
         return convertView;
-    }
-
-    private byte[] bitmapToByte(Bitmap bitmap) {
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-        return stream.toByteArray();
     }
 
     private class ImageViewHolder {

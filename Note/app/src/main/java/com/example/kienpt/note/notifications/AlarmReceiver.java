@@ -43,7 +43,6 @@ public class AlarmReceiver extends BroadcastReceiver {
                 .setDefaults(Notification.DEFAULT_LIGHTS |
                         Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE)
                 .setContentIntent(pendingIntent).build();
-//        notification.defaults = Notification.DEFAULT_VIBRATE;
         notification.flags |= Notification.FLAG_AUTO_CANCEL;
         NotificationManager notificationManager =
                 (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -55,4 +54,6 @@ public class AlarmReceiver extends BroadcastReceiver {
         NotificationManager nMgr = (NotificationManager) ctx.getSystemService(ns);
         nMgr.cancel(notifyId);
     }
+
+
 }

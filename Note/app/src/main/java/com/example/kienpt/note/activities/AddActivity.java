@@ -14,7 +14,6 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
-import com.example.kienpt.note.notifications.AlarmReceiver;
 import com.example.kienpt.note.models.NoteImageRepo;
 import com.example.kienpt.note.models.NoteRepo;
 import com.example.kienpt.note.R;
@@ -38,26 +37,26 @@ public class AddActivity extends ControlActivity {
                 new ColorDrawable(getResources().getColor(R.color.colorCyan)));
         getActionBar().setTitle(getString(R.string.note));
         setContentView(R.layout.activity_add);
-        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+//        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         initView();
         mGvImage.setExpanded(true);
         // Set up for date spinner
         dateAdapter = new ArrayAdapter<>(AddActivity.this,
-                android.R.layout.simple_spinner_item, listDate);
+                android.R.layout.simple_spinner_item, mListDate);
         dateAdapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
         mSpnDate.setAdapter(dateAdapter);
         mSpnDate.setOnItemSelectedListener(new DateSpinnerInfo(AddActivity.this));
 
         // Set up for time spinner
         timeAdapter = new ArrayAdapter<>(AddActivity.this,
-                android.R.layout.simple_spinner_item, listTime);
+                android.R.layout.simple_spinner_item, mListTime);
         timeAdapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
         mSpnTime.setAdapter(timeAdapter);
         mSpnTime.setOnItemSelectedListener(new TimeSpinnerInfo(AddActivity.this));
         Date date = new Date();
         mTvDateTime.setText(String.valueOf(DateFormat.format(
                 getString(R.string.ddmmyyyy_hhmm_format), date)));
-        restoreMe();
+//        restoreMe();
     }
 
     @Override
@@ -89,40 +88,14 @@ public class AddActivity extends ControlActivity {
         Note note = new Note();
         // add notification if date time not null
         if (mLlDateTime.getVisibility() == View.VISIBLE) {
-            mSelectedTime = mSpnTime.getSelectedItem().toString();
-            String[] selectDate;
-            int month, year, day, hour, minute, second = 0;
-            if (mSelectedDate.equals("")) {
-                mSelectedDate = mSpnDate.getSelectedItem().toString();
-                selectDate = mSelectedDate.split("/");
-                month = Integer.valueOf(selectDate[1]) - 1;
-            } else {
-                selectDate = mSelectedDate.split("/");
-                month = Integer.valueOf(selectDate[1])-1;
-            }
-            String[] selectTime = mSelectedTime.split(":");
-            year = Integer.valueOf(selectDate[2]);
-            day = Integer.valueOf(selectDate[0]);
-            hour = Integer.valueOf(selectTime[0]);
-            minute = Integer.valueOf(selectTime[1]);
-            Calendar calendar = Calendar.getInstance();
-            calendar.set(year, month, day, hour, minute, second);
+            Calendar calendar = getSelectedDateTime();
             if (mCalendar.getTime().after(calendar.getTime())) {
-                Toast.makeText(this, "The time you have just set before the current time. " +
-                        "Please change!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.please_change, Toast.LENGTH_SHORT).show();
             } else {
                 insertIntoDB(note);
                 NoteRepo dbNote = new NoteRepo();
                 note = dbNote.getLastNote();
-                mAlarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-                Intent intent = new Intent(getApplicationContext(), AlarmReceiver.class);
-                intent.putExtra(AlarmReceiver.ID, note.getNoteID());
-                intent.putExtra(AlarmReceiver.TITLE, note.getNoteTitle());
-                pendingIntent = PendingIntent.getBroadcast(getApplicationContext(),
-                        note.getNoteID(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
-                mAlarmManager.setExact(AlarmManager.RTC_WAKEUP,
-                        calendar.getTimeInMillis(), pendingIntent);
-
+                createNotification(note, calendar);
                 Intent mainIntent = new Intent(this, MainActivity.class);
                 startActivity(mainIntent);
             }
@@ -145,9 +118,8 @@ public class AddActivity extends ControlActivity {
         } else {
             note.setNoteTime("");
         }
-        Date date = new Date();
         note.setCreatedTime(String.valueOf(DateFormat.format(
-                getString(R.string.ddmmyyyy_hhmmss_format), date)));
+                getString(R.string.ddmmyyyy_hhmmss_format), new Date())));
         note.setBackgroundColor(mColor);
         // add new note into db
         NoteRepo dbNote = new NoteRepo();
@@ -157,7 +129,6 @@ public class AddActivity extends ControlActivity {
         for (String noteImage : mImageList) {
             NoteImage noteImg = new NoteImage();
             noteImg.setNoteId(note.getNoteID());
-//            noteImg.setImgPath(getBitmapAsByteArray(noteImage));
             noteImg.setImgPath(noteImage);
             dbNoteImage.addNoteImage(noteImg);
         }
