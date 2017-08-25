@@ -1,5 +1,6 @@
 package com.example.kienpt.note.activities;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
@@ -16,6 +17,7 @@ import android.text.format.DateFormat;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.Toast;
@@ -50,6 +52,8 @@ public class EditActivity extends ControlActivity {
     private CustomGridViewNotesAdapter adapter;
     private ImageButton mImbPrevious;
     private ImageButton mImbForward;
+    private int mImageThumbSize;
+    private int mImageThumbSpacing;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +67,8 @@ public class EditActivity extends ControlActivity {
         setContentView(R.layout.activity_edit);
 //        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         initView();
+        mImageThumbSize = getResources().getDimensionPixelSize(R.dimen.image_thumbnail_size);
+        mImageThumbSpacing = getResources().getDimensionPixelSize(R.dimen.image_thumbnail_spacing);
         mGvImage.setExpanded(true);
         ImageButton imbDel = (ImageButton) findViewById(R.id.btn_delete);
         ImageButton imbShare = (ImageButton) findViewById(R.id.btn_share);
@@ -146,7 +152,6 @@ public class EditActivity extends ControlActivity {
             getActionBar().setTitle(mNote.getNoteTitle());
             mEtTitle.setText(mNote.getNoteTitle());
             mEtContent.setText(mNote.getNoteContent());
-
             //format of mNote.getCreatedTime() is dd/MM/yyyy hh:mm:ss
             //Delete seconds located from 16 to 19
             StringBuffer strBuf = new StringBuffer(mNote.getCreatedTime());
@@ -187,7 +192,7 @@ public class EditActivity extends ControlActivity {
             mSpnTime.setAdapter(timeAdapter);
             mSpnTime.setOnItemSelectedListener(new TimeSpinnerInfo(EditActivity.this));
 
-            //if this note have reminder, show datetime was picked
+            //if this note has reminder, show datetime was picked
             if (!mNote.getNoteTime().equals("")) {
                 String[] datetime = mNote.getNoteTime().split(" ");
                 mSelectedDate = datetime[0];
@@ -198,40 +203,39 @@ public class EditActivity extends ControlActivity {
                 SpinnerUtil.updateAdapterForTimeSpinner(timeAdapter, mSelectedTime, mListTime);
                 mSpnTime.setSelection(LAST_OPTION_OF_TIME_SPINNER);
             }
-           /* new AsyncTask<Integer, CustomGridViewImageAdapter, Void>() {
-                @Override
-                protected Void doInBackground(Integer... params) {
-                    // Show image
-                    mAdapter = new CustomGridViewImageAdapter(getApplicationContext(), mImageList);
-                    NoteImageRepo dbNoteImage = new NoteImageRepo();
-                    ArrayList<NoteImage> list = dbNoteImage.getImageById(params[0]);
-                    for (NoteImage noteImage : list) {
-                        mImageList.add(noteImage.getImgPath());
-                    }
-                    publishProgress(mAdapter);
-                    return null;
-                }
-
-                // show result
-                @Override
-                protected void onProgressUpdate(CustomGridViewImageAdapter... values) {
-                    super.onProgressUpdate(values);
-                    mGvImage.setAdapter(values[0]);
-                }
-
-                @Override
-                protected void onPostExecute(Void result) {
-                    super.onPostExecute(result);
-                }
-            }.execute(mNote.getNoteID());*/
             mAdapter = new CustomGridViewImageAdapter(this, mImageList);
-            // Show image
             NoteImageRepo dbNoteImage = new NoteImageRepo();
             ArrayList<NoteImage> list = dbNoteImage.getImageById(mNote.getNoteID());
             for (NoteImage noteImage : list) {
                 mImageList.add(noteImage.getImgPath());
             }
             mGvImage.setAdapter(mAdapter);
+            mGvImage.getViewTreeObserver().addOnGlobalLayoutListener(
+                    new ViewTreeObserver.OnGlobalLayoutListener() {
+                        @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+                        @Override
+                        public void onGlobalLayout() {
+                            if (mAdapter.getNumColumns() == 0) {
+                                final int numColumns = (int) Math.floor(
+                                        mGvImage.getWidth() / (mImageThumbSize + mImageThumbSpacing));
+                                if (numColumns > 0) {
+                                    final int columnWidth =
+                                            (mGvImage.getWidth() / numColumns) - mImageThumbSpacing;
+                                    mAdapter.setNumColumns(numColumns);
+                                    mAdapter.setItemHeight(columnWidth);
+
+
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                                        mGvImage.getViewTreeObserver()
+                                                .removeOnGlobalLayoutListener(this);
+                                    } else {
+                                        mGvImage.getViewTreeObserver()
+                                                .removeGlobalOnLayoutListener(this);
+                                    }
+                                }
+                            }
+                        }
+                    });
             // show result
             setUpForNavigationButton();
             //clear notification icon at status bar

@@ -137,9 +137,11 @@ public class ControlActivity extends Activity {
             mLlDateTime.setVisibility(View.GONE);
             mTvAlarm.setVisibility(View.VISIBLE);
         }
-        mImageList = savedInstanceState.getStringArrayList(IMAGE_LIST);
-        mAdapter = new CustomGridViewImageAdapter(this, mImageList);
-        mGvImage.setAdapter(mAdapter);
+        if (mImageList.size() > 0) {
+            mImageList = savedInstanceState.getStringArrayList(IMAGE_LIST);
+            mAdapter = new CustomGridViewImageAdapter(this, mImageList);
+            mGvImage.setAdapter(mAdapter);
+        }
     }
 
     public void changeBackgroundColor() {
