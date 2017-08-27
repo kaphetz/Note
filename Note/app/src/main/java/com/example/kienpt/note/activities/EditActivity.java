@@ -1,15 +1,12 @@
 package com.example.kienpt.note.activities;
 
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.drawable.ColorDrawable;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
@@ -22,7 +19,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
-import com.example.kienpt.note.notifications.AlarmReceiver;
 import com.example.kienpt.note.R;
 import com.example.kienpt.note.adapters.CustomGridViewImageAdapter;
 import com.example.kienpt.note.adapters.CustomGridViewNotesAdapter;
@@ -30,11 +26,9 @@ import com.example.kienpt.note.models.Note;
 import com.example.kienpt.note.models.NoteImage;
 import com.example.kienpt.note.models.NoteImageRepo;
 import com.example.kienpt.note.models.NoteRepo;
+import com.example.kienpt.note.notifications.AlarmReceiver;
 import com.example.kienpt.note.utils.ListUtil;
 import com.example.kienpt.note.utils.SpinnerUtil;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -67,8 +61,8 @@ public class EditActivity extends ControlActivity {
         setContentView(R.layout.activity_edit);
 //        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         initView();
-        mImageThumbSize = getResources().getDimensionPixelSize(R.dimen.image_thumbnail_size);
-        mImageThumbSpacing = getResources().getDimensionPixelSize(R.dimen.image_thumbnail_spacing);
+        mImageThumbSize = getResources().getDimensionPixelSize(R.dimen.thumbnail_size);
+        mImageThumbSpacing = getResources().getDimensionPixelSize(R.dimen.thumbnail_spacing);
         mGvImage.setExpanded(true);
         ImageButton imbDel = (ImageButton) findViewById(R.id.btn_delete);
         ImageButton imbShare = (ImageButton) findViewById(R.id.btn_share);
@@ -223,15 +217,8 @@ public class EditActivity extends ControlActivity {
                                             (mGvImage.getWidth() / numColumns) - mImageThumbSpacing;
                                     mAdapter.setNumColumns(numColumns);
                                     mAdapter.setItemHeight(columnWidth);
-
-
-                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                                        mGvImage.getViewTreeObserver()
-                                                .removeOnGlobalLayoutListener(this);
-                                    } else {
-                                        mGvImage.getViewTreeObserver()
-                                                .removeGlobalOnLayoutListener(this);
-                                    }
+                                    mGvImage.getViewTreeObserver()
+                                            .removeOnGlobalLayoutListener(this);
                                 }
                             }
                         }
