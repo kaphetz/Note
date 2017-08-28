@@ -46,8 +46,6 @@ public class EditActivity extends ControlActivity {
     private CustomGridViewNotesAdapter adapter;
     private ImageButton mImbPrevious;
     private ImageButton mImbForward;
-    private int mImageThumbSize;
-    private int mImageThumbSpacing;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,10 +57,8 @@ public class EditActivity extends ControlActivity {
         getActionBar().setBackgroundDrawable(
                 new ColorDrawable(getResources().getColor(R.color.colorCyan)));
         setContentView(R.layout.activity_edit);
-//        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         initView();
-        mImageThumbSize = getResources().getDimensionPixelSize(R.dimen.thumbnail_size);
-        mImageThumbSpacing = getResources().getDimensionPixelSize(R.dimen.thumbnail_spacing);
         mGvImage.setExpanded(true);
         ImageButton imbDel = (ImageButton) findViewById(R.id.btn_delete);
         ImageButton imbShare = (ImageButton) findViewById(R.id.btn_share);
@@ -204,29 +200,11 @@ public class EditActivity extends ControlActivity {
                 mImageList.add(noteImage.getImgPath());
             }
             mGvImage.setAdapter(mAdapter);
-            mGvImage.getViewTreeObserver().addOnGlobalLayoutListener(
-                    new ViewTreeObserver.OnGlobalLayoutListener() {
-                        @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-                        @Override
-                        public void onGlobalLayout() {
-                            if (mAdapter.getNumColumns() == 0) {
-                                final int numColumns = (int) Math.floor(
-                                        mGvImage.getWidth() / (mImageThumbSize + mImageThumbSpacing));
-                                if (numColumns > 0) {
-                                    final int columnWidth =
-                                            (mGvImage.getWidth() / numColumns) - mImageThumbSpacing;
-                                    mAdapter.setNumColumns(numColumns);
-                                    mAdapter.setItemHeight(columnWidth);
-                                    mGvImage.getViewTreeObserver()
-                                            .removeOnGlobalLayoutListener(this);
-                                }
-                            }
-                        }
-                    });
             // show result
             setUpForNavigationButton();
             //clear notification icon at status bar
             AlarmReceiver.cancelNotification(EditActivity.this, mNote.getNoteID());
+            restoreMe();
         }
     }
 

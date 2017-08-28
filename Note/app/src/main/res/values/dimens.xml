@@ -8,6 +8,6 @@
     <dimen name="height_popup">300dp</dimen>
     <dimen name="fab_margin_bot">20dp</dimen>
     <dimen name="fab_margin_end">20dp</dimen>
-    <dimen name="thumbnail_size">300dp</dimen>
-    <dimen name="thumbnail_spacing">5dp</dimen>
+    <dimen name="thumbnail_size">100dp</dimen>
+    <!--<dimen name="thumbnail_spacing">1dp</dimen>-->
 </resources>

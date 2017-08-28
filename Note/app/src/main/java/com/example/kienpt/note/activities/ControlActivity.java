@@ -118,12 +118,28 @@ public class ControlActivity extends Activity {
         });
     }
 
+    /**
+     * restore data
+     */
+    public void restoreMe() {
+        // check last state's mImageList
+        if (getLastNonConfigurationInstance() != null) {
+            mImageList = (ArrayList<String>) getLastNonConfigurationInstance();
+        }
+    }
+
+    /**
+     * retain image list
+     */
+    @Override
+    @Deprecated
+    public Object onRetainNonConfigurationInstance() {
+        return mImageList;
+    }
+
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         outState.putString(LINEAR_LAYOUT_STATE, String.valueOf(mLlDateTime.isShown()));
-        if (mImageList.size() > 0) {
-            outState.putStringArrayList(IMAGE_LIST, mImageList);
-        }
         super.onSaveInstanceState(outState);
     }
 
@@ -137,11 +153,9 @@ public class ControlActivity extends Activity {
             mLlDateTime.setVisibility(View.GONE);
             mTvAlarm.setVisibility(View.VISIBLE);
         }
-        if (mImageList.size() > 0) {
-            mImageList = savedInstanceState.getStringArrayList(IMAGE_LIST);
-            mAdapter = new CustomGridViewImageAdapter(this, mImageList);
-            mGvImage.setAdapter(mAdapter);
-        }
+//        mImageList = savedInstanceState.getParcelableArrayList("ImageList");
+        mAdapter = new CustomGridViewImageAdapter(this, mImageList);
+        mGvImage.setAdapter(mAdapter);
     }
 
     public void changeBackgroundColor() {

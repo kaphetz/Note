@@ -35,7 +35,7 @@ public class MainActivity extends Activity {
         getActionBar().setBackgroundDrawable(
                 new ColorDrawable(getResources().getColor(R.color.colorCyan)));
         setContentView(R.layout.activity_main);
-//        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         DatabaseManager.initializeInstance(new MyDatabaseHelper(this));
         GridView gvListNote = (GridView) findViewById(R.id.gv_listNote);
         TextView tvNoNotes = (TextView) findViewById(R.id.tv_noNotes);

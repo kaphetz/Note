@@ -20,37 +20,11 @@ import com.example.kienpt.note.views.SquareImageView;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
-
 public class CustomGridViewImageAdapter extends BaseAdapter implements ListAdapter {
     private ArrayList<String> mListData;
     private Context mContext;
     private LayoutInflater layoutInflater;
     private Bitmap mPlaceHolderBitmap;
-    private int mNumColumns;
-    private int mItemHeight;
-    private int mImageSize;
-
-    public int getNumColumns() {
-        return mNumColumns;
-    }
-
-    public void setNumColumns(int numColumns) {
-        mNumColumns = numColumns;
-    }
-
-    public void setItemHeight(int height) {
-        if (height == mItemHeight) {
-            return;
-        }
-        mItemHeight = height;
-        setImageSize(height);
-        notifyDataSetChanged();
-    }
-
-    public void setImageSize(int mImageSize) {
-        this.mImageSize = mImageSize;
-    }
-
 
     public CustomGridViewImageAdapter(Context aContext, ArrayList<String> listData) {
         mContext = aContext;
@@ -88,7 +62,8 @@ public class CustomGridViewImageAdapter extends BaseAdapter implements ListAdapt
         }
         String imagePath = mListData.get(position);
         if (cancelPotentialWork(imagePath, holder.imageView)) {
-            final BitmapWorkerTask task = new BitmapWorkerTask(holder.imageView, imagePath, mContext);
+            final BitmapWorkerTask task = new BitmapWorkerTask(mContext, holder.imageView,
+                    imagePath);
             final AsyncDrawable asyncDrawable =
                     new AsyncDrawable(mContext.getResources(), mPlaceHolderBitmap, task);
             holder.imageView.setImageDrawable(asyncDrawable);

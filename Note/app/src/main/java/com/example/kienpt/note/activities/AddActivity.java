@@ -37,7 +37,7 @@ public class AddActivity extends ControlActivity {
                 new ColorDrawable(getResources().getColor(R.color.colorCyan)));
         getActionBar().setTitle(getString(R.string.note));
         setContentView(R.layout.activity_add);
-//        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         initView();
         mGvImage.setExpanded(true);
         // Set up for date spinner
@@ -56,7 +56,7 @@ public class AddActivity extends ControlActivity {
         Date date = new Date();
         mTvDateTime.setText(String.valueOf(DateFormat.format(
                 getString(R.string.ddmmyyyy_hhmm_format), date)));
-//        restoreMe();
+        restoreMe();
     }
 
     @Override

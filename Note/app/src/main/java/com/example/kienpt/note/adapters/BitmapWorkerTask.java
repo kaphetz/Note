@@ -13,7 +13,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 
-public class BitmapWorkerTask extends AsyncTask<Void, Void, Bitmap> {
+class BitmapWorkerTask extends AsyncTask<Void, Void, Bitmap> {
     private WeakReference<ImageView> weakReference;
     private String imagePath;
     private Context mContext;
@@ -26,7 +26,7 @@ public class BitmapWorkerTask extends AsyncTask<Void, Void, Bitmap> {
         this.imagePath = imagePath;
     }
 
-    public BitmapWorkerTask(ImageView img, String ip, Context context) {
+    public BitmapWorkerTask( Context context, ImageView img, String ip) {
         weakReference = new WeakReference<>(img);
         imagePath = ip;
         mContext = context;
@@ -68,7 +68,7 @@ public class BitmapWorkerTask extends AsyncTask<Void, Void, Bitmap> {
                 onlyBoundsOptions.outHeight : onlyBoundsOptions.outWidth;
         double ratio = 1.0;
         int imageSize = (int)mContext.getResources().getDimension(R.dimen.thumbnail_size);
-        if (originalSize <= imageSize) {
+        if (imageSize == 0 || originalSize <= imageSize) {
             ratio = 1.0;
         } else if (originalSize > imageSize) {
             ratio = originalSize / imageSize;
@@ -91,5 +91,4 @@ public class BitmapWorkerTask extends AsyncTask<Void, Void, Bitmap> {
         else
             return k;
     }
-
 }

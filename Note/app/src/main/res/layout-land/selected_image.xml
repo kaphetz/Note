@@ -6,8 +6,8 @@
 
     <com.example.kienpt.note.views.SquareImageView
         android:id="@+id/img_photo"
-        android:layout_width="96dp"
-        android:layout_height="96dp"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
         android:layout_gravity="center"
         android:adjustViewBounds="true"
         android:focusable="false"
@@ -18,7 +18,7 @@
         android:id="@+id/btn_delete_image"
         android:layout_width="20dp"
         android:layout_height="20dp"
-        android:padding="5dp"
+        android:padding="10dp"
         android:layout_alignBottom="@id/img_photo"
         android:layout_alignEnd="@id/img_photo"
         android:layout_alignRight="@id/img_photo"
