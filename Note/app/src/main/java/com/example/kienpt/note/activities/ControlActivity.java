@@ -19,6 +19,7 @@ import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -32,6 +33,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.kienpt.note.Manifest;
 import com.example.kienpt.note.models.Note;
 import com.example.kienpt.note.notifications.AlarmReceiver;
 import com.example.kienpt.note.utils.DateUtil;
@@ -204,12 +206,18 @@ public class ControlActivity extends Activity {
         mLvCamera.setAdapter(adapter);
         mLvCamera.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @TargetApi(Build.VERSION_CODES.N)
-            @RequiresApi(api = Build.VERSION_CODES.M)
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 switch (position) {
                     case 0:
-                        takePhoto();
+
+                        if (Build.VERSION.SDK_INT >= 23) {
+                            if (isStoragePermissionGranted()) {
+                                takePhoto();
+                            }
+                        } else {
+                            takePhoto();
+                        }
                         mDialog.dismiss();
                         break;
                     case 1:
@@ -252,8 +260,25 @@ public class ControlActivity extends Activity {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
+    public boolean isStoragePermissionGranted() {
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    == PackageManager.PERMISSION_GRANTED) {
+                return true;
+            } else {
+                ActivityCompat.requestPermissions(this, new String[]{
+                                android.Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        CAMERA_PERMISSION_REQUEST_CODE);
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
     public void takePhoto() {
-        if (checkSelfPermission(android.Manifest.permission.CAMERA)
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA)
                 == PackageManager.PERMISSION_GRANTED) {
             invokeCamera();
         } else {
@@ -325,7 +350,7 @@ public class ControlActivity extends Activity {
         }
     }
 
-    public void createNotification(Note note, Calendar calendar){
+    public void createNotification(Note note, Calendar calendar) {
         mAlarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
         Intent intent = new Intent(getApplicationContext(), AlarmReceiver.class);
         intent.putExtra(AlarmReceiver.ID, note.getNoteID());
@@ -336,7 +361,7 @@ public class ControlActivity extends Activity {
                 calendar.getTimeInMillis(), mPendingIntent);
     }
 
-    public Calendar getSelectedDateTime(){
+    public Calendar getSelectedDateTime() {
         mSelectedTime = mSpnTime.getSelectedItem().toString();
         String[] selectDate;
         int month, year, day, hour, minute, second = 0;
