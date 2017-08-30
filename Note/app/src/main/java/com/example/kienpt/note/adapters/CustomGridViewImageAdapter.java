@@ -1,9 +1,9 @@
 package com.example.kienpt.note.adapters;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
@@ -15,7 +15,6 @@ import android.widget.ImageView;
 import android.widget.ListAdapter;
 
 import com.example.kienpt.note.R;
-import com.example.kienpt.note.views.SquareImageView;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -23,14 +22,17 @@ import java.util.ArrayList;
 public class CustomGridViewImageAdapter extends BaseAdapter implements ListAdapter {
     private ArrayList<String> mListData;
     private Context mContext;
+    private Activity mActivity;
     private LayoutInflater layoutInflater;
     private Bitmap mPlaceHolderBitmap;
+    public ImageLoader imageLoader;
 
-    public CustomGridViewImageAdapter(Context aContext, ArrayList<String> listData) {
-        mContext = aContext;
+    public CustomGridViewImageAdapter(Activity activity, ArrayList<String> listData) {
+        mActivity = activity;
         mListData = listData;
-        layoutInflater = LayoutInflater.from(aContext);
-        mPlaceHolderBitmap = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.default_image);
+        layoutInflater = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+//        mPlaceHolderBitmap = BitmapFactory.decodeResource(mActivity.getResources(), R.drawable.default_image);
+        imageLoader = new ImageLoader(mActivity.getApplicationContext(),R.drawable.default_image);
     }
 
     @Override
@@ -54,21 +56,24 @@ public class CustomGridViewImageAdapter extends BaseAdapter implements ListAdapt
         if (convertView == null) {
             convertView = layoutInflater.inflate(R.layout.selected_image, null);
             holder = new ImageViewHolder();
-            holder.imageView = (SquareImageView) convertView.findViewById(R.id.img_photo);
+            holder.imageView = (ImageView) convertView.findViewById(R.id.img_photo);
             holder.delView = (ImageButton) convertView.findViewById(R.id.btn_delete_image);
             convertView.setTag(holder);
         } else {
             holder = (ImageViewHolder) convertView.getTag();
         }
-        String imagePath = mListData.get(position);
-        if (cancelPotentialWork(imagePath, holder.imageView)) {
+        /*if (cancelPotentialWork(imagePath, holder.imageView)) {
             final BitmapWorkerTask task = new BitmapWorkerTask(mContext, holder.imageView,
                     imagePath);
             final AsyncDrawable asyncDrawable =
                     new AsyncDrawable(mContext.getResources(), mPlaceHolderBitmap, task);
             holder.imageView.setImageDrawable(asyncDrawable);
             task.execute();
-        }
+        }*/
+
+        //DisplayImage function from ImageLoader Class
+        imageLoader.DisplayImage(mListData.get(position), holder.imageView);
+
         holder.delView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -122,7 +127,7 @@ public class CustomGridViewImageAdapter extends BaseAdapter implements ListAdapt
     }
 
     private class ImageViewHolder {
-        SquareImageView imageView;
+        ImageView imageView;
         ImageButton delView;
     }
 

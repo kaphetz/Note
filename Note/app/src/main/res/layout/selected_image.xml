@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.example.kienpt.note.views.SquareImageView
+    <ImageView
         android:id="@+id/img_photo"
         android:layout_width="96dp"
         android:layout_height="96dp"
