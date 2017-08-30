@@ -1,5 +1,6 @@
 package com.example.kienpt.note.activities;
 
+import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlarmManager;
@@ -19,7 +20,6 @@ import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.text.format.DateFormat;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -33,15 +33,14 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.kienpt.note.Manifest;
+import com.example.kienpt.note.R;
+import com.example.kienpt.note.adapters.CustomGridViewImageAdapter;
+import com.example.kienpt.note.adapters.CustomListViewAdapter;
 import com.example.kienpt.note.models.Note;
 import com.example.kienpt.note.notifications.AlarmReceiver;
 import com.example.kienpt.note.utils.DateUtil;
 import com.example.kienpt.note.utils.SpinnerUtil;
 import com.example.kienpt.note.views.ExpandedGridView;
-import com.example.kienpt.note.R;
-import com.example.kienpt.note.adapters.CustomGridViewImageAdapter;
-import com.example.kienpt.note.adapters.CustomListViewAdapter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -56,8 +55,9 @@ public class ControlActivity extends Activity {
     private static final int CAMERA_PERMISSION_REQUEST_CODE = 2;
     private static final int PERMISSION_REQUEST_CODE = 3;
     private static final int SELECT_IMAGE = 4;
+    private static final int STORAGE_PERMISSION_REQUEST_CODE = 5;
     private static final String LINEAR_LAYOUT_STATE = "LinearLayoutState";
-    private static final String IMAGE_LIST = "ImageList";
+//    private static final String IMAGE_LIST = "ImageList";
     private static final String TAKE_PHOTO = "Take photo";
     private static final String CHOOSE_PHOTO = "Choose photo";
 
@@ -155,7 +155,6 @@ public class ControlActivity extends Activity {
             mLlDateTime.setVisibility(View.GONE);
             mTvAlarm.setVisibility(View.VISIBLE);
         }
-//        mImageList = savedInstanceState.getParcelableArrayList("ImageList");
         mAdapter = new CustomGridViewImageAdapter(this, mImageList);
         mGvImage.setAdapter(mAdapter);
     }
@@ -195,7 +194,6 @@ public class ControlActivity extends Activity {
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
     public void insertImage() {
         AlertDialog.Builder mBuilder = new AlertDialog.Builder(this);
         View mView = getLayoutInflater().inflate(R.layout.select_image_alert, null);
@@ -210,19 +208,24 @@ public class ControlActivity extends Activity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 switch (position) {
                     case 0:
-
                         if (Build.VERSION.SDK_INT >= 23) {
-                            if (isStoragePermissionGranted()) {
-                                takePhoto();
+                            if (hasStoragePermissionGranted()) {
+                                if (hasPermissionCamera()) {
+                                    captureImage();
+                                } else {
+                                    requestPermissionCamera();
+                                }
+                            } else {
+                                requestStoragePermissionGranted();
                             }
                         } else {
-                            takePhoto();
+                            captureImage();
                         }
                         mDialog.dismiss();
                         break;
                     case 1:
                         if (Build.VERSION.SDK_INT >= 23) {
-                            if (checkPermission()) {
+                            if (hasPermission()) {
                                 Intent intent = new Intent(Intent.ACTION_PICK,
                                         MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                                 intent.setType("*/*");
@@ -245,12 +248,14 @@ public class ControlActivity extends Activity {
         mDialog.show();
     }
 
-    private boolean checkPermission() {
+    //check read permission
+    private boolean hasPermission() {
         int result = ContextCompat.checkSelfPermission(this,
                 android.Manifest.permission.READ_EXTERNAL_STORAGE);
         return result == PackageManager.PERMISSION_GRANTED;
     }
 
+    //request read permission
     private void requestPermission() {
         if (!ActivityCompat.shouldShowRequestPermissionRationale(this,
                 android.Manifest.permission.READ_EXTERNAL_STORAGE)) {
@@ -259,35 +264,39 @@ public class ControlActivity extends Activity {
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    public boolean isStoragePermissionGranted() {
-        if (Build.VERSION.SDK_INT >= 23) {
-            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                    == PackageManager.PERMISSION_GRANTED) {
-                return true;
-            } else {
-                ActivityCompat.requestPermissions(this, new String[]{
-                                android.Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                        CAMERA_PERMISSION_REQUEST_CODE);
-                return false;
-            }
-        } else {
-            return false;
+    //check write permission
+    public boolean hasStoragePermissionGranted() {
+        int result = ContextCompat.checkSelfPermission(this,
+                android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        return result == PackageManager.PERMISSION_GRANTED;
+    }
+
+    //request write permission
+    private void requestStoragePermissionGranted() {
+        if (!ActivityCompat.shouldShowRequestPermissionRationale(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            ActivityCompat.requestPermissions(this, new String[]{
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE}, STORAGE_PERMISSION_REQUEST_CODE);
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    public void takePhoto() {
-        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA)
-                == PackageManager.PERMISSION_GRANTED) {
-            invokeCamera();
-        } else {
-            String[] permissionRequest = {android.Manifest.permission.CAMERA};
-            requestPermissions(permissionRequest, CAMERA_PERMISSION_REQUEST_CODE);
+    //check camera permission
+    private boolean hasPermissionCamera() {
+        int result = ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA);
+        return result == PackageManager.PERMISSION_GRANTED;
+    }
+
+    // request camera permission
+    private void requestPermissionCamera() {
+        if (!ActivityCompat.shouldShowRequestPermissionRationale(this,
+                Manifest.permission.CAMERA)) {
+            ActivityCompat.requestPermissions(this, new String[]{
+                            Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    CAMERA_PERMISSION_REQUEST_CODE);
         }
     }
 
-    public void invokeCamera() {
+    public void captureImage() {
         Intent callCameraApplicationIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         String fileName = "temp.jpg";
         ContentValues values = new ContentValues();
@@ -301,20 +310,33 @@ public class ControlActivity extends Activity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == CAMERA_PERMISSION_REQUEST_CODE) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                invokeCamera();
-            } else {
-                Toast.makeText(this, R.string.cannot_take_photo, Toast.LENGTH_SHORT).show();
-            }
-        } else if (requestCode == PERMISSION_REQUEST_CODE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(this, R.string.accepted, Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(Intent.ACTION_PICK,
-                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                intent.setType("*/*");
-                startActivityForResult(intent, SELECT_IMAGE);
-            }
+        switch (requestCode) {
+            case CAMERA_PERMISSION_REQUEST_CODE:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    captureImage();
+                } else {
+                    Toast.makeText(this, R.string.cannot_take_photo, Toast.LENGTH_SHORT).show();
+                }
+                break;
+            case STORAGE_PERMISSION_REQUEST_CODE:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    if (hasPermissionCamera()) {
+                        captureImage();
+                    } else {
+                        requestPermissionCamera();
+                    }
+                } else {
+                    Toast.makeText(this, R.string.cannot_access_media_folder, Toast.LENGTH_SHORT).show();
+                }
+                break;
+            case PERMISSION_REQUEST_CODE:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(this, R.string.accepted, Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(Intent.ACTION_PICK,
+                            MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                    intent.setType("*/*");
+                    startActivityForResult(intent, SELECT_IMAGE);
+                }
         }
     }
 
@@ -363,18 +385,17 @@ public class ControlActivity extends Activity {
 
     public Calendar getSelectedDateTime() {
         mSelectedTime = mSpnTime.getSelectedItem().toString();
-        String[] selectDate;
-        int month, year, day, hour, minute, second = 0;
-        if (mSelectedDate.equals("")) {
+        if (mSelectedDate.isEmpty()) {
             mSelectedDate = mSpnDate.getSelectedItem().toString();
         }
-        selectDate = mSelectedDate.split("/");
-        month = Integer.valueOf(selectDate[1]) - 1;
+        String[] selectDate = mSelectedDate.split("/");
         String[] selectTime = mSelectedTime.split(":");
-        year = Integer.valueOf(selectDate[2]);
-        day = Integer.valueOf(selectDate[0]);
-        hour = Integer.valueOf(selectTime[0]);
-        minute = Integer.valueOf(selectTime[1]);
+        int month = Integer.valueOf(selectDate[1]) - 1;
+        int year = Integer.valueOf(selectDate[2]);
+        int day = Integer.valueOf(selectDate[0]);
+        int hour = Integer.valueOf(selectTime[0]);
+        int minute = Integer.valueOf(selectTime[1]);
+        int second = 0;
         Calendar calendar = Calendar.getInstance();
         calendar.set(year, month, day, hour, minute, second);
         return calendar;
@@ -393,20 +414,19 @@ public class ControlActivity extends Activity {
             String selectedDate = spinner.getItemAtPosition(selectedIndex).toString();
             switch (selectedIndex) {
                 case 0:
-                    Date date = new Date();
                     mSelectedDate = String.valueOf(DateFormat.format(
-                            getString(R.string.ddmmyyyy_format), date));
-                    SpinnerUtil.updateAdapterForDateSpinner(dateAdapter,
+                            getString(R.string.ddmmyyyy_format), new Date()));
+                    SpinnerUtil.updateAdapterOfDateSpinner(dateAdapter,
                             getString(R.string.other), mListDate);
                     break;
                 case 1:
                     mSelectedDate = DateUtil.getTomorrow();
-                    SpinnerUtil.updateAdapterForDateSpinner(dateAdapter,
+                    SpinnerUtil.updateAdapterOfDateSpinner(dateAdapter,
                             getString(R.string.other), mListDate);
                     break;
                 case 2:
                     mSelectedDate = DateUtil.getDayOfNextWeek();
-                    SpinnerUtil.updateAdapterForDateSpinner(dateAdapter,
+                    SpinnerUtil.updateAdapterOfDateSpinner(dateAdapter,
                             getString(R.string.other), mListDate);
                     break;
                 case 3:
@@ -437,22 +457,21 @@ public class ControlActivity extends Activity {
             switch (selectedIndex) {
                 case 0:
                     mSelectedTime = getString(R.string.hour_9h);
-                    SpinnerUtil.updateAdapterForTimeSpinner(timeAdapter,
-                            getString(R.string.other), mListTime);
+                    SpinnerUtil.updateAdapterOfTimeSpinner(timeAdapter,getString(R.string.other), mListTime);
                     break;
                 case 1:
                     mSelectedTime = getString(R.string.hour_13h);
-                    SpinnerUtil.updateAdapterForTimeSpinner(timeAdapter,
+                    SpinnerUtil.updateAdapterOfTimeSpinner(timeAdapter,
                             getString(R.string.other), mListTime);
                     break;
                 case 2:
                     mSelectedTime = getString(R.string.hour_17h);
-                    SpinnerUtil.updateAdapterForTimeSpinner(timeAdapter,
+                    SpinnerUtil.updateAdapterOfTimeSpinner(timeAdapter,
                             getString(R.string.other), mListTime);
                     break;
                 case 3:
                     mSelectedTime = getString(R.string.hour_20h);
-                    SpinnerUtil.updateAdapterForTimeSpinner(timeAdapter,
+                    SpinnerUtil.updateAdapterOfTimeSpinner(timeAdapter,
                             getString(R.string.other), mListTime);
                     break;
                 case 4:
@@ -467,6 +486,4 @@ public class ControlActivity extends Activity {
             //do something
         }
     }
-
-
 }

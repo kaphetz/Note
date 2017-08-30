@@ -23,16 +23,16 @@ public class SpinnerUtil {
     private static final int FIRST_OPTION = 0;
 
     // update adapter of date spinner
-    public static void updateAdapterForDateSpinner(ArrayAdapter<String> dateAdapter,
-                                            String newDay, List<String> listDate) {
+    public static void updateAdapterOfDateSpinner(ArrayAdapter<String> dateAdapter,
+                                                  String newDay, List<String> listDate) {
         dateAdapter.remove(listDate.get(LAST_OPTION_OF_DATE_SPINNER));
         dateAdapter.insert(newDay, LAST_OPTION_OF_DATE_SPINNER);
         dateAdapter.notifyDataSetChanged();
     }
 
     // update adapter of time spinner
-    public static void updateAdapterForTimeSpinner(ArrayAdapter<String> timeAdapter,
-                                            String newTime, List<String> listTime) {
+    public static void updateAdapterOfTimeSpinner(ArrayAdapter<String> timeAdapter,
+                                                  String newTime, List<String> listTime) {
         timeAdapter.remove(listTime.get(LAST_OPTION_OF_TIME_SPINNER));
         timeAdapter.insert(newTime, LAST_OPTION_OF_TIME_SPINNER);
         timeAdapter.notifyDataSetChanged();
@@ -45,7 +45,9 @@ public class SpinnerUtil {
                                              final List<String> listDate,
                                              final String selectedDate) {
         if (selectedDate.equals(context.getString(R.string.other))) {
-            final int mYear, mMonth, mDay;
+            final int mYear;
+            final int mMonth;
+            final int mDay;
             final Calendar c = Calendar.getInstance();
             mYear = c.get(Calendar.YEAR);
             mMonth = c.get(Calendar.MONTH);
@@ -56,7 +58,7 @@ public class SpinnerUtil {
                         public void onDateSet(DatePicker view, int year, int monthOfYear,
                                               int dayOfMonth) {
                             String date = String.format("%s/%s/%s", dayOfMonth, monthOfYear + 1, year);
-                            SpinnerUtil.updateAdapterForDateSpinner(dateAdapter, date, listDate);
+                            SpinnerUtil.updateAdapterOfDateSpinner(dateAdapter, date, listDate);
                         }
                     }, mYear, mMonth, mDay);
             datePickerDialog.setButton(DialogInterface.BUTTON_NEGATIVE,
@@ -90,7 +92,7 @@ public class SpinnerUtil {
                             time[0] = selectedMinute < 10 ? String.format("%s:0%s",
                                     selectedHour, selectedMinute) : String.format("%s:%s",
                                     selectedHour, selectedMinute);
-                            SpinnerUtil.updateAdapterForTimeSpinner(timeAdapter, time[0], listTime);
+                            SpinnerUtil.updateAdapterOfTimeSpinner(timeAdapter, time[0], listTime);
                         }
                     }, hour, minute, false);
             timePickerDialog.setButton(DialogInterface.BUTTON_NEGATIVE,

@@ -1,7 +1,5 @@
 package com.example.kienpt.note.activities;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
@@ -23,9 +21,7 @@ import com.example.kienpt.note.models.NoteImage;
 import java.util.Calendar;
 import java.util.Date;
 
-
 public class AddActivity extends ControlActivity {
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,9 +49,8 @@ public class AddActivity extends ControlActivity {
         timeAdapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
         mSpnTime.setAdapter(timeAdapter);
         mSpnTime.setOnItemSelectedListener(new TimeSpinnerInfo(AddActivity.this));
-        Date date = new Date();
         mTvDateTime.setText(String.valueOf(DateFormat.format(
-                getString(R.string.ddmmyyyy_hhmm_format), date)));
+                getString(R.string.ddmmyyyy_hhmm_format), new Date())));
         restoreMe();
     }
 
@@ -90,7 +85,8 @@ public class AddActivity extends ControlActivity {
         if (mLlDateTime.getVisibility() == View.VISIBLE) {
             Calendar calendar = getSelectedDateTime();
             if (mCalendar.getTime().after(calendar.getTime())) {
-                Toast.makeText(this, R.string.please_change, Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.please_change,
+                        Toast.LENGTH_SHORT).show();
             } else {
                 insertIntoDB(note);
                 NoteRepo dbNote = new NoteRepo();

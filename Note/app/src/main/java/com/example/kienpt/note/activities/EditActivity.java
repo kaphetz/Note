@@ -1,6 +1,5 @@
 package com.example.kienpt.note.activities;
 
-import android.annotation.TargetApi;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
@@ -14,7 +13,6 @@ import android.text.format.DateFormat;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewTreeObserver;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.Toast;
@@ -36,8 +34,8 @@ import java.util.Date;
 import java.util.List;
 
 public class EditActivity extends ControlActivity {
-    public static String sKEY = "sKEY";
-    public static String sNOTE = "sNOTE";
+    private static final int START_OF_SECOND = 16;
+    private static final int END_OF_SECOND = 19;
     private static final int LAST_OPTION_OF_DATE_SPINNER = 3;
     private static final int LAST_OPTION_OF_TIME_SPINNER = 4;
     private int mPosOfNote;
@@ -46,6 +44,8 @@ public class EditActivity extends ControlActivity {
     private CustomGridViewNotesAdapter adapter;
     private ImageButton mImbPrevious;
     private ImageButton mImbForward;
+    public static String sKEY = "sKEY";
+    public static String sNOTE = "sNOTE";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -133,39 +133,30 @@ public class EditActivity extends ControlActivity {
     private void getData() {
         if (getIntent().getExtras() != null) {
             mNote = (Note) getIntent().getSerializableExtra(sNOTE);
-            if (mNote == null) {
-                Bundle bundle = getIntent().getExtras();
-                int id = bundle.getInt(sKEY);
-                NoteRepo noteRepo = new NoteRepo();
-                mNote = noteRepo.getNote(id);
+            if (null == mNote) {
+                mNote = new NoteRepo().getNote(getIntent().getExtras().getInt(sKEY));
             }
             getActionBar().setTitle(mNote.getNoteTitle());
             mEtTitle.setText(mNote.getNoteTitle());
             mEtContent.setText(mNote.getNoteContent());
             //format of mNote.getCreatedTime() is dd/MM/yyyy hh:mm:ss
-            //Delete seconds located from 16 to 19
+            //Delete seconds located from START_OF_SECOND to END_OF_SECOND
             StringBuffer strBuf = new StringBuffer(mNote.getCreatedTime());
-            int start = 16;
-            int end = 19;
-            strBuf.replace(start, end, "");
+            strBuf.replace(START_OF_SECOND, END_OF_SECOND, "");
             mTvDateTime.setText(strBuf);
             mColor = mNote.getBackgroundColor();
-            switch (mNote.getBackgroundColor()) {
+            switch (mColor) {
                 case "Yellow":
-                    mRlNote.setBackgroundColor(
-                            getResources().getColor(R.color.colorYellow));
+                    mRlNote.setBackgroundColor( getResources().getColor(R.color.colorYellow));
                     break;
                 case "Green":
-                    mRlNote.setBackgroundColor(
-                            getResources().getColor(R.color.colorGreen));
+                    mRlNote.setBackgroundColor(getResources().getColor(R.color.colorGreen));
                     break;
                 case "Blue":
-                    mRlNote.setBackgroundColor(
-                            getResources().getColor(R.color.colorBlue));
+                    mRlNote.setBackgroundColor( getResources().getColor(R.color.colorBlue));
                     break;
                 default:
-                    mRlNote.setBackgroundColor(
-                            getResources().getColor(R.color.colorWhite));
+                    mRlNote.setBackgroundColor(getResources().getColor(R.color.colorWhite));
                     break;
             }
             // Set up for date spinner
@@ -174,33 +165,29 @@ public class EditActivity extends ControlActivity {
             dateAdapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
             mSpnDate.setAdapter(dateAdapter);
             mSpnDate.setOnItemSelectedListener(new DateSpinnerInfo(EditActivity.this));
-
             // Set up for time spinner
             timeAdapter = new ArrayAdapter<>(EditActivity.this,
                     android.R.layout.simple_spinner_item, mListTime);
             timeAdapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
             mSpnTime.setAdapter(timeAdapter);
             mSpnTime.setOnItemSelectedListener(new TimeSpinnerInfo(EditActivity.this));
-
             //if this note has reminder, show datetime was picked
-            if (!mNote.getNoteTime().equals("")) {
+            if (!mNote.getNoteTime().isEmpty()) {
                 String[] datetime = mNote.getNoteTime().split(" ");
                 mSelectedDate = datetime[0];
                 mSelectedTime = datetime[1];
                 SpinnerUtil.showSpinner(mLlDateTime, mTvAlarm);
-                SpinnerUtil.updateAdapterForDateSpinner(dateAdapter, mSelectedDate, mListDate);
+                SpinnerUtil.updateAdapterOfDateSpinner(dateAdapter, mSelectedDate, mListDate);
                 mSpnDate.setSelection(LAST_OPTION_OF_DATE_SPINNER);
-                SpinnerUtil.updateAdapterForTimeSpinner(timeAdapter, mSelectedTime, mListTime);
+                SpinnerUtil.updateAdapterOfTimeSpinner(timeAdapter, mSelectedTime, mListTime);
                 mSpnTime.setSelection(LAST_OPTION_OF_TIME_SPINNER);
             }
             mAdapter = new CustomGridViewImageAdapter(this, mImageList);
-            NoteImageRepo dbNoteImage = new NoteImageRepo();
-            ArrayList<NoteImage> list = dbNoteImage.getImageById(mNote.getNoteID());
+            ArrayList<NoteImage> list = new NoteImageRepo().getImageById(mNote.getNoteID());
             for (NoteImage noteImage : list) {
                 mImageList.add(noteImage.getImgPath());
             }
             mGvImage.setAdapter(mAdapter);
-            // show result
             setUpForNavigationButton();
             //clear notification icon at status bar
             AlarmReceiver.cancelNotification(EditActivity.this, mNote.getNoteID());
@@ -280,7 +267,7 @@ public class EditActivity extends ControlActivity {
     }
 
     private void updateDB() {
-        if (!mEtTitle.getText().toString().equals("")) {
+        if (!mEtTitle.getText().toString().isEmpty()) {
             mNote.setNoteTitle(mEtTitle.getText().toString().trim());
         } else {
             mNote.setNoteTitle(getString(R.string.untitled));
@@ -296,7 +283,6 @@ public class EditActivity extends ControlActivity {
         mNote.setBackgroundColor(mColor);
         // add new note into db
         new NoteRepo().updateNote(mNote);
-
         // save images of Note
         NoteImageRepo dbNoteImage = new NoteImageRepo();
         dbNoteImage.deleteNoteImage(mNote.getNoteID());

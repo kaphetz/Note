@@ -45,7 +45,7 @@ public class MainActivity extends Activity {
         adapter = new CustomGridViewNotesAdapter(MainActivity.this, mListNote);
         //show list of notes if count > 0
         //if count = 0, show "No Notes"
-        if (mListNote.size() > 0) {
+        if (!mListNote.isEmpty()) {
             gvListNote.setVisibility(View.VISIBLE);
             tvNoNotes.setVisibility(View.GONE);
             gvListNote.setAdapter(adapter);
@@ -61,7 +61,6 @@ public class MainActivity extends Activity {
                 startActivity(intent);
             }
         });
-
         gvListNote.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
@@ -80,7 +79,7 @@ public class MainActivity extends Activity {
 
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-
+                //Do something
             }
         });
 
