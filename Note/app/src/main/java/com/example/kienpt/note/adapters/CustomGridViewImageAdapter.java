@@ -62,16 +62,6 @@ public class CustomGridViewImageAdapter extends BaseAdapter implements ListAdapt
         } else {
             holder = (ImageViewHolder) convertView.getTag();
         }
-        /*if (cancelPotentialWork(imagePath, holder.imageView)) {
-            final BitmapWorkerTask task = new BitmapWorkerTask(mContext, holder.imageView,
-                    imagePath);
-            final AsyncDrawable asyncDrawable =
-                    new AsyncDrawable(mContext.getResources(), mPlaceHolderBitmap, task);
-            holder.imageView.setImageDrawable(asyncDrawable);
-            task.execute();
-        }*/
-
-        //DisplayImage function from ImageLoader Class
         imageLoader.DisplayImage(mListData.get(position), holder.imageView);
 
         holder.delView.setOnClickListener(new View.OnClickListener() {
@@ -84,51 +74,8 @@ public class CustomGridViewImageAdapter extends BaseAdapter implements ListAdapt
         return convertView;
     }
 
-    private static class AsyncDrawable extends BitmapDrawable {
-        private final WeakReference<BitmapWorkerTask> bitmapWorkerTaskReference;
-
-        AsyncDrawable(Resources res, Bitmap bitmap, BitmapWorkerTask bitmapWorkerTask) {
-            super(res, bitmap);
-            bitmapWorkerTaskReference = new WeakReference<>(bitmapWorkerTask);
-        }
-
-        BitmapWorkerTask getBitmapWorkerTask() {
-            return bitmapWorkerTaskReference.get();
-        }
-    }
-
-    private static boolean cancelPotentialWork(String data, ImageView imageView) {
-        final BitmapWorkerTask bitmapWorkerTask = getBitmapWorkerTask(imageView);
-
-        if (bitmapWorkerTask != null) {
-            final String bitmapData = bitmapWorkerTask.getImagePath();
-            // If bitmapData is not yet set or it differs from the new data
-            if (data == null || !bitmapData.equals(data)) {
-                // Cancel previous task
-                bitmapWorkerTask.cancel(true);
-            } else {
-                // The same work is already in progress
-                return false;
-            }
-        }
-        // No task associated with the ImageView, or an existing task was cancelled
-        return true;
-    }
-
-    private static BitmapWorkerTask getBitmapWorkerTask(ImageView imageView) {
-        if (imageView != null) {
-            final Drawable drawable = imageView.getDrawable();
-            if (drawable instanceof AsyncDrawable) {
-                final AsyncDrawable asyncDrawable = (AsyncDrawable) drawable;
-                return asyncDrawable.getBitmapWorkerTask();
-            }
-        }
-        return null;
-    }
-
     private class ImageViewHolder {
         ImageView imageView;
         ImageButton delView;
     }
-
 }

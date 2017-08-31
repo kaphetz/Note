@@ -1,14 +1,14 @@
 package com.example.kienpt.note.adapters;
 
 import android.content.Context;
+import android.net.Uri;
 
 import java.io.File;
 
-public class FileCache {
-
+class FileCache {
     private File cacheDir;
 
-    public FileCache(Context context) {
+    FileCache(Context context) {
         //Find the dir at SDCARD to save cached images
         if (android.os.Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED)) {
             //if SDCARD is mounted (SDCARD is present on device and mounted)
@@ -22,14 +22,11 @@ public class FileCache {
         }
     }
 
-    public File getFile(String url) {
-        //Identify images by hashcode or encode by URLEncoder.encode.
-        String filename = String.valueOf(url.hashCode());
-
-        File f = new File(cacheDir, filename);
+    File getFile(String uri) {
+        File f = new File(cacheDir, Uri.parse(uri).toString());
         return f;
-
     }
+/*
 
     public void clear() {
         // list all files inside cache directory
@@ -40,5 +37,6 @@ public class FileCache {
         for (File f : files)
             f.delete();
     }
+*/
 
 }

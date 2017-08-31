@@ -57,7 +57,7 @@ public class EditActivity extends ControlActivity {
         getActionBar().setBackgroundDrawable(
                 new ColorDrawable(getResources().getColor(R.color.colorCyan)));
         setContentView(R.layout.activity_edit);
-        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+//        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         initView();
         mGvImage.setExpanded(true);
         ImageButton imbDel = (ImageButton) findViewById(R.id.btn_delete);

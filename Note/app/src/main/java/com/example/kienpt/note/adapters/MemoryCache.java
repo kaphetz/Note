@@ -9,7 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-public class MemoryCache {
+class MemoryCache {
 
     private static final String TAG = "MemoryCache";
 
@@ -23,12 +23,12 @@ public class MemoryCache {
     //max memory cache folder used to download images in bytes
     private long limit = 1000000;
 
-    public MemoryCache() {
+    MemoryCache() {
         //use 25% of available heap size
         setLimit(Runtime.getRuntime().maxMemory() / 4);
     }
 
-    public void setLimit(long new_limit) {
+    private void setLimit(long new_limit) {
         limit = new_limit;
         Log.i(TAG, "MemoryCache will use up to " + limit / 1024. / 1024. + "MB");
     }
@@ -45,7 +45,7 @@ public class MemoryCache {
         }
     }
 
-    public void put(String id, Bitmap bitmap) {
+    void put(String id, Bitmap bitmap) {
         try {
             if (cache.containsKey(id))
                 size -= getSizeInBytes(cache.get(id));
@@ -71,7 +71,7 @@ public class MemoryCache {
             Log.i(TAG, "Clean cache. New size " + cache.size());
         }
     }
-
+/*
     public void clear() {
         try {
             //NullPointerException sometimes happen here http://code.google.com/p/osmdroid/issues/detail?id=78 
@@ -80,11 +80,12 @@ public class MemoryCache {
         } catch (NullPointerException ex) {
             ex.printStackTrace();
         }
-    }
+    }*/
 
-    long getSizeInBytes(Bitmap bitmap) {
-        if (bitmap == null)
+    private long getSizeInBytes(Bitmap bitmap) {
+        if (bitmap == null) {
             return 0;
+        }
         return bitmap.getRowBytes() * bitmap.getHeight();
     }
 }

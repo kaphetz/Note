@@ -33,7 +33,7 @@ public class AddActivity extends ControlActivity {
                 new ColorDrawable(getResources().getColor(R.color.colorCyan)));
         getActionBar().setTitle(getString(R.string.note));
         setContentView(R.layout.activity_add);
-        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+//        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         initView();
         mGvImage.setExpanded(true);
         // Set up for date spinner
